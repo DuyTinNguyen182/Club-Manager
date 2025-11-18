@@ -12,8 +12,10 @@ if(isset($_SESSION['emailUser'])){
 if(isset($_REQUEST['sbSubmit'])){
     $tendangnhap=$_REQUEST['txtUsername'];
     $matkhau=md5($_REQUEST['txtPassword']);
+
     $sql="select * from tbluser where username='$tendangnhap' and password='$matkhau'";
     $result=$conn->query($sql);
+
     if($result->num_rows>0){
         //lưu username // lưu email lại // trả về trang index
         //while($row = $result->fetch_assoc())
@@ -24,7 +26,7 @@ if(isset($_REQUEST['sbSubmit'])){
         header("Location: index.php");
 
     }else{
-        echo "<script> alert(' Username / Password fail');";
+        echo "<script> alert('Tên đăng nhập hoặc mật khẩu không đúng');";
         echo "</script>";
     }
 
