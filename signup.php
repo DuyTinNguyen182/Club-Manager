@@ -7,7 +7,7 @@ function kiemtra(){
 	var pass1 = document.f1.txtMatkhau.value;
 	var pass2 = document.f1.txtreMatkhau.value;
 	if(pass1 != pass2){
-		alert("Mật khẩu không trung khớp");
+		alert("Mật khẩu không trùng khớp");
 		return false;		
 	}
 	
@@ -32,9 +32,11 @@ function kiemtra(){
         $fileName = basename($_FILES["fileAnh"]["name"]); // lấy tên tập tin // size
 		$targetFilePath = $tm . $fileName;  // nơi mà lưu trữ tập tin
 		$fileType = strtolower(pathinfo($targetFilePath,PATHINFO_EXTENSION));
+
         // kiểm tra nếu user đó tồn tại rồi thì không cho đăng ký nữa
         $sqlcheck ="select * from tbluser where username='$tendangnhap' or email='$email'";
         $result = $conn->query($sqlcheck);
+
         if(	$result->num_rows > 0){
             echo "<script> alert(' Username/Email đã tồn tại');";
             echo "</script>";
@@ -45,10 +47,15 @@ function kiemtra(){
 			 $allowTypes = array('jpg','png','jpeg','gif');
 			 // kiểm tra đúng loại cho phép không?
 			if(in_array($fileType, $allowTypes)){ 
+				$newFileName = "IMG".$tendangnhap.time() . "." . $fileType;
+        		$targetFilePath = $tm . $newFileName;
+
 				if(move_uploaded_file($_FILES["fileAnh"]["tmp_name"], $targetFilePath)){ // di chuyển thành công hay ko??
-					$sql="insert into tbluser(username, password, fullname, gender, email,avatar,role,status) values('".$tendangnhap."','".$matkhau."','".$tendaydu."',$gioitinh,'".$email."','".$fileName."',0,0)";
+					$sql="insert into tbluser(username, password, fullname, gender, email, avatar, role, status) 
+					values('".$tendangnhap."','".$matkhau."','".$tendaydu."',$gioitinh,'".$email."','".$targetFilePath."',0,0)";
+
 					if($conn->query($sql)){
-						echo "<script> alert('Thành công');";
+						echo "<script> alert('Đăng ký thành công');";
 						echo "window.location.assign('login.php');";
 						echo "</script>";
 					}				
@@ -62,9 +69,11 @@ function kiemtra(){
                     echo "</script>";
 			    }
         }else{
-                $sql="insert into tbluser(username, password, fullname, gender, email,role,status) values('".$tendangnhap."','".$matkhau."','".$tendaydu."',$gioitinh,'".$email."',0,0)";
+                $sql="insert into tbluser(username, password, fullname, gender, email, avatar, role, status)
+					values('".$tendangnhap."','".$matkhau."','".$tendaydu."',$gioitinh,'".$email."','uploads/avatar-default.png',0,0)";
+
 					if($conn->query($sql)){
-						echo "<script> alert('Thành công');";
+						echo "<script> alert('Đăng ký thành công');";
 						echo "window.location.assign('login.php');";
 						echo "</script>";
 					}
@@ -78,19 +87,19 @@ function kiemtra(){
 <form action="" method="post" name="f1" onsubmit="return kiemtra();" enctype="multipart/form-data">
     <div class="form-group">
       <label for="usr">Tên đăng nhập:</label>
-      <input type="text" class="form-control" id="usr" name="txtTendangnhap" placeholder="Nhập username..." required value="<?php echo @$_REQUEST['txtTendangnhap'];?>">
+      <input type="text" class="form-control" id="usr" name="txtTendangnhap" placeholder="Nhập username..." autocomplete="on" required value="<?php echo @$_REQUEST['txtTendangnhap'];?>">
     </div>
     <div class="form-group">
       <label for="pwd">Mật khẩu:</label>
-      <input type="password" class="form-control" id="pwd"  name="txtMatkhau" required >
+      <input type="password" class="form-control" id="pwd" placeholder="Nhập mật khẩu..." autocomplete="on"  name="txtMatkhau" required >
     </div>
 	<div class="form-group">
-      <label for="pwd1">Nhắc lại:</label>
-      <input type="password" class="form-control" id="pwd1" name="txtreMatkhau">
+      <label for="pwd1">Nhập lại mật khẩu:</label>
+      <input type="password" class="form-control" id="pwd1" placeholder="Nhập lại mật khẩu..." autocomplete="on" name="txtreMatkhau">
     </div>
 	<div class="form-group">
       <label for="tendaydu">Tên đầy đủ:</label>
-      <input type="text" class="form-control" id="tendaydu" name="txtTendaydu" value="<?php echo @$_REQUEST['txtTendaydu'];?>">
+      <input type="text" class="form-control" id="tendaydu" name="txtTendaydu" placeholder="Nhập họ và tên..." autocomplete="on" value="<?php echo @$_REQUEST['txtTendaydu'];?>">
     </div>
 
 	<div class="form-group">
@@ -100,7 +109,7 @@ function kiemtra(){
 	</div>
     <div class="form-group">
 		<label for="email">Email:</label>
-		<input type="email" class="form-control" id="email" name="txtEmail" required value="<?php echo @$_REQUEST['txtEmail'];?>">
+		<input type="email" class="form-control" id="email" placeholder="Nhập email..." name="txtEmail" autocomplete="on" required value="<?php echo @$_REQUEST['txtEmail'];?>">
 	</div>
 	
 	<div class="form-group">

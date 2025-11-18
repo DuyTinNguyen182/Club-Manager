@@ -112,7 +112,7 @@ if (isset($_SESSION['emailUser'])) {
         <div class="user-menu">
           <div class="user-info">
             <i class="fa-solid fa-circle-user"></i>
-            <span>Hi, <?php echo $_SESSION['username']; ?></span>
+            <span>Hi, <?php echo $_SESSION['fullname']; ?></span>
             <i class="fa-solid fa-chevron-down" style="font-size: 0.8em"></i>
           </div>
           <div class="dropdown-content">
