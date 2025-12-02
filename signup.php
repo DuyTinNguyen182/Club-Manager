@@ -14,6 +14,8 @@ if (isset($_SESSION['emailUser'])) {
 $error_msg = '';
 $success_msg = '';
 
+
+
 // 4. XỬ LÝ ĐĂNG KÝ FORM THƯỜNG
 if (isset($_POST['sbDangky'])) {
 	$tendangnhap = $_POST['txtTendangnhap'];
@@ -72,7 +74,7 @@ if (isset($_POST['sbDangky'])) {
 
 				$sql_insert = "INSERT INTO tbluser (username, password, fullname, gender, email, avatar, role, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 				$stmt_insert = $conn->prepare($sql_insert);
-				$stmt_insert->bind_param("sssisssi", $tendangnhap, $matkhau_hash, $tendaydu, $gioitinh, $email, $avatar_path, $role, $status);
+				$stmt_insert->bind_param("sssisisi", $tendangnhap, $matkhau_hash, $tendaydu, $gioitinh, $email, $avatar_path, $role, $status);
 
 				if ($stmt_insert->execute()) {
 					$success_msg = "Đăng ký thành công! Đang chuyển hướng...";
@@ -378,10 +380,6 @@ if (isset($_POST['sbDangky'])) {
 			</div>
 
 			<button type="submit" class="btn-submit" name="sbDangky">Đăng ký tài khoản</button>
-
-			<div class="register-link">
-				Đã có tài khoản? <a href="login.php">Đăng nhập ngay</a>
-			</div>		
 		</form>
 	</div>
 

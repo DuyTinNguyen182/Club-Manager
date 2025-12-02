@@ -1,89 +1,116 @@
 <?php
-
-$path_to_admin = '../'; 
+// Định nghĩa đường dẫn (giống file edit của bạn)
+$path_to_admin = '../';
+// Lưu ý: Kiểm tra lại đường dẫn include này xem file header nằm ở 'admin/includes' hay 'includes' gốc
+// Nếu header nằm trong admin/includes thì dùng: include('includes/header.php');
 include('../includes/header.php'); 
+require_once('../config.php');
+
+// --- XỬ LÝ KHI BẤM NÚT LƯU (THÊM MỚI) ---
+if (isset($_POST['btnAdd'])) {
+    // 1. Lấy dữ liệu từ form
+    $username = $_POST['username'];
+    $fullname = $_POST['fullname'];
+    $email    = $_POST['email'];
+    $password = $_POST['password'];
+    $role     = $_POST['role'];
+    $status   = $_POST['status'];
+
+    // 2. Kiểm tra trùng lặp (Username hoặc Email đã tồn tại chưa?)
+    // Bước này quan trọng để tránh lỗi cơ sở dữ liệu
+    $checkSQL = "SELECT username FROM tbluser WHERE username = '$username' OR email = '$email'";
+    $checkResult = $conn->query($checkSQL);
+
+    if ($checkResult->num_rows > 0) {
+        $error_msg = "Tên đăng nhập hoặc Email này đã tồn tại trên hệ thống!";
+    } else {
+        // 3. Mã hóa mật khẩu MD5 (Giống file edit)
+        $pass_hash = md5($password);
+
+        // 4. Avatar mặc định là '0'
+        $avatar_default = '0'; 
+
+        // 5. Câu lệnh Insert
+        $sql_insert = "INSERT INTO tbluser (username, password, fullname, email, role, status, avatar) 
+                       VALUES ('$username', '$pass_hash', '$fullname', '$email', '$role', '$status', '$avatar_default')";
+
+        if ($conn->query($sql_insert) === TRUE) {
+            // Thông báo và chuyển hướng giống file edit
+            echo "<script>
+                    alert('Thêm thành viên mới thành công!');
+                    window.location.href='members.php';
+                  </script>";
+        } else {
+            $error_msg = "Lỗi hệ thống: " . $conn->error;
+        }
+    }
+}
 ?>
 
-<div class="card shadow-sm">
-    <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
-        <h5 class="mb-0">Danh sách thành viên</h5>
-        <a href="add.php" class="btn btn-primary btn-sm">
-            <i class='bx bx-plus'></i> Thêm thành viên
-        </a>
-    </div>
-    <div class="card-body">
-        <table class="table table-hover table-bordered align-middle">
-            <thead class="table-light">
-                <tr>
-                    <th class="text-center" style="width: 50px;">STT</th>
-                    <th style="width: 80px;">Avatar</th>
-                    <th>Thông tin cá nhân</th>
-                    <th>Email</th>
-                    <th class="text-center">Vai trò</th>
-                    <th class="text-center">Trạng thái</th>
-                    <th class="text-center" style="width: 120px;">Hành động</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php
-                $sql = "SELECT * FROM tbluser ORDER BY role DESC";
-                $result = $conn->query($sql);
+<div class="container-fluid mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0 fw-bold"><i class='bx bx-user-plus'></i> Thêm thành viên mới</h5>
+                </div>
+                <div class="card-body">
+                    
+                    <?php if (isset($error_msg)) {
+                        echo "<div class='alert alert-danger'>$error_msg</div>";
+                    } ?>
 
-                $stt = 1;
-                if ($result->num_rows > 0) {
-                    while ($row = $result->fetch_assoc()) {
-                        // Xử lý đường dẫn ảnh: Lùi 2 cấp (../../) để ra thư mục gốc chứa images
-                        $avatarPath = "../../images/default.png";
-                        if (!empty($row['avatar']) && $row['avatar'] != '0') {
-                            $checkPath = "../../" . $row['avatar'];
-                            if (file_exists($checkPath)) {
-                                $avatarPath = $checkPath;
-                            }
-                        }
-                        ?>
-                        <tr>
-                            <td class="text-center fw-bold"><?= $stt++; ?></td>
-                            <td>
-                                <img src="<?= $avatarPath ?>" class="rounded-circle border" width="45" height="45" style="object-fit: cover;">
-                            </td>
-                            <td>
-                                <div class="fw-bold"><?= $row['fullname'] ?></div>
-                                <small class="text-muted">@<?= $row['username'] ?></small>
-                            </td>
-                            <td><?= $row['email'] ?></td>
-                            <td class="text-center">
-                                <?php if ($row['role'] == 1): ?>
-                                    <span class="badge bg-danger">Admin</span>
-                                <?php else: ?>
-                                    <span class="badge bg-primary">Thành viên</span>
-                                <?php endif; ?>
-                            </td>
-                            <td class="text-center">
-                                <?php if ($row['status'] == 1): ?>
-                                    <span class="badge bg-success"><i class='bx bx-check'></i> Hoạt động</span>
-                                <?php else: ?>
-                                    <span class="badge bg-secondary">Khóa</span>
-                                <?php endif; ?>
-                            </td>
-                            <td class="text-center">
-                                <a href="edit.php?user=<?= $row['username'] ?>" class="btn btn-warning btn-sm" title="Sửa"><i class='bx bx-edit-alt'></i></a>
-                                
-                                <a href="delete.php?user=<?= $row['username'] ?>" class="btn btn-danger btn-sm"
-                                   onclick="return confirm('Bạn có chắc muốn xóa thành viên <?= $row['fullname'] ?>?')"
-                                   title="Xóa">
-                                    <i class='bx bx-trash'></i>
-                                </a>
-                            </td>
-                        </tr>
-                        <?php
-                    }
-                } else {
-                    echo "<tr><td colspan='7' class='text-center text-muted py-4'>Chưa có thành viên nào.</td></tr>";
-                }
-                ?>
-            </tbody>
-        </table>
+                    <form action="" method="POST">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Username <span class="text-danger">*</span></label>
+                            <input type="text" name="username" class="form-control" placeholder="Viết liền không dấu (VD: admin123)" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Họ và tên <span class="text-danger">*</span></label>
+                            <input type="text" name="fullname" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Email <span class="text-danger">*</span></label>
+                            <input type="email" name="email" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Mật khẩu <span class="text-danger">*</span></label>
+                            <input type="password" name="password" class="form-control" required>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Vai trò</label>
+                                <select name="role" class="form-select">
+                                    <option value="0">Thành viên</option>
+                                    <option value="1">Admin</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Trạng thái</label>
+                                <select name="status" class="form-select">
+                                    <option value="1">Hoạt động</option>
+                                    <option value="0">Bị khóa</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 mt-3">
+                            <a href="members.php" class="btn btn-secondary">Quay lại</a>
+                            <button type="submit" name="btnAdd" class="btn btn-primary">Lưu lại</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
-<?php include('../includes/footer.php'); ?>
+<?php 
+// Kiểm tra đường dẫn footer tương tự header
+include('../includes/footer.php'); 
+?>
