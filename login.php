@@ -63,8 +63,6 @@ if ($client->getAccessToken()) {
         $result_google = $stmt_google->get_result();
 
         if ($result_google->num_rows > 0) {
-            // **TRƯỜNG HỢP 1: ĐÃ CÓ TÀI KHOẢN**
-            // Email đã tồn tại -> Tiến hành đăng nhập
             $user_data = $result_google->fetch_assoc();
             
             $_SESSION['username'] = $user_data['username'];
@@ -76,9 +74,6 @@ if ($client->getAccessToken()) {
             exit();
             
         } else {
-            // **TRƯỜNG HỢP 2: CHƯA CÓ TÀI KHOẢN**
-            // Email chưa tồn tại -> Tự động tạo tài khoản mới
-            
             $fullname = $googleUserInfo['name'];
             $avatar = $googleUserInfo['picture']; // Link ảnh đại diện từ Google
             
@@ -398,7 +393,7 @@ if (isset($_REQUEST['sbSubmit'])) {
             <button type="submit" class="btn-submit" name="sbSubmit">Đăng nhập</button> 
             
             <div class="register-link">
-                Chưa có tài khoản? <a href="register.php">Đăng ký ngay</a>
+                Chưa có tài khoản? <a href="signup.php">Đăng ký ngay</a>
                 <br><br>
             </div>
         </form> 
