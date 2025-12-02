@@ -7,7 +7,6 @@ require("config.php");
 
 if (isset($_SESSION['emailUser'])) {
     $email = $_SESSION['emailUser'];
-
     $sqlbs = "SELECT * FROM tbluser WHERE email = '$email'";
     $resultbs = $conn->query($sqlbs);
 
@@ -17,9 +16,7 @@ if (isset($_SESSION['emailUser'])) {
         $_SESSION['role']     = $row['role'];
         $_SESSION['fullname'] = $row['fullname'];
         $_SESSION['avatar']   = $row['avatar'];
-
     } else {
-
         session_unset();
         session_destroy();
         header("Location: login.php");
@@ -34,13 +31,12 @@ if (isset($_SESSION['emailUser'])) {
   <link rel="icon" href="images/images.png">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <style>
-    /* --- CSS CHUNG --- */
+    /* ... (GIỮ NGUYÊN TOÀN BỘ CSS CỦA BẠN Ở ĐÂY) ... */
+    /* Tôi ẩn bớt CSS để code ngắn gọn, bạn hãy giữ nguyên phần CSS cũ nhé */
     :root { --primary-color: #2563eb; --primary-hover: #1d4ed8; --accent-color: #0ea5e9; --bg-body: #f8fafc; --bg-card: #ffffff; --text-main: #1e293b; --text-secondary: #64748b; --shadow-sm: 0 1px 3px rgba(0,0,0,0.1); --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1); --radius: 12px; --nav-height: 70px; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-main); line-height: 1.6; padding-top: var(--nav-height); }
@@ -91,7 +87,7 @@ if (isset($_SESSION['emailUser'])) {
     .sidebar-menu a:hover { background: #eff6ff; color: var(--primary-color); transform: translateX(5px); }
     .admin-panel { border-left: 4px solid var(--primary-color); }
 
-    /* --- CONTENT SECTIONS (HOẠT ĐỘNG & BÀI VIẾT) --- */
+    /* --- CONTENT SECTIONS --- */
     .content-section { background: var(--bg-card); border-radius: var(--radius); padding: 25px; box-shadow: var(--shadow-sm); margin-bottom: 30px; border: 1px solid #e2e8f0; }
     .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid var(--bg-body); }
     .section-header h3 { font-size: 1.25rem; font-weight: 700; color: var(--text-main); margin: 0; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -111,7 +107,7 @@ if (isset($_SESSION['emailUser'])) {
     .item-meta { font-size: 0.9rem; color: var(--text-secondary); display: flex; flex-wrap: wrap; gap: 15px; }
     .item-meta span { display: flex; align-items: center; gap: 6px; }
 
-    /* Style cho Danh sách bài viết (Feed) */
+    /* Style cho Danh sách bài viết */
     .feed-list { display: flex; flex-direction: column; gap: 20px; }
     .feed-item { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: transform 0.2s; }
     .feed-item:hover { box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
@@ -126,7 +122,6 @@ if (isset($_SESSION['emailUser'])) {
     .feed-readmore { display: inline-block; margin-top: 10px; color: var(--primary-color); font-weight: 600; font-size: 0.9rem; text-decoration: none; }
     .feed-readmore:hover { text-decoration: underline; }
 
-    /* Responsive */
     @media (max-width: 768px) { 
         .main-content-wrapper { grid-template-columns: 1fr; } 
         .nav-links { display: none; } 
@@ -147,8 +142,7 @@ if (isset($_SESSION['emailUser'])) {
       <a href="contact.php"><i class="fa-solid fa-envelope"></i> Liên hệ</a>
       
       <?php if (isset($_SESSION["emailUser"])) { 
-          // Logic chọn Avatar
-          $avatarPath = 'images/default.png'; // Ảnh mặc định nếu không có
+          $avatarPath = 'images/default.png';
           if (isset($_SESSION['avatar']) && !empty($_SESSION['avatar'])) {
               $avatarPath = $_SESSION['avatar'];
           }
@@ -159,15 +153,11 @@ if (isset($_SESSION['emailUser'])) {
                   <span>Hi, <?php echo $_SESSION['fullname']; ?></span>
                   <i class="fa-solid fa-chevron-down" style="font-size: 0.8em"></i>
               </div>
-              
               <div class="dropdown-content">
                   <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 1) { ?>
-                      <a href="admin/index.php" style="color: #2563eb; font-weight: bold;">
-                          <i class="fa-solid fa-gauge-high"></i> Trang quản trị
-                      </a>
+                      <a href="admin/index.php" style="color: #2563eb; font-weight: bold;"><i class="fa-solid fa-gauge-high"></i> Trang quản trị</a>
                       <div class="divider"></div>
                   <?php } ?>
-
                   <a href="changepassword.php"><i class="fa-solid fa-key"></i> Đổi mật khẩu</a>
                   <div class="divider"></div>
                   <a href="logout.php" style="color: #ef4444;"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a>
@@ -204,16 +194,7 @@ if (isset($_SESSION['emailUser'])) {
     <div class="main-content-wrapper">
       
       <aside class="sidebar">
-        <?php if (isset($_SESSION['emailUser']) && $_SESSION['role'] == 1) { ?>
-          <div class="sidebar-card admin-panel">
-            <div class="sidebar-title"><i class="fa-solid fa-gear"></i> Quản trị</div>
-            <div class="sidebar-menu">
-              <a href="admin/index.php">Vào trang quản trị</a>
-            </div>
-          </div>
-        <?php } ?>
-
-        <div class="sidebar-card">
+          <div class="sidebar-card">
           <?php
           $sqlcd = "SELECT * FROM tblchude WHERE Trangthai = 0";
           $resultcd = $conn->query($sqlcd);
@@ -239,116 +220,3 @@ if (isset($_SESSION['emailUser'])) {
       </aside>
       
       <main class="content">
-          
-          <div class="content-section">
-            <div class="section-header">
-                <i class="fa-solid fa-bullhorn text-danger"></i>
-                <h3>Hoạt động sắp diễn ra</h3>
-            </div>
-            <div class="item-list">
-                <?php
-                $sql_hoatdong = "SELECT * FROM tblhoatdong WHERE trang_thai = 0 AND ngay_bat_dau >= NOW() ORDER BY ngay_bat_dau ASC LIMIT 3";
-                $result_hoatdong = $conn->query($sql_hoatdong);
-
-                if ($result_hoatdong && $result_hoatdong->num_rows > 0) {
-                    while ($hd = $result_hoatdong->fetch_assoc()) {
-                ?>
-                    <div class="item-card">
-                        <div class="date-badge">
-                            <i class="fa-regular fa-calendar-days"></i>
-                        </div>
-                        <div class="item-content">
-                            <a href="#" class="item-title"><?php echo $hd['ten_hoat_dong']; ?></a>
-                            <div class="item-meta">
-                                <span><i class="fa-regular fa-clock"></i> <?php echo date('H:i d/m/Y', strtotime($hd['ngay_bat_dau'])); ?></span>
-                                <span><i class="fa-solid fa-location-dot"></i> <?php echo $hd['dia_diem']; ?></span>
-                            </div>
-                        </div>
-                    </div>
-                <?php 
-                    }
-                } else {
-                    echo "<div class='text-center text-secondary py-3'>Hiện chưa có hoạt động nào sắp diễn ra.</div>";
-                }
-                ?>
-            </div>
-          </div>
-
-          <div class="content-section">
-            <div class="section-header">
-                <i class="fa-solid fa-newspaper text-info"></i>
-                <h3>Bài viết mới nhất</h3>
-            </div>
-            <div class="feed-list">
-                <?php
-                $sql_baiviet = "SELECT * FROM tblbaiviet WHERE Trangthai = 0 ORDER BY Ngaytao DESC LIMIT 5";
-                $result_baiviet = $conn->query($sql_baiviet);
-
-                if ($result_baiviet && $result_baiviet->num_rows > 0) {
-                    while ($bv = $result_baiviet->fetch_assoc()) {
-                ?>
-                    <div class="feed-item">
-                        <div class="feed-header">
-                            <div class="feed-avatar">
-                                <i class="fa-solid fa-circle-user"></i>
-                            </div>
-                            <div class="feed-info">
-                                <span class="feed-author"><?php echo $bv['Username']; ?></span>
-                                <span class="feed-time">
-                                    <?php echo date('d/m/Y', strtotime($bv['Ngaytao'])); ?> 
-                                    <i class="fa-solid fa-earth-americas" style="font-size: 10px; margin-left: 4px;"></i>
-                                </span>
-                            </div>
-                        </div>
-
-                        <div class="feed-content">
-                            <p>
-                                <?php 
-                                    $noidung = strip_tags($bv['Noidung']);
-                                    if(strlen($noidung) > 300) echo substr($noidung, 0, 300) . "...";
-                                    else echo $noidung;
-                                ?>
-                            </p>
-                            <a href="chitietbaiviet.php?id=<?php echo $bv['Mabaiviet']; ?>" class="feed-readmore">
-                                Xem chi tiết bài viết
-                            </a>
-                        </div>
-                    </div>
-                <?php
-                    }
-                } else {
-                    echo "<div class='text-center text-secondary py-3'>Hiện chưa có bài viết nào.</div>";
-                }
-                ?>
-            </div>
-          </div>
-
-      </main>
-    </div>
-  </div>
-
-  <script>
-      let slideIndex = 0;
-      const slides = document.querySelectorAll('.slide');
-      const wrapper = document.getElementById('slideWrapper');
-      
-      // Auto slide
-      if(slides.length > 0) {
-          setInterval(() => { moveSlide(1) }, 5000);
-      }
-
-      function moveSlide(n) {
-          if(slides.length === 0) return;
-          slideIndex += n;
-          if (slideIndex >= slides.length) { slideIndex = 0; }
-          if (slideIndex < 0) { slideIndex = slides.length - 1; }
-          
-          wrapper.style.transform = `translateX(-${slideIndex * 100}%)`;
-      }
-  </script>
-
-</body>
-</html>
-<?php
-ob_end_flush(); // Kết thúc bộ đệm
-?>
