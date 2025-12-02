@@ -1,9 +1,13 @@
+
+Folder highlights
+Project appears to be an ElectroShop e-commerce setup using PHP/SQL backend and React/Vite frontend, with a club management structure.
+
 -- phpMyAdmin SQL Dump
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th10 16, 2025 lúc 08:12 AM
+-- Thời gian đã tạo: Th10 18, 2025 lúc 07:20 AM
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
 -- Phiên bản PHP: 8.2.12
 
@@ -18,7 +22,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Cơ sở dữ liệu: `duy`
+-- Cơ sở dữ liệu: `club_db`
 --
 
 -- --------------------------------------------------------
@@ -42,13 +46,7 @@ CREATE TABLE `tblbaiviet` (
 --
 
 INSERT INTO `tblbaiviet` (`Mabaiviet`, `Noidung`, `Machude`, `Ngaytao`, `Teptin`, `Username`, `Trangthai`) VALUES
-(1, 'Em là sinh viên năm nhất, cho em hỏi nên bắt đầu học ngôn ngữ lập trình nào đầu tiên ạ? Em đang phân vân giữa C++ và Python. Mong các anh chị đi trước cho em lời khuyên.', 1, '2025-11-20', NULL, 'mien', 0),
-(2, 'Tổng hợp các hàm Excel thường dùng nhất cho dân văn phòng và sinh viên. Bài viết này sẽ giúp các bạn xử lý số liệu nhanh hơn rất nhiều, bao gồm các hàm VLOOKUP, HLOOKUP, IF, SUMIF,...', 2, '2025-11-19', NULL, 'duy', 0),
-(3, 'Mọi người ơi, làm sao để căn giữa một thẻ div trong CSS ạ? Em đã thử dùng margin: 0 auto nhưng không được. Đây là đoạn code của em...', 4, '2025-11-21', NULL, 'mien', 0),
-(4, 'Chia sẻ tài liệu tự học SQL từ cơ bản đến nâng cao. Bộ tài liệu bao gồm slide bài giảng, bài tập thực hành và link các trang web luyện tập SQL online miễn phí.', 5, '2025-11-18', NULL, 'duy', 0),
-(5, 'Lỗi \"Undefined index\" trong PHP là gì và cách khắc phục? Đây là một lỗi rất phổ biến khi mới học PHP. Bài viết sẽ giải thích nguyên nhân và đưa ra các cách xử lý hiệu quả.', 4, '2025-11-17', NULL, 'mien', 0),
-(6, 'Mình đang muốn xây một case máy tính để bàn để học lập trình và chơi game nhẹ, tầm giá 15 triệu. Nhờ mọi người tư vấn giúp mình cấu hình với ạ. Cảm ơn nhiều!', 6, '2025-11-22', NULL, 'duy', 0),
-(7, 'Hướng dẫn sử dụng hàm `printf` và `scanf` để nhập xuất dữ liệu trong C++. Đây là hai hàm cơ bản nhưng cực kỳ quan trọng mà bất kỳ ai học C/C++ cũng phải nắm vững.', 3, '2025-11-16', NULL, 'mien', 0);
+(3, 'Noi dung 1', 2, '2025-11-18', NULL, 'giathinh', 0);
 
 -- --------------------------------------------------------
 
@@ -72,8 +70,6 @@ CREATE TABLE `tblbinhluan` (
 INSERT INTO `tblbinhluan` (`Mabinhluan`, `Noidung`, `Mabaiviet`, `Username`, `Ngaytao`, `Trangthai`) VALUES
 (1, 'Theo mình thì năm nhất bạn nên học C++ trước để nắm vững tư duy lập trình và cấu trúc dữ liệu nhé. Sau này học Python sẽ dễ hơn nhiều.', 1, 'duy', '2025-11-20', 1),
 (2, 'Bạn thử thêm `display: flex; justify-content: center; align-items: center;` cho thẻ cha của div đó xem sao nhé.', 3, 'duy', '2025-11-21', 1),
-(3, 'Bài viết về Excel rất hay và chi tiết, cảm ơn bạn đã chia sẻ!', 2, 'mien', '2025-11-19', 1),
-(4, 'Với 15 triệu bạn có thể build cấu hình Ryzen 5 5600G, RAM 16GB là ổn áp cho cả code và game nhẹ rồi đó bạn.', 6, 'mien', '2025-11-22', 1),
 (10, 'Intel Core I5', 6, 'admin1', '2025-11-16', 0);
 
 -- --------------------------------------------------------
@@ -115,15 +111,6 @@ CREATE TABLE `tblcontact` (
   `Ngaygui` date NOT NULL,
   `Trangthai` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Đang đổ dữ liệu cho bảng `tblcontact`
---
-
-INSERT INTO `tblcontact` (`id`, `Tennguoigui`, `Noidung`, `Email`, `Ngaygui`, `Trangthai`) VALUES
-(1, 'mien', 'cần sửa giao diện lại cho đẹp', 'phuocmien@my.tvu.edu.vn', '2024-10-22', 0),
-(2, 'mien', 'OK', 'phuocmien@my.tvu.edu.vn', '2024-10-22', 0),
-(3, 'phuocmien', 'Tôi cần mua 50 sẩn phẩm abc', 'antonio86doan@gmail.com', '2024-10-22', 0);
 
 -- --------------------------------------------------------
 
@@ -198,8 +185,8 @@ INSERT INTO `tbluser` (`username`, `password`, `fullname`, `gender`, `email`, `a
 ('admin2', 'e10adc3949ba59abbe56e057f20f883e', 'Nguyễn Phước Hiệp', 0, 'phuochiep.admin@tvu.edu.vn', '', 1, 1),
 ('admin3', 'e10adc3949ba59abbe56e057f20f883e', 'Kiều Gia Thịnh', 0, 'giathinh.admin@tvu.edu.vn', '', 1, 1),
 ('camtu', 'e10adc3949ba59abbe56e057f20f883e', 'Phạm Thị Cẩm Tú', 0, 'camtu.pham@tvu.edu.vn', '', 0, 1),
-('duy', '5dc6da3adfe8ccf1287a98c0a8f74496', 'le ha duy', 0, 'lehaduy2004@gmail.com', '175906369_800292980906077_319272073812101204_n.jpg', 1, 0),
 ('duytin', '6afd9643f3e1a07bb92faa4bb403ba32', 'Nguyen Duy Tin', 0, 'duytin@gmail.com', 'z4242815564484_63596ac735d7ce4d2fe59c3739962378.jpg', 0, 0),
+('giathinh', '5dc6da3adfe8ccf1287a98c0a8f74496', 'kieu gia thinh', 0, 'lehaduy2004@gmail.com', '', 1, 0),
 ('mien', '08d6cd99e919459b34b3c6777ba7f4ce', 'Doan Phuoc Mien', 0, 'phuocmien@tvu.edu.vn', '070216a.jpg', 1, 0),
 ('minhanh', 'e10adc3949ba59abbe56e057f20f883e', 'Lê Minh Anh', 0, 'minhanh.le@tvu.edu.vn', '', 0, 1),
 ('quocviet', 'e10adc3949ba59abbe56e057f20f883e', 'Hoàng Quốc Việt', 0, 'quocviet.hoang@tvu.edu.vn', '', 0, 1),
