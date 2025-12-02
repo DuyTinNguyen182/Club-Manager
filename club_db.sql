@@ -1,7 +1,3 @@
-
-Folder highlights
-Project appears to be an ElectroShop e-commerce setup using PHP/SQL backend and React/Vite frontend, with a club management structure.
-
 -- phpMyAdmin SQL Dump
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
