@@ -17,9 +17,6 @@ $local_login_error = '';
 $google_login_error = '';
 
 
-
-
-
 // 4. XỬ LÝ GOOGLE OAUTH CALLBACK
 if (isset($_GET['code'])) {
     try {
@@ -45,7 +42,7 @@ if ($client->getAccessToken()) {
     try {
         $google_service = new Google_Service_Oauth2($client);
         $googleUserInfo = $google_service->userinfo->get();
-        
+
         $email_google = $googleUserInfo['email'];
 
         // Kiểm tra xem email đã tồn tại chưa
@@ -59,44 +56,45 @@ if ($client->getAccessToken()) {
             // **TRƯỜNG HỢP 1: ĐÃ CÓ TÀI KHOẢN**
             // Email đã tồn tại -> Tiến hành đăng nhập
             $user_data = $result_google->fetch_assoc();
-            
+
             $_SESSION['username'] = $user_data['username'];
             $_SESSION['emailUser'] = $user_data['email'];
             $_SESSION['role'] = $user_data['role'];
             $_SESSION['fullname'] = $user_data['fullname'];
-            
+
             header('Location: index.php');
             exit();
-            
         } else {
             // **TRƯỜNG HỢP 2: CHƯA CÓ TÀI KHOẢN**
             // Email chưa tồn tại -> Tự động tạo tài khoản mới
-            
+
             $fullname = $googleUserInfo['name'];
             $avatar = $googleUserInfo['picture']; // Link ảnh đại diện từ Google
-            
+
             // Tạo username từ email (phần trước @)
             // Lọc bỏ ký tự đặc biệt, chỉ giữ lại chữ/số
             $username_base = preg_replace("/[^a-zA-Z0-9]/", "", explode('@', $email_google)[0]);
-            if(empty($username_base)) { $username_base = 'user'; } // Đề phòng email lạ
-            
+            if (empty($username_base)) {
+                $username_base = 'user';
+            } // Đề phòng email lạ
+
             $new_username = $username_base;
             $counter = 0;
-            
+
             // Vòng lặp để đảm bảo username là duy nhất
             $sql_check_username = "SELECT username FROM tbluser WHERE username = ?";
             $stmt_check_username = $conn->prepare($sql_check_username);
-            
-            while(true) {
+
+            while (true) {
                 $stmt_check_username->bind_param("s", $new_username);
                 $stmt_check_username->execute();
                 $result_check = $stmt_check_username->get_result();
-                
+
                 if ($result_check->num_rows == 0) {
                     // Tên username này OK, không trùng
-                    break; 
+                    break;
                 }
-                
+
                 // Bị trùng, thử tên khác (ví dụ: user -> user1, user2)
                 $counter++;
                 $new_username = $username_base . $counter;
@@ -104,7 +102,7 @@ if ($client->getAccessToken()) {
             $stmt_check_username->close();
 
             // Tạo mật khẩu ngẫu nhiên (vì họ sẽ luôn đăng nhập bằng Google)
-            $random_pass = md5(rand() . time()); 
+            $random_pass = md5(rand() . time());
             $default_gender = 0; // 0 = Nam (mặc định)
             $default_role = 0;   // 0 = User (mặc định)
             $default_status = 1; // 1 = Active (vì Google đã xác thực)
@@ -113,25 +111,26 @@ if ($client->getAccessToken()) {
             $sql_insert = "INSERT INTO tbluser 
                            (username, password, fullname, gender, email, avatar, role, status) 
                            VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-            
+
             $stmt_insert = $conn->prepare($sql_insert);
-            $stmt_insert->bind_param("sssisisi", 
-                $new_username, 
-                $random_pass, 
-                $fullname, 
-                $default_gender, 
-                $email_google, 
-                $avatar, 
-                $default_role, 
+            $stmt_insert->bind_param(
+                "sssisisi",
+                $new_username,
+                $random_pass,
+                $fullname,
+                $default_gender,
+                $email_google,
+                $avatar,
+                $default_role,
                 $default_status
             );
-            
+
             if ($stmt_insert->execute()) {
                 // Đăng ký thành công, giờ thì đăng nhập
                 $_SESSION['username'] = $new_username;
                 $_SESSION['emailUser'] = $email_google;
                 $_SESSION['role'] = $default_role;
-                
+
                 header('Location: index.php'); // Chuyển hướng
                 exit();
             } else {
@@ -143,7 +142,6 @@ if ($client->getAccessToken()) {
             $stmt_insert->close();
         }
         $stmt_google->close();
-
     } catch (Exception $e) {
         // Token hết hạn hoặc lỗi
         $google_login_error = "Phiên Google hết hạn, vui lòng thử lại.";
@@ -182,10 +180,9 @@ if (isset($_REQUEST['sbSubmit'])) {
             exit();
         } else if ($matkhau_input_md5 === $matkhau_hashed_db && !$row['status']) {
             $local_login_error = 'Tài khoản chưa được kích hoạt vui lòng liên hệ admin để được kích hoạt';
+        } else {
+            $local_login_error = 'Tên đăng nhập hoặc mật khẩu không đúng';
         }
-        else {
-        $local_login_error = 'Tên đăng nhập hoặc mật khẩu không đúng';
-    }
     } else {
         $local_login_error = 'Tên đăng nhập hoặc mật khẩu không đúng';
     }
@@ -195,12 +192,13 @@ if (isset($_REQUEST['sbSubmit'])) {
 
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đăng nhập | Club Manager</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    
+
     <style>
         :root {
             --primary-color: #007bff;
@@ -268,7 +266,7 @@ if (isset($_REQUEST['sbSubmit'])) {
         .btn-google:hover {
             background-color: #f8f9fa;
             border-color: #b2b6b9;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
 
         .btn-google svg {
@@ -295,8 +293,13 @@ if (isset($_REQUEST['sbSubmit'])) {
             border-bottom: 1px solid #e0e0e0;
         }
 
-        .divider::before { margin-right: 0.75em; }
-        .divider::after { margin-left: 0.75em; }
+        .divider::before {
+            margin-right: 0.75em;
+        }
+
+        .divider::after {
+            margin-left: 0.75em;
+        }
 
         /* --- Form đăng nhập thường --- */
         .form-group {
@@ -340,7 +343,8 @@ if (isset($_REQUEST['sbSubmit'])) {
         }
 
         .btn-submit:hover {
-            background-color: #0056b3; /* Màu tối hơn */
+            background-color: #0056b3;
+            /* Màu tối hơn */
         }
 
         /* --- Link đăng ký --- */
@@ -355,10 +359,11 @@ if (isset($_REQUEST['sbSubmit'])) {
             font-weight: 500;
             text-decoration: none;
         }
+
         .register-link a:hover {
             text-decoration: underline;
         }
-        
+
         /* --- Thông báo lỗi --- */
         .alert {
             padding: 1rem;
@@ -367,7 +372,7 @@ if (isset($_REQUEST['sbSubmit'])) {
             font-size: 0.95rem;
             border: 1px solid transparent;
         }
-        
+
         .alert-danger {
             color: #721c24;
             background-color: #f8d7da;
@@ -375,10 +380,11 @@ if (isset($_REQUEST['sbSubmit'])) {
         }
     </style>
 </head>
+
 <body>
 
     <div class="login-container">
-        <h3>Trang đăng nhập</h3>        
+        <h3>Trang đăng nhập</h3>
 
         <form action="" method="post" name="f1">
             <div class="form-group">
@@ -390,14 +396,14 @@ if (isset($_REQUEST['sbSubmit'])) {
                 <label for="txtPassword">Mật khẩu:</label>
                 <input type="password" class="form-control" id="txtPassword" name="txtPassword" required>
             </div>
-            
-            <button type="submit" class="btn-submit" name="sbSubmit">Đăng nhập</button> 
-            
+
+            <button type="submit" class="btn-submit" name="sbSubmit">Đăng nhập</button>
+
             <div class="register-link">
                 Chưa có tài khoản? <a href="register.php">Đăng ký ngay</a>
                 <br><br>
             </div>
-        </form> 
+        </form>
 
         <?php
         // 9. HIỂN THỊ CÁC LỖI (NẾU CÓ)
@@ -415,9 +421,11 @@ if (isset($_REQUEST['sbSubmit'])) {
             // SVG Logo Google
             echo '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><g><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.13 5.51C44.38 38.37 46.98 32.07 46.98 24.55z"></path><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.13-5.51c-2.18 1.45-5.04 2.3-8.76 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path><path fill="none" d="M0 0h48v48H0z"></path></g></svg>';
             echo 'Đăng nhập bằng Google';
-            echo "</a>";            
+            echo "</a>";
         }
         ?>
 
-    </div> </body>
+    </div>
+</body>
+
 </html>

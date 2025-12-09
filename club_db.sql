@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th10 18, 2025 lúc 07:20 AM
+-- Thời gian đã tạo: Th12 09, 2025 lúc 02:55 AM
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
 -- Phiên bản PHP: 8.2.12
 
@@ -42,7 +42,7 @@ CREATE TABLE `tblbaiviet` (
 --
 
 INSERT INTO `tblbaiviet` (`Mabaiviet`, `Noidung`, `Machude`, `Ngaytao`, `Teptin`, `Username`, `Trangthai`) VALUES
-(3, 'Noi dung 1', 2, '2025-11-18', NULL, 'giathinh', 0);
+(3, 'Noi dung 1', 2, '2025-11-18', '1765242242_Ảnh chụp màn hình 2024-11-18 091528.png', 'giathinh', 0);
 
 -- --------------------------------------------------------
 
@@ -56,17 +56,17 @@ CREATE TABLE `tblbinhluan` (
   `Mabaiviet` int(11) NOT NULL,
   `Username` varchar(50) NOT NULL,
   `Ngaytao` date NOT NULL,
-  `Trangthai` int(11) NOT NULL
+  `Trangthai` int(11) NOT NULL,
+  `parent_id` int(11) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `tblbinhluan`
 --
 
-INSERT INTO `tblbinhluan` (`Mabinhluan`, `Noidung`, `Mabaiviet`, `Username`, `Ngaytao`, `Trangthai`) VALUES
-(1, 'Theo mình thì năm nhất bạn nên học C++ trước để nắm vững tư duy lập trình và cấu trúc dữ liệu nhé. Sau này học Python sẽ dễ hơn nhiều.', 1, 'duy', '2025-11-20', 1),
-(2, 'Bạn thử thêm `display: flex; justify-content: center; align-items: center;` cho thẻ cha của div đó xem sao nhé.', 3, 'duy', '2025-11-21', 1),
-(10, 'Intel Core I5', 6, 'admin1', '2025-11-16', 0);
+INSERT INTO `tblbinhluan` (`Mabinhluan`, `Noidung`, `Mabaiviet`, `Username`, `Ngaytao`, `Trangthai`, `parent_id`) VALUES
+(12, 'haha', 3, 'admin1', '2025-12-09', 1, 0),
+(13, 'haha', 3, 'admin1', '2025-12-09', 0, 0);
 
 -- --------------------------------------------------------
 
@@ -248,7 +248,7 @@ ALTER TABLE `tblbaiviet`
 -- AUTO_INCREMENT cho bảng `tblbinhluan`
 --
 ALTER TABLE `tblbinhluan`
-  MODIFY `Mabinhluan` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `Mabinhluan` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT cho bảng `tblchude`
