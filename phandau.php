@@ -572,7 +572,7 @@ if (isset($_SESSION['emailUser'])) {
       <a href="contact.php"><i class="fa-solid fa-envelope"></i> Liên hệ</a>
 
       <?php if (isset($_SESSION["emailUser"])) {
-        $avatarPath = 'uploads/default.png';
+        $avatarPath = 'uploads/default.jpg';
         if (isset($_SESSION['avatar']) && !empty($_SESSION['avatar'])) {
           $avatarPath = 'uploads/'.$_SESSION['avatar'];
         }

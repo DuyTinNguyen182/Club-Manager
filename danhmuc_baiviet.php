@@ -3,11 +3,11 @@ require("phandau.php");
 
 // --- XỬ LÝ GỬI BÌNH LUẬN (CHA HOẶC CON) ---
 if (isset($_POST['btn_gui_binhluan']) && isset($_SESSION['emailUser'])) {
-    $mabaiviet  = $_POST['mabaiviet_post'];
+    $mabaiviet = $_POST['mabaiviet_post'];
     $noidung_bl = $_POST['noidung_bl'];
     // Lấy parent_id (nếu = 0 là cha, > 0 là trả lời cho bình luận khác)
-    $parent_id  = isset($_POST['parent_id']) ? intval($_POST['parent_id']) : 0;
-    $username   = $_SESSION['username'];
+    $parent_id = isset($_POST['parent_id']) ? intval($_POST['parent_id']) : 0;
+    $username = $_SESSION['username'];
 
     $noidung_bl = str_replace("'", "\'", $noidung_bl);
 
@@ -46,12 +46,21 @@ if (isset($_GET['mbl']) && $_GET['act'] == 'del' && isset($_SESSION['username'])
         $commentOwner = $checkRs->fetch_assoc()['Username'];
 
         // 2. Nếu là Admin hoặc là Chính chủ thì xóa
+        // 2. Nếu là Admin hoặc là Chính chủ thì xóa
         if ($userRole == 1 || $currentUser == $commentOwner) {
-            $conn->query("UPDATE tblbinhluan SET Trangthai = 1 WHERE Mabinhluan = '$mbl'");
 
-            // Reload trang
-            $cur_id = $_GET['id'];
-            echo "<script>window.location.href='danhmuc_baiviet.php?id=$cur_id';</script>";
+            // SỬA: Xóa bình luận hiện tại VÀ tất cả các bình luận con có parent_id là bình luận này
+            $sql = "DELETE FROM tblbinhluan WHERE Mabinhluan = '$mbl' OR parent_id = '$mbl'";
+
+            if ($conn->query($sql)) {
+                // Xóa thành công thì mới reload
+                $cur_id = $_GET['id'];
+                echo "<script>window.location.href='danhmuc_baiviet.php?id=$cur_id';</script>";
+            } else {
+                // Xử lý lỗi nếu query thất bại (tùy chọn)
+                echo "<script>alert('Lỗi khi xóa dữ liệu!');</script>";
+            }
+
         } else {
             echo "<script>alert('Bạn không có quyền xóa bình luận này!');</script>";
         }
@@ -62,7 +71,8 @@ if (isset($_GET['mbl']) && $_GET['act'] == 'del' && isset($_SESSION['username'])
 if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     $machude = intval($_GET['id']);
     $rs_chude = $conn->query("SELECT Tenchude FROM tblchude WHERE Machude = $machude");
-    if ($rs_chude->num_rows > 0) $ten_chu_de = $rs_chude->fetch_assoc()['Tenchude'];
+    if ($rs_chude->num_rows > 0)
+        $ten_chu_de = $rs_chude->fetch_assoc()['Tenchude'];
     else {
         header("Location: index.php");
         exit();
@@ -286,7 +296,8 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
 <div class="content-section" style="background-color: #f1f5f9; min-height: 100vh;">
     <div class="container feed-container">
 
-        <div style="background:#fff; padding:15px; border-radius:10px; margin-bottom:20px; border-left: 5px solid #0d6efd;">
+        <div
+            style="background:#fff; padding:15px; border-radius:10px; margin-bottom:20px; border-left: 5px solid #0d6efd;">
             <h2 style="margin:0; font-size:1.5rem; color:#334155;">
                 <i class="fa-solid fa-layer-group"></i> Chủ đề: <?php echo $ten_chu_de; ?>
             </h2>
@@ -304,14 +315,16 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
                 // Đếm tổng bình luận (cả cha và con)
                 $sql_count = "SELECT COUNT(*) as total FROM tblbinhluan WHERE Mabaiviet = $id_baiviet AND Trangthai = 1";
                 $total_cmt = $conn->query($sql_count)->fetch_assoc()['total'];
-        ?>
+                ?>
                 <div class="feed-item" id="post-<?php echo $id_baiviet; ?>">
 
                     <div class="feed-header">
-                        <img src="uploads/<?php echo $bv['avatar']; ?>" class="feed-avatar" onerror="this.src='https://ui-avatars.com/api/?name=<?php echo $bv['Username']; ?>'">
+                        <img src="uploads/<?php echo $bv['avatar']; ?>" class="feed-avatar"
+                            onerror="this.src='https://ui-avatars.com/api/?name=<?php echo $bv['Username']; ?>'">
                         <div>
                             <h4 style="margin:0; font-size:1rem;"><?php echo $bv['Username']; ?></h4>
-                            <span style="font-size:0.8rem; color:#64748b"><?php echo date('H:i d/m/Y', strtotime($bv['Ngaytao'])); ?></span>
+                            <span
+                                style="font-size:0.8rem; color:#64748b"><?php echo date('H:i d/m/Y', strtotime($bv['Ngaytao'])); ?></span>
                         </div>
                     </div>
 
@@ -335,9 +348,13 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
                         <?php if (isset($_SESSION['emailUser'])): ?>
                             <form action="" method="POST" class="comment-form" style="margin-bottom: 20px;">
                                 <input type="hidden" name="mabaiviet_post" value="<?php echo $id_baiviet; ?>">
-                                <input type="hidden" name="parent_id" value="0"> <img src="uploads/<?php echo $_SESSION['avatar'] ?? ''; ?>" class="cmt-avatar-main" onerror="this.src='https://ui-avatars.com/api/?name=User'">
-                                <input type="text" name="noidung_bl" class="comment-input" placeholder="Viết bình luận công khai..." required autocomplete="off">
-                                <button type="submit" name="btn_gui_binhluan" class="btn-send"><i class="fa-solid fa-paper-plane"></i></button>
+                                <input type="hidden" name="parent_id" value="0"> <img
+                                    src="uploads/<?php echo $_SESSION['avatar'] ?? ''; ?>" class="cmt-avatar-main"
+                                    onerror="this.src='https://ui-avatars.com/api/?name=User'">
+                                <input type="text" name="noidung_bl" class="comment-input" placeholder="Viết bình luận công khai..."
+                                    required autocomplete="off">
+                                <button type="submit" name="btn_gui_binhluan" class="btn-send"><i
+                                        class="fa-solid fa-paper-plane"></i></button>
                             </form>
                         <?php endif; ?>
 
@@ -354,9 +371,10 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
                         // 2. Lọc ra các bình luận Cha (parent_id = 0)
                         foreach ($all_comments as $cmt):
                             if ($cmt['parent_id'] == 0):
-                        ?>
+                                ?>
                                 <div class="comment-item">
-                                    <img src="uploads/<?php echo $cmt['avatar']; ?>" class="cmt-avatar-main" onerror="this.src='https://ui-avatars.com/api/?name=<?php echo $cmt['Username']; ?>'">
+                                    <img src="uploads/<?php echo $cmt['avatar']; ?>" class="cmt-avatar-main"
+                                        onerror="this.src='https://ui-avatars.com/api/?name=<?php echo $cmt['Username']; ?>'">
                                     <div style="flex-grow:1;">
                                         <div class="cmt-bubble">
                                             <span class="cmt-author">
@@ -368,19 +386,17 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
 
                                         <div style="margin-top:2px;">
                                             <?php if (isset($_SESSION['emailUser'])): ?>
-                                                <span class="btn-reply-text" onclick="toggleReplyForm(<?php echo $cmt['Mabinhluan']; ?>)">Trả lời</span>
+                                                <span class="btn-reply-text"
+                                                    onclick="toggleReplyForm(<?php echo $cmt['Mabinhluan']; ?>)">Trả lời</span>
                                             <?php endif; ?>
 
-                                            <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 1): ?>
-                                                <a href="danhmuc_baiviet.php?id=<?php echo $machude; ?>&mbl=<?php echo $cmt['Mabinhluan']; ?>&act=hide"
-                                                    class="btn-reply-text" style="color:red" onclick="return confirm('Xóa?')">Ẩn</a>
-                                            <?php endif; ?>
                                             <?php
                                             // Kiểm tra: Nếu là Admin HOẶC là chủ bình luận thì hiện nút Xóa
                                             if (isset($_SESSION['username']) && ($_SESSION['role'] == 1 || $_SESSION['username'] == $cmt['Username'])):
-                                            ?>
+                                                ?>
                                                 <a href="danhmuc_baiviet.php?id=<?php echo $machude; ?>&mbl=<?php echo $cmt['Mabinhluan']; ?>&act=del"
-                                                    class="btn-text-action btn-delete" onclick="return confirm('Bạn có chắc chắn muốn xóa?')">Xóa</a>
+                                                    class="btn-text-action btn-delete"
+                                                    onclick="return confirm('Bạn có chắc chắn muốn xóa?')">Xóa</a>
                                             <?php endif; ?>
                                         </div>
 
@@ -388,9 +404,15 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
                                             <div class="reply-form-container" id="reply-form-<?php echo $cmt['Mabinhluan']; ?>">
                                                 <form action="" method="POST" class="comment-form" style="margin-top:5px;">
                                                     <input type="hidden" name="mabaiviet_post" value="<?php echo $id_baiviet; ?>">
-                                                    <input type="hidden" name="parent_id" value="<?php echo $cmt['Mabinhluan']; ?>"> <img src="uploads/<?php echo $_SESSION['avatar'] ?? ''; ?>" class="cmt-avatar-sub" onerror="this.src='https://ui-avatars.com/api/?name=User'">
-                                                    <input type="text" name="noidung_bl" class="comment-input" placeholder="Phản hồi <?php echo $cmt['Username']; ?>..." required autocomplete="off" style="font-size:0.85rem; padding:6px 10px;">
-                                                    <button type="submit" name="btn_gui_binhluan" class="btn-send" style="width:28px; height:28px;"><i class="fa-solid fa-paper-plane" style="font-size:0.8rem"></i></button>
+                                                    <input type="hidden" name="parent_id" value="<?php echo $cmt['Mabinhluan']; ?>"> <img
+                                                        src="uploads/<?php echo $_SESSION['avatar'] ?? ''; ?>" class="cmt-avatar-sub"
+                                                        onerror="this.src='https://ui-avatars.com/api/?name=User'">
+                                                    <input type="text" name="noidung_bl" class="comment-input"
+                                                        placeholder="Phản hồi <?php echo $cmt['Username']; ?>..." required
+                                                        autocomplete="off" style="font-size:0.85rem; padding:6px 10px;">
+                                                    <button type="submit" name="btn_gui_binhluan" class="btn-send"
+                                                        style="width:28px; height:28px;"><i class="fa-solid fa-paper-plane"
+                                                            style="font-size:0.8rem"></i></button>
                                                 </form>
                                             </div>
                                         <?php endif; ?>
@@ -400,30 +422,32 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
                                             // Lặp lại mảng để tìm con của ông này
                                             foreach ($all_comments as $reply):
                                                 if ($reply['parent_id'] == $cmt['Mabinhluan']):
-                                            ?>
+                                                    ?>
                                                     <div class="reply-item">
-                                                        <img src="uploads/<?php echo $reply['avatar']; ?>" class="cmt-avatar-sub" onerror="this.src='https://ui-avatars.com/api/?name=<?php echo $reply['Username']; ?>'">
+                                                        <img src="uploads/<?php echo $reply['avatar']; ?>" class="cmt-avatar-sub"
+                                                            onerror="this.src='https://ui-avatars.com/api/?name=<?php echo $reply['Username']; ?>'">
                                                         <div class="cmt-bubble" style="background:#f1f5f9;">
                                                             <span class="cmt-author">
                                                                 <?php echo $reply['Username']; ?>
-                                                                <span class="cmt-time"><?php echo date('d/m H:i', strtotime($reply['Ngaytao'])); ?></span>
+                                                                <span
+                                                                    class="cmt-time"><?php echo date('d/m H:i', strtotime($reply['Ngaytao'])); ?></span>
                                                             </span>
                                                             <p style="margin:4px 0 0;"><?php echo $reply['Noidung']; ?></p>
                                                         </div>
                                                     </div>
-                                            <?php
+                                                    <?php
                                                 endif;
                                             endforeach;
                                             ?>
                                         </div>
                                     </div>
                                 </div> <?php
-                                    endif; // End check Parent
-                                endforeach; // End Loop
-                                        ?>
+                            endif; // End check Parent
+                        endforeach; // End Loop
+                        ?>
                     </div>
                 </div>
-        <?php
+                <?php
             }
         } else {
             echo "<div style='text-align:center; padding:30px; color:#64748b;'>Chưa có bài viết nào.</div>";

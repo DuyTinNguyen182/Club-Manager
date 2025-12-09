@@ -132,7 +132,7 @@ require("phandau.php");
 
     <div class="feed-list">
         <?php
-        $sql_baiviet = "SELECT * FROM tblbaiviet WHERE Trangthai = 0 ORDER BY Ngaytao DESC LIMIT 5";
+        $sql_baiviet = "SELECT * FROM tblbaiviet WHERE Trangthai = 1 ORDER BY Ngaytao DESC LIMIT 5";
         $result_baiviet = $conn->query($sql_baiviet);
 
         if ($result_baiviet && $result_baiviet->num_rows > 0) {

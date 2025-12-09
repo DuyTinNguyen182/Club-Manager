@@ -49,9 +49,9 @@ include('../includes/header.php');
                 if ($result->num_rows > 0) {
                     while ($row = $result->fetch_assoc()) {
                         // Xử lý đường dẫn ảnh
-                        $avatarPath = "../../images/default.png";
-                        if (!empty($row['avatar']) && $row['avatar'] != '0') {
-                            $checkPath = "../../" . $row['avatar'];
+                        $avatarPath = "../../uploads/default.jpg";
+                        if (!empty($row['avatar'])) {
+                            $checkPath = "../../uploads/" . $row['avatar'];
                             if (file_exists($checkPath)) {
                                 $avatarPath = $checkPath;
                             }

@@ -55,6 +55,7 @@ if (isset($_POST['btn_save'])) {
         $msg = "<div class='alert-success'>Cập nhật thông tin thành công!</div>";
         // Cập nhật lại Session fullname
         $_SESSION['fullname'] = $fullname;
+        header("Location: thongtincanhan.php");
     } else {
         $msg = "<div class='alert-error'>Lỗi: " . $conn->error . "</div>";
     }
@@ -231,7 +232,7 @@ if ($result->num_rows > 0) {
 
             <div class="profile-sidebar">
                 <?php
-                $avatarPath = !empty($u['avatar']) ? "uploads/" . $u['avatar'] : "images/default.png";
+                $avatarPath = !empty($u['avatar']) ? "uploads/" . $u['avatar'] : "uploads/default.jpg";
                 ?>
                 <div class="avatar-wrapper">
                     <img src="<?= $avatarPath ?>" id="preview-img" class="profile-avatar" alt="Avatar">
@@ -254,15 +255,11 @@ if ($result->num_rows > 0) {
                 <div class="form-group">
                     <label class="form-label">Tên đăng nhập</label>
                     <input type="text" class="form-control" value="<?= $u['username'] ?>" readonly>
-                    <!-- <small style="color:#94a3b8; font-size: 0.85rem;"><i class="fa-solid fa-lock"></i> Không thể thay
-                        đổi</small> -->
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Email đăng ký</label>
                     <input type="email" class="form-control" value="<?= $u['email'] ?>" readonly>
-                    <!-- <small style="color:#94a3b8; font-size: 0.85rem;"><i class="fa-solid fa-lock"></i> Liên hệ Admin nếu
-                        muốn đổi Email</small> -->
                 </div>
 
                 <div class="form-group">

@@ -129,7 +129,7 @@ require("phandau.php");
             <?php
             // 3. Truy vấn SQL: Lấy TẤT CẢ hoạt động (bỏ LIMIT)
             // Sắp xếp: Mới nhất lên đầu (ORDER BY ngay_bat_dau DESC)
-            $sql_all_hd = "SELECT * FROM tblhoatdong WHERE trang_thai = 1 ORDER BY ngay_bat_dau DESC";
+            $sql_all_hd = "SELECT * FROM tblhoatdong ORDER BY ngay_bat_dau DESC";
             $result_all_hd = $conn->query($sql_all_hd);
 
             if ($result_all_hd && $result_all_hd->num_rows > 0) {
