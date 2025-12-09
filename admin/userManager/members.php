@@ -1,7 +1,23 @@
 <?php
+require_once('../../config.php');
 
-$path_to_admin = '../'; 
-include('../includes/header.php'); 
+if (isset($_GET['action']) && $_GET['action'] == 'toggle' && isset($_GET['user'])) {
+    $user = $_GET['user'];
+
+    $user = $conn->real_escape_string($user);
+
+    $sql_update = "UPDATE tbluser SET status = 1 - status WHERE username = '$user'";
+
+    if ($conn->query($sql_update)) {
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit();
+    } else {
+        echo "Lỗi: " . $conn->error;
+    }
+}
+
+$path_to_admin = '../';
+include('../includes/header.php');
 ?>
 
 <div class="card shadow-sm">
@@ -32,7 +48,7 @@ include('../includes/header.php');
                 $stt = 1;
                 if ($result->num_rows > 0) {
                     while ($row = $result->fetch_assoc()) {
-                        // Xử lý đường dẫn ảnh: Lùi 2 cấp (../../) để ra thư mục gốc chứa images
+                        // Xử lý đường dẫn ảnh
                         $avatarPath = "../../images/default.png";
                         if (!empty($row['avatar']) && $row['avatar'] != '0') {
                             $checkPath = "../../" . $row['avatar'];
@@ -44,7 +60,8 @@ include('../includes/header.php');
                         <tr>
                             <td class="text-center fw-bold"><?= $stt++; ?></td>
                             <td>
-                                <img src="<?= $avatarPath ?>" class="rounded-circle border" width="45" height="45" style="object-fit: cover;">
+                                <img src="<?= $avatarPath ?>" class="rounded-circle border" width="45" height="45"
+                                    style="object-fit: cover;">
                             </td>
                             <td>
                                 <div class="fw-bold"><?= $row['fullname'] ?></div>
@@ -58,19 +75,30 @@ include('../includes/header.php');
                                     <span class="badge bg-primary">Thành viên</span>
                                 <?php endif; ?>
                             </td>
+
                             <td class="text-center">
-                                <?php if ($row['status'] == 1): ?>
-                                    <span class="badge bg-success"><i class='bx bx-check'></i> Hoạt động</span>
-                                <?php else: ?>
-                                    <span class="badge bg-secondary">Khóa</span>
-                                <?php endif; ?>
+                                <a href="?action=toggle&user=<?= $row['username'] ?>" style="text-decoration: none;"
+                                    onclick="return confirm('Bạn có muốn thay đổi trạng thái của thành viên <?= $row['fullname'] ?>?')">
+
+                                    <?php if ($row['status'] == 1): ?>
+                                        <span class="badge bg-success" title="Đang hoạt động - Nhấn để khóa">
+                                            <i class='bx bx-check'></i> Hoạt động
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="badge bg-secondary" title="Đang khóa - Nhấn để mở">
+                                            Khóa
+                                        </span>
+                                    <?php endif; ?>
+                                </a>
                             </td>
+
                             <td class="text-center">
-                                <a href="edit.php?user=<?= $row['username'] ?>" class="btn btn-warning btn-sm" title="Sửa"><i class='bx bx-edit-alt'></i></a>
-                                
+                                <a href="edit.php?user=<?= $row['username'] ?>" class="btn btn-warning btn-sm" title="Sửa"><i
+                                        class='bx bx-edit-alt'></i></a>
+
                                 <a href="delete.php?user=<?= $row['username'] ?>" class="btn btn-danger btn-sm"
-                                   onclick="return confirm('Bạn có chắc muốn xóa thành viên <?= $row['fullname'] ?>?')"
-                                   title="Xóa">
+                                    onclick="return confirm('Bạn có chắc muốn xóa thành viên <?= $row['fullname'] ?>?')"
+                                    title="Xóa">
                                     <i class='bx bx-trash'></i>
                                 </a>
                             </td>

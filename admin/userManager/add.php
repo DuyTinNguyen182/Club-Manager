@@ -1,14 +1,9 @@
 <?php
-// Định nghĩa đường dẫn (giống file edit của bạn)
 $path_to_admin = '../';
-// Lưu ý: Kiểm tra lại đường dẫn include này xem file header nằm ở 'admin/includes' hay 'includes' gốc
-// Nếu header nằm trong admin/includes thì dùng: include('includes/header.php');
 include('../includes/header.php'); 
 require_once('../config.php');
 
-// --- XỬ LÝ KHI BẤM NÚT LƯU (THÊM MỚI) ---
 if (isset($_POST['btnAdd'])) {
-    // 1. Lấy dữ liệu từ form
     $username = $_POST['username'];
     $fullname = $_POST['fullname'];
     $email    = $_POST['email'];
@@ -16,26 +11,20 @@ if (isset($_POST['btnAdd'])) {
     $role     = $_POST['role'];
     $status   = $_POST['status'];
 
-    // 2. Kiểm tra trùng lặp (Username hoặc Email đã tồn tại chưa?)
-    // Bước này quan trọng để tránh lỗi cơ sở dữ liệu
     $checkSQL = "SELECT username FROM tbluser WHERE username = '$username' OR email = '$email'";
     $checkResult = $conn->query($checkSQL);
 
     if ($checkResult->num_rows > 0) {
         $error_msg = "Tên đăng nhập hoặc Email này đã tồn tại trên hệ thống!";
     } else {
-        // 3. Mã hóa mật khẩu MD5 (Giống file edit)
         $pass_hash = md5($password);
 
-        // 4. Avatar mặc định là '0'
         $avatar_default = '0'; 
 
-        // 5. Câu lệnh Insert
-        $sql_insert = "INSERT INTO tbluser (username, password, fullname, email, role, status, avatar) 
-                       VALUES ('$username', '$pass_hash', '$fullname', '$email', '$role', '$status', '$avatar_default')";
+        $sql_insert = "INSERT INTO tbluser (username, password, fullname, email, gender, role, status, avatar) 
+                       VALUES ('$username', '$pass_hash', '$fullname', '$email', 0, '$role', '$status', '$avatar_default')";
 
         if ($conn->query($sql_insert) === TRUE) {
-            // Thông báo và chuyển hướng giống file edit
             echo "<script>
                     alert('Thêm thành viên mới thành công!');
                     window.location.href='members.php';

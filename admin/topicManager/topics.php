@@ -1,7 +1,22 @@
 <?php
 $path_to_admin = '../';
+require_once('../config.php');
 include('../includes/header.php');
+
+if (isset($_GET['action']) && $_GET['action'] == 'toggle' && isset($_GET['id'])) {
+    $id = $_GET['id'];
+
+    $sql_update = "UPDATE tblchude SET Trangthai = 1 - Trangthai WHERE Machude = $id";
+
+    if ($conn->query($sql_update)) {
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit();
+    } else {
+        echo "Lỗi: " . $conn->error;
+    }
+}
 ?>
+
 
 <div class="card shadow-sm">
     <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
@@ -36,11 +51,13 @@ include('../includes/header.php');
                             <td class="text-center text-muted">#<?= $row['Machude'] ?></td>
                             <td class="fw-bold text-primary"><?= $row['Tenchude'] ?></td>
                             <td class="text-center">
-                                <?php if ($row['Trangthai'] == 1): ?>
-                                    <span class="badge bg-secondary">Ẩn</span>
-                                <?php else: ?>
-                                    <span class="badge bg-success">Hiển thị</span>
-                                <?php endif; ?>
+                                <a href="?action=toggle&id=<?= $row['Machude'] ?>" style="text-decoration: none;">
+                                    <?php if ($row['Trangthai'] == 1): ?>
+                                        <span class="badge bg-secondary" title="Nhấn để hiện">Ẩn</span>
+                                    <?php else: ?>
+                                        <span class="badge bg-success" title="Nhấn để ẩn">Hiển thị</span>
+                                    <?php endif; ?>
+                                </a>
                             </td>
                             <td class="text-center">
                                 <a href="edit.php?id=<?= $row['Machude'] ?>" class="btn btn-warning btn-sm" title="Sửa">
