@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th12 09, 2025 lúc 02:55 AM
+-- Thời gian đã tạo: Th12 09, 2025 lúc 08:37 AM
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
 -- Phiên bản PHP: 8.2.12
 
@@ -179,11 +179,10 @@ CREATE TABLE `tbluser` (
 INSERT INTO `tbluser` (`username`, `password`, `fullname`, `gender`, `email`, `avatar`, `role`, `status`) VALUES
 ('admin1', 'e10adc3949ba59abbe56e057f20f883e', 'Nguyễn Duy Tín', 0, 'duytin.admin@tvu.edu.vn', '', 1, 1),
 ('admin2', 'e10adc3949ba59abbe56e057f20f883e', 'Nguyễn Phước Hiệp', 0, 'phuochiep.admin@tvu.edu.vn', '', 1, 1),
-('admin3', 'e10adc3949ba59abbe56e057f20f883e', 'Kiều Gia Thịnh', 0, 'giathinh.admin@tvu.edu.vn', '', 1, 1),
+('admin3', 'e10adc3949ba59abbe56e057f20f883e', 'Gia Thịnh', 0, 'giathinh.admin@tvu.edu.vn', '', 1, 1),
 ('camtu', 'e10adc3949ba59abbe56e057f20f883e', 'Phạm Thị Cẩm Tú', 0, 'camtu.pham@tvu.edu.vn', '', 0, 1),
 ('duytin', '6afd9643f3e1a07bb92faa4bb403ba32', 'Nguyen Duy Tin', 0, 'duytin@gmail.com', 'z4242815564484_63596ac735d7ce4d2fe59c3739962378.jpg', 0, 0),
-('giathinh', '5dc6da3adfe8ccf1287a98c0a8f74496', 'kieu gia thinh', 0, 'lehaduy2004@gmail.com', '', 1, 0),
-('mien', '08d6cd99e919459b34b3c6777ba7f4ce', 'Doan Phuoc Mien', 0, 'phuocmien@tvu.edu.vn', '070216a.jpg', 1, 0),
+('giathinh', 'e10adc3949ba59abbe56e057f20f883e', 'Gia Thịnh', 0, 'giathinh@gmail.com', 'avatar_giathinh_1765264719.png', 0, 1),
 ('minhanh', 'e10adc3949ba59abbe56e057f20f883e', 'Lê Minh Anh', 0, 'minhanh.le@tvu.edu.vn', '', 0, 1),
 ('quocviet', 'e10adc3949ba59abbe56e057f20f883e', 'Hoàng Quốc Việt', 0, 'quocviet.hoang@tvu.edu.vn', '', 0, 1),
 ('vanbao', 'e10adc3949ba59abbe56e057f20f883e', 'Trần Văn Bảo', 0, 'vanbao.tran@tvu.edu.vn', '', 0, 1);

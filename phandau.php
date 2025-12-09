@@ -13,9 +13,9 @@ if (isset($_SESSION['emailUser'])) {
   if ($resultbs && $resultbs->num_rows > 0) {
     $row = $resultbs->fetch_assoc();
     $_SESSION['username'] = $row['username'];
-    $_SESSION['role']     = $row['role'];
+    $_SESSION['role'] = $row['role'];
     $_SESSION['fullname'] = $row['fullname'];
-    $_SESSION['avatar']   = $row['avatar'];
+    $_SESSION['avatar'] = $row['avatar'];
   } else {
     session_unset();
     session_destroy();
@@ -572,23 +572,27 @@ if (isset($_SESSION['emailUser'])) {
       <a href="contact.php"><i class="fa-solid fa-envelope"></i> Liên hệ</a>
 
       <?php if (isset($_SESSION["emailUser"])) {
-        $avatarPath = 'images/default.png';
+        $avatarPath = 'uploads/default.png';
         if (isset($_SESSION['avatar']) && !empty($_SESSION['avatar'])) {
-          $avatarPath = $_SESSION['avatar'];
+          $avatarPath = 'uploads/'.$_SESSION['avatar'];
         }
-      ?>
+        ?>
         <div class="user-menu">
           <div class="user-info">
-            <img src="<?= $avatarPath ?>" alt="Avatar" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid #ccc;">
+            <img src="<?= $avatarPath ?>" alt="Avatar"
+              style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid #ccc;">
             <span>Hi, <?php echo $_SESSION['fullname']; ?></span>
             <i class="fa-solid fa-chevron-down" style="font-size: 0.8em"></i>
           </div>
           <div class="dropdown-content">
             <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 1) { ?>
-              <a href="admin/index.php" style="color: #2563eb; font-weight: bold;"><i class="fa-solid fa-gauge-high"></i> Trang quản trị</a>
+              <a href="admin/index.php" style="color: #2563eb; font-weight: bold;"><i class="fa-solid fa-gauge-high"></i>
+                Trang quản trị</a>
               <div class="divider"></div>
             <?php } ?>
-            <a href="changepassword.php"><i class="fa-solid fa-key"></i> Đổi mật khẩu</a>
+            <a href="thongtincanhan.php"><i class="fa-solid fa-user"></i> Thông tin cá nhân</a>
+            <div class="divider"></div>
+            <a href="doimatkhau.php"><i class="fa-solid fa-key"></i> Đổi mật khẩu</a>
             <div class="divider"></div>
             <a href="logout.php" style="color: #ef4444;"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a>
           </div>
@@ -603,7 +607,7 @@ if (isset($_SESSION['emailUser'])) {
   <div class="container">
     <?php
     $sql = "SELECT * FROM tblslideshow WHERE Status = 0";
-    $rs  = $conn->query($sql);
+    $rs = $conn->query($sql);
     if ($rs && $rs->num_rows > 0) { ?>
       <div class="slider-container">
         <div class="slides" id="slideWrapper">
@@ -641,7 +645,7 @@ if (isset($_SESSION['emailUser'])) {
                 <a href="danhmuc_baiviet.php?id=<?php echo $r['Machude']; ?>">
                   <?php echo $r['Tenchude']; ?>
                 </a>
-            <?php }
+              <?php }
             } else {
               echo "<p style='padding:10px; color:#999; font-size:0.9rem'>Chưa có chủ đề</p>";
             }
@@ -651,7 +655,9 @@ if (isset($_SESSION['emailUser'])) {
 
         <div class="sidebar-card">
           <div class="sidebar-menu">
-            <a href="danhsachhoatdong.php" style="text-align: center; color: var(--primary-color); font-weight: 700;">Xem tất cả hoạt động <i class="fa-solid fa-arrow-right"></i></a>
+            <a href="danhsachhoatdong.php"
+              style="text-align: center; color: var(--primary-color); font-weight: 700;">Xem tất cả hoạt động <i
+                class="fa-solid fa-arrow-right"></i></a>
           </div>
         </div>
       </aside>

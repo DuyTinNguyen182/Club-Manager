@@ -389,7 +389,8 @@ if (isset($_REQUEST['sbSubmit'])) {
         <form action="" method="post" name="f1">
             <div class="form-group">
                 <label for="txtUsername">Tên đăng nhập:</label>
-                <input type="text" class="form-control" id="txtUsername" name="txtUsername" required value="<?php echo @htmlspecialchars($_REQUEST['txtUsername']); ?>">
+                <input type="text" class="form-control" id="txtUsername" name="txtUsername" required
+                    value="<?php echo @htmlspecialchars($_REQUEST['txtUsername']); ?>">
             </div>
 
             <div class="form-group">
@@ -400,7 +401,7 @@ if (isset($_REQUEST['sbSubmit'])) {
             <button type="submit" class="btn-submit" name="sbSubmit">Đăng nhập</button>
 
             <div class="register-link">
-                Chưa có tài khoản? <a href="register.php">Đăng ký ngay</a>
+                Chưa có tài khoản? <a href="signup.php">Đăng ký ngay</a>
                 <br><br>
             </div>
         </form>

@@ -14,7 +14,7 @@ if (isset($_POST['btn_gui_binhluan']) && isset($_SESSION['emailUser'])) {
     if (!empty($noidung_bl)) {
         // Câu lệnh INSERT có thêm cột parent_id
         $sql_them = "INSERT INTO tblbinhluan(Noidung, Mabaiviet, Ngaytao, Username, Trangthai, parent_id) 
-                     VALUES('$noidung_bl', '$mabaiviet', NOW(), '$username', 0, $parent_id)";
+                     VALUES('$noidung_bl', '$mabaiviet', NOW(), '$username', 1, $parent_id)";
 
         if ($conn->query($sql_them)) {
             // Reload lại trang và mở bài viết đó ra
@@ -294,7 +294,7 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
 
         <?php
         $sql_bv = "SELECT bv.*, u.avatar FROM tblbaiviet bv JOIN tbluser u ON bv.Username = u.Username 
-                   WHERE bv.Machude = $machude AND bv.Trangthai = 0 ORDER BY bv.Ngaytao DESC";
+                   WHERE bv.Machude = $machude AND bv.Trangthai = 1 ORDER BY bv.Ngaytao DESC";
         $rs_bv = $conn->query($sql_bv);
 
         if ($rs_bv->num_rows > 0) {
@@ -302,7 +302,7 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
                 $id_baiviet = $bv['Mabaiviet'];
 
                 // Đếm tổng bình luận (cả cha và con)
-                $sql_count = "SELECT COUNT(*) as total FROM tblbinhluan WHERE Mabaiviet = $id_baiviet AND Trangthai = 0";
+                $sql_count = "SELECT COUNT(*) as total FROM tblbinhluan WHERE Mabaiviet = $id_baiviet AND Trangthai = 1";
                 $total_cmt = $conn->query($sql_count)->fetch_assoc()['total'];
         ?>
                 <div class="feed-item" id="post-<?php echo $id_baiviet; ?>">
@@ -345,7 +345,7 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
                         // 1. Lấy tất cả bình luận của bài viết ra mảng trước để dễ xử lý
                         $all_comments = [];
                         $sql_bl = "SELECT bl.*, u.avatar FROM tblbinhluan bl JOIN tbluser u ON bl.Username = u.Username 
-                                   WHERE bl.Mabaiviet = $id_baiviet AND bl.Trangthai = 0 ORDER BY bl.Ngaytao ASC";
+                                   WHERE bl.Mabaiviet = $id_baiviet AND bl.Trangthai = 1 ORDER BY bl.Ngaytao ASC";
                         $rs_bl = $conn->query($sql_bl);
                         while ($row_bl = $rs_bl->fetch_assoc()) {
                             $all_comments[] = $row_bl;
