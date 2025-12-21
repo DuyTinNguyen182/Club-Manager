@@ -103,6 +103,13 @@ if (!isset($_SESSION['username']) || $_SESSION['role'] != 1) {
             </li>
 
             <li>
+                <a href="<?= $base_path ?>attendanceManager/attendance.php"
+                    class="<?= (strpos($_SERVER['PHP_SELF'], 'attendance.php') !== false || strpos($_SERVER['PHP_SELF'], 'take_attendance.php') !== false) ? 'active' : '' ?>">
+                    <i class='bx bx-check-square'></i> Quản lý Điểm danh
+                </a>
+            </li>
+
+            <li>
                 <a href="<?= $base_path ?>contactManager/contacts.php"
                     class="<?= (strpos($_SERVER['PHP_SELF'], 'contactManager') !== false) ? 'active' : '' ?>">
                     <i class='bx bx-envelope'></i> Quản lý Liên hệ

@@ -571,10 +571,13 @@ if (isset($_SESSION['emailUser'])) {
       <a href="index.php" class="active"><i class="fa-solid fa-house"></i> Trang chủ</a>
       <a href="contact.php"><i class="fa-solid fa-envelope"></i> Liên hệ</a>
 
-      <?php if (isset($_SESSION["emailUser"])) {
+      <?php if (isset($_SESSION["emailUser"])) { ?>
+
+        <a href="hoatdongdadangky.php"><i class="fa-solid fa-calendar-check"></i> Hoạt động đã đăng ký</a>
+        <?php
         $avatarPath = 'uploads/default.jpg';
         if (isset($_SESSION['avatar']) && !empty($_SESSION['avatar'])) {
-          $avatarPath = 'uploads/'.$_SESSION['avatar'];
+          $avatarPath = 'uploads/' . $_SESSION['avatar'];
         }
         ?>
         <div class="user-menu">
@@ -645,7 +648,7 @@ if (isset($_SESSION['emailUser'])) {
                 <a href="danhmuc_baiviet.php?id=<?php echo $r['Machude']; ?>">
                   <?php echo $r['Tenchude']; ?>
                 </a>
-              <?php }
+            <?php }
             } else {
               echo "<p style='padding:10px; color:#999; font-size:0.9rem'>Chưa có chủ đề</p>";
             }

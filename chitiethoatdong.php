@@ -21,6 +21,67 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     header("Location: index.php");
     exit();
 }
+// KIỂM TRA: User đã đăng ký hoạt động này chưa?
+$da_dang_ky = false;
+if (isset($_SESSION['username'])) {
+    $check_stmt = $conn->prepare("SELECT * FROM tbldangkyhoatdong WHERE hoatdong_id = ? AND username = ?");
+    $check_stmt->bind_param("is", $id, $_SESSION['username']);
+    $check_stmt->execute();
+    $check_result = $check_stmt->get_result();
+    if ($check_result->num_rows > 0) {
+        $da_dang_ky = true;
+    }
+}
+
+// XỬ LÝ: Đăng ký tham gia
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['dangky_submit'])) {
+    if (!isset($_SESSION['username'])) {
+        echo "<script>alert('Bạn cần đăng nhập để đăng ký.'); window.location.href='login.php';</script>";
+        exit();
+    }
+
+    // Kiểm tra lại thời gian (Backend check)
+    if (time() >= strtotime($row['ngay_bat_dau'])) {
+        echo "<script>alert('Hoạt động đã diễn ra, không thể đăng ký!'); window.location.href='chitiethoatdong.php?id=" . $id . "';</script>";
+        exit();
+    }
+
+    $username = $_SESSION['username'];
+    $stmt = $conn->prepare("INSERT INTO tbldangkyhoatdong (hoatdong_id, username) VALUES (?, ?)");
+    $stmt->bind_param("is", $id, $username);
+
+    if ($stmt->execute()) {
+        echo "<script>alert('Đăng ký thành công!'); window.location.href='chitiethoatdong.php?id=" . $id . "';</script>";
+    } else {
+        echo "<script>alert('Lỗi: " . addslashes($conn->error) . "'); window.location.href='chitiethoatdong.php?id=" . $id . "';</script>";
+    }
+    exit();
+}
+
+// XỬ LÝ MỚI: Hủy đăng ký
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['huy_dangky_submit'])) {
+    if (!isset($_SESSION['username'])) {
+        echo "<script>alert('Vui lòng đăng nhập.'); window.location.href='login.php';</script>";
+        exit();
+    }
+
+    // Quan trọng: Kiểm tra thời gian trước khi cho phép hủy
+    if (time() >= strtotime($row['ngay_bat_dau'])) {
+        echo "<script>alert('Hoạt động đang hoặc đã diễn ra, bạn không thể hủy lúc này!'); window.location.href='chitiethoatdong.php?id=" . $id . "';</script>";
+        exit();
+    }
+
+    $username = $_SESSION['username'];
+    $stmt = $conn->prepare("DELETE FROM tbldangkyhoatdong WHERE hoatdong_id = ? AND username = ?");
+    $stmt->bind_param("is", $id, $username);
+
+    if ($stmt->execute()) {
+        echo "<script>alert('Đã hủy đăng ký tham gia.'); window.location.href='chitiethoatdong.php?id=" . $id . "';</script>";
+    } else {
+        echo "<script>alert('Lỗi khi hủy: " . addslashes($conn->error) . "'); window.location.href='chitiethoatdong.php?id=" . $id . "';</script>";
+    }
+    exit();
+}
 ?>
 
 <style>
@@ -142,6 +203,27 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
         font-size: 0.9rem;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     }
+
+    /* Style cho nút Hủy (Màu đỏ) */
+    .btn-cancel {
+        background: #ef4444;
+        /* Màu đỏ */
+        color: #fff;
+    }
+
+    .btn-cancel:hover {
+        background: #dc2626;
+        color: #fff;
+        box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
+    }
+
+    /* Style cho nút bị khóa (Disabled) */
+    .btn-disabled {
+        background: #94a3b8;
+        color: #e2e8f0;
+        cursor: not-allowed !important;
+        pointer-events: none;
+    }
 </style>
 
 <div class="content-section" style="background-color: #f1f5f9; min-height: 80vh; padding-top: 20px;">
@@ -188,15 +270,35 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
             </div>
 
             <div class="action-bar">
-                <!-- <a href="index.php" class="btn-custom btn-back">
-                    <i class="fa-solid fa-house"></i> Trang chủ
-                </a> -->
-
-                <?php if ($hien_tai < $ngay_hd): // Chỉ hiện nút đăng ký nếu chưa diễn ra 
+                <?php
+                // Logic hiển thị nút
+                if ($hien_tai < $ngay_hd):
+                    // TRƯỜNG HỢP 1: Chưa diễn ra (Còn hạn)
+                    if ($da_dang_ky):
                 ?>
-                    <a href="#" class="btn-custom btn-register" onclick="alert('Tính năng đăng ký đang được cập nhật!')">
-                        <i class="fa-solid fa-pen-to-square"></i> Đăng ký tham gia
-                    </a>
+                        <form method="post" style="display:inline; margin:0;" onsubmit="return confirm('Bạn có chắc chắn muốn hủy đăng ký không?');">
+                            <input type="hidden" name="huy_dangky_submit" value="1">
+                            <button type="submit" class="btn-custom btn-cancel" style="border:none; cursor:pointer;">
+                                <i class="fa-solid fa-user-xmark"></i> Hủy đăng ký
+                            </button>
+                        </form>
+                    <?php
+                    else:
+                    ?>
+                        <form method="post" style="display:inline; margin:0;">
+                            <input type="hidden" name="dangky_submit" value="1">
+                            <button type="submit" class="btn-custom btn-register" style="border:none; cursor:pointer;">
+                                <i class="fa-solid fa-pen-to-square"></i> Đăng ký tham gia
+                            </button>
+                        </form>
+                    <?php
+                    endif;
+                else:
+                    // TRƯỜNG HỢP 2: Đã quá hạn / Đang diễn ra -> Khóa nút
+                    ?>
+                    <button class="btn-custom btn-disabled">
+                        <i class="fa-solid fa-lock"></i> Đã đóng đăng ký
+                    </button>
                 <?php endif; ?>
             </div>
         </div>
