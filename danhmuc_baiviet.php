@@ -24,6 +24,40 @@ if (isset($_POST['btn_gui_binhluan']) && isset($_SESSION['emailUser'])) {
     }
 }
 
+// --- XỬ LÝ ĐĂNG BÀI VIẾT MỚI ---
+if (isset($_POST['btn_dang_bai']) && isset($_SESSION['username'])) {
+    $machude_post = intval($_POST['machude_post']);
+    $noidung_bai = $_POST['noidung_bai'];
+    $username = $_SESSION['username'];
+
+    // Xử lý nội dung (chống lỗi SQL khi có dấu nháy đơn)
+    $noidung_bai = str_replace("'", "\'", $noidung_bai);
+
+    // Xử lý file ảnh (nếu có)
+    $ten_teptin = "";
+    if (isset($_FILES['hinh_anh']) && $_FILES['hinh_anh']['error'] == 0) {
+        $duoi_file = pathinfo($_FILES['hinh_anh']['name'], PATHINFO_EXTENSION);
+        // Đặt tên file theo thời gian để không bị trùng
+        $ten_teptin = time() . "_" . $username . "." . $duoi_file;
+        $duong_dan_upload = "uploads/" . $ten_teptin;
+        move_uploaded_file($_FILES['hinh_anh']['tmp_name'], $duong_dan_upload);
+    }
+
+    if (!empty($noidung_bai)) {
+        $sql_dangbai = "INSERT INTO tblbaiviet(Noidung, Machude, Ngaytao, Username, Trangthai, Teptin) 
+                        VALUES('$noidung_bai', '$machude_post', NOW(), '$username', 1, '$ten_teptin')";
+
+        if ($conn->query($sql_dangbai)) {
+            // Đăng xong thì load lại trang
+            echo "<script>alert('Đăng bài thành công!'); window.location.href='danhmuc_baiviet.php?id=$machude_post';</script>";
+        } else {
+            echo "<script>alert('Lỗi khi đăng bài!');</script>";
+        }
+    } else {
+        echo "<script>alert('Vui lòng nhập nội dung bài viết!');</script>";
+    }
+}
+
 // Xử lý ẩn bình luận (Admin)
 // if (isset($_GET['mbl']) && $_GET['act'] == 'hide' && isset($_SESSION['role']) && $_SESSION['role'] == 1) {
 //     $mbl = $_GET['mbl'];
@@ -243,9 +277,9 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
 
     /* Nút Trả lời nhỏ dưới comment */
     .btn-reply-text {
-        font-size: 0.75rem;
+        font-size: 0.8rem;
         font-weight: 600;
-        color: #64748b;
+        color: #006affff;
         cursor: pointer;
         margin-left: 5px;
         text-decoration: none;
@@ -285,6 +319,15 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
         justify-content: center;
     }
 
+    .btn-text-action {
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        margin-left: 5px;
+        text-decoration: none;
+        color: red;
+    }
+
     /* Form trả lời ẩn (cho reply) */
     .reply-form-container {
         display: none;
@@ -295,6 +338,42 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
 
 <div class="content-section" style="background-color: #f1f5f9; min-height: 100vh;">
     <div class="container feed-container">
+
+        <?php if (isset($_SESSION['username'])): ?>
+            <div class="feed-item" style="border: 2px dashed #cbd5e1; background: #f8fafc;">
+                <div class="feed-header" style="margin-bottom: 10px;">
+                    <img src="uploads/<?php echo $_SESSION['avatar'] ?? ''; ?>" class="feed-avatar"
+                        onerror="this.src='https://ui-avatars.com/api/?name=<?php echo $_SESSION['username']; ?>'">
+                    <h4 style="margin:0; font-size:1rem; color:#475569;">Tạo bài viết mới</h4>
+                </div>
+
+                <form action="" method="POST" enctype="multipart/form-data">
+                    <input type="hidden" name="machude_post" value="<?php echo $machude; ?>">
+
+                    <textarea name="noidung_bai" class="comment-input" rows="3"
+                        style="width:100%; border-radius: 8px; padding: 10px; resize: vertical; margin-bottom: 10px;"
+                        placeholder="Bạn đang nghĩ gì về chủ đề này?..." required></textarea>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="position: relative; overflow: hidden; display: inline-block;">
+                            <button type="button" class="btn-action"
+                                style="width: auto; padding: 5px 15px; border: 1px solid #cbd5e1;">
+                                <i class="fa-regular fa-image" style="color: #10b981;"></i> Thêm ảnh
+                            </button>
+                            <input type="file" name="hinh_anh" accept="image/*"
+                                style="font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer;"
+                                onchange="document.getElementById('file-chosen').textContent = this.files[0].name">
+                            <span id="file-chosen" style="margin-left: 10px; font-size: 0.9rem; color: #64748b;"></span>
+                        </div>
+
+                        <button type="submit" name="btn_dang_bai" class="btn-send"
+                            style="width: auto; padding: 0 20px; border-radius: 5px; font-weight: bold;">
+                            Đăng bài
+                        </button>
+                    </div>
+                </form>
+            </div>
+        <?php endif; ?>
 
         <div
             style="background:#fff; padding:15px; border-radius:10px; margin-bottom:20px; border-left: 5px solid #0d6efd;">
@@ -419,20 +498,57 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
 
                                         <div class="reply-list">
                                             <?php
-                                            // Lặp lại mảng để tìm con của ông này
+                                            // Lặp lại mảng để tìm các bình luận con của bình luận Cha ($cmt)
                                             foreach ($all_comments as $reply):
                                                 if ($reply['parent_id'] == $cmt['Mabinhluan']):
                                                     ?>
                                                     <div class="reply-item">
                                                         <img src="uploads/<?php echo $reply['avatar']; ?>" class="cmt-avatar-sub"
                                                             onerror="this.src='https://ui-avatars.com/api/?name=<?php echo $reply['Username']; ?>'">
-                                                        <div class="cmt-bubble" style="background:#f1f5f9;">
-                                                            <span class="cmt-author">
-                                                                <?php echo $reply['Username']; ?>
-                                                                <span
-                                                                    class="cmt-time"><?php echo date('d/m H:i', strtotime($reply['Ngaytao'])); ?></span>
-                                                            </span>
-                                                            <p style="margin:4px 0 0;"><?php echo $reply['Noidung']; ?></p>
+
+                                                        <div style="flex-grow:1;">
+                                                            <div class="cmt-bubble" style="background:#f1f5f9;">
+                                                                <span class="cmt-author">
+                                                                    <?php echo $reply['Username']; ?>
+                                                                    <span
+                                                                        class="cmt-time"><?php echo date('d/m H:i', strtotime($reply['Ngaytao'])); ?></span>
+                                                                </span>
+                                                                <p style="margin:4px 0 0;"><?php echo $reply['Noidung']; ?></p>
+                                                            </div>
+
+                                                            <div style="margin-top:2px;">
+                                                                <?php if (isset($_SESSION['emailUser'])): ?>
+                                                                    <span class="btn-reply-text" onclick="
+                                                                        // 1. Mở form của BÌNH LUẬN CHA
+                                                                        toggleReplyForm(<?php echo $cmt['Mabinhluan']; ?>); 
+                                                                        
+                                                                        // 2. Tìm ô input trong form đó
+                                                                        var formInput = document.querySelector('#reply-form-<?php echo $cmt['Mabinhluan']; ?> input[name=\'noidung_bl\']');
+                                                                        
+                                                                        // 3. Xóa @Cu nếu có và thêm @Mới
+                                                                        var currentVal = formInput.value;
+                                                                        // Regex đơn giản để xóa tag cũ nếu người dùng đổi ý click reply người khác
+                                                                        if(currentVal.startsWith('@')) {
+                                                                            currentVal = currentVal.substring(currentVal.indexOf(' ') + 1);
+                                                                        }
+                                                                        
+                                                                        // 4. Điền @TênNgườiĐượcTrảLời
+                                                                        formInput.value = '@<?php echo $reply['Username']; ?> ' + currentVal;
+                                                                        formInput.focus();
+                                                                    ">
+                                                                        Trả lời
+                                                                    </span>
+                                                                <?php endif; ?>
+
+                                                                <?php
+                                                                // Kiểm tra quyền xóa: Admin HOẶC Chính chủ bình luận con này
+                                                                if (isset($_SESSION['username']) && ($_SESSION['role'] == 1 || $_SESSION['username'] == $reply['Username'])):
+                                                                    ?>
+                                                                    <a href="danhmuc_baiviet.php?id=<?php echo $machude; ?>&mbl=<?php echo $reply['Mabinhluan']; ?>&act=del"
+                                                                        class="btn-text-action btn-delete"
+                                                                        onclick="return confirm('Bạn có chắc chắn muốn xóa bình luận này?')">Xóa</a>
+                                                                <?php endif; ?>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                     <?php

@@ -100,7 +100,7 @@ require("phandau.php");
 
         if ($result_hoatdong && $result_hoatdong->num_rows > 0) {
             while ($hd = $result_hoatdong->fetch_assoc()) {
-        ?>
+                ?>
                 <div class="item-card">
                     <div class="date-badge">
                         <i class="fa-regular fa-calendar-days"></i>
@@ -110,12 +110,13 @@ require("phandau.php");
                             <?php echo $hd['ten_hoat_dong']; ?>
                         </a>
                         <div class="item-meta">
-                            <span><i class="fa-regular fa-clock"></i> <?php echo date('H:i d/m/Y', strtotime($hd['ngay_bat_dau'])); ?></span>
+                            <span><i class="fa-regular fa-clock"></i>
+                                <?php echo date('H:i d/m/Y', strtotime($hd['ngay_bat_dau'])); ?></span>
                             <span><i class="fa-solid fa-location-dot"></i> <?php echo $hd['dia_diem']; ?></span>
                         </div>
                     </div>
                 </div>
-        <?php
+                <?php
             }
         } else {
             echo "<div style='text-align:center; color:var(--text-secondary); padding:20px;'>Hiện chưa có hoạt động nào sắp diễn ra.</div>";
@@ -132,12 +133,13 @@ require("phandau.php");
 
     <div class="feed-list">
         <?php
+        // Cần đảm bảo bảng tblbaiviet có cột Machude
         $sql_baiviet = "SELECT * FROM tblbaiviet WHERE Trangthai = 1 ORDER BY Ngaytao DESC LIMIT 5";
         $result_baiviet = $conn->query($sql_baiviet);
 
         if ($result_baiviet && $result_baiviet->num_rows > 0) {
             while ($bv = $result_baiviet->fetch_assoc()) {
-        ?>
+                ?>
                 <div class="feed-item">
                     <div class="feed-header">
                         <div class="feed-avatar">
@@ -157,16 +159,20 @@ require("phandau.php");
                             <?php
                             // Lấy nội dung và cắt ngắn nếu quá dài
                             $noidung = strip_tags($bv['Noidung']);
-                            if (strlen($noidung) > 300) echo substr($noidung, 0, 300) . "...";
-                            else echo $noidung;
+                            if (strlen($noidung) > 300)
+                                echo substr($noidung, 0, 300) . "...";
+                            else
+                                echo $noidung;
                             ?>
                         </p>
-                        <a href="chitietbaiviet.php?id=<?php echo $bv['Mabaiviet']; ?>" class="feed-readmore">
+
+                        <a href="danhmuc_baiviet.php?id=<?php echo $bv['Machude']; ?>&open=<?php echo $bv['Mabaiviet']; ?>#post-<?php echo $bv['Mabaiviet']; ?>"
+                            class="feed-readmore">
                             Xem chi tiết bài viết
                         </a>
                     </div>
                 </div>
-        <?php
+                <?php
             }
         } else {
             echo "<div style='text-align:center; color:var(--text-secondary); padding:20px; background:#fff; border-radius:12px;'>Hiện chưa có bài viết nào.</div>";

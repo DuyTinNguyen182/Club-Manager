@@ -53,9 +53,9 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle' && isset($_GET['id']))
                             <td class="text-center">
                                 <a href="?action=toggle&id=<?= $row['Machude'] ?>" style="text-decoration: none;">
                                     <?php if ($row['Trangthai'] == 1): ?>
-                                        <span class="badge bg-secondary" title="Nhấn để hiện">Ẩn</span>
-                                    <?php else: ?>
                                         <span class="badge bg-success" title="Nhấn để ẩn">Hiển thị</span>
+                                    <?php else: ?>
+                                        <span class="badge bg-secondary" title="Nhấn để hiện">Ẩn</span>
                                     <?php endif; ?>
                                 </a>
                             </td>

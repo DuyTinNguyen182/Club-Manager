@@ -609,7 +609,7 @@ if (isset($_SESSION['emailUser'])) {
 
   <div class="container">
     <?php
-    $sql = "SELECT * FROM tblslideshow WHERE Status = 0";
+    $sql = "SELECT * FROM tblslideshow WHERE Status = 1";
     $rs = $conn->query($sql);
     if ($rs && $rs->num_rows > 0) { ?>
       <div class="slider-container">
@@ -636,7 +636,7 @@ if (isset($_SESSION['emailUser'])) {
       <aside class="sidebar">
         <div class="sidebar-card">
           <?php
-          $sqlcd = "SELECT * FROM tblchude WHERE Trangthai = 0";
+          $sqlcd = "SELECT * FROM tblchude WHERE Trangthai = 1";
           $resultcd = $conn->query($sqlcd);
           $sl = ($resultcd) ? $resultcd->num_rows : 0;
           ?>
