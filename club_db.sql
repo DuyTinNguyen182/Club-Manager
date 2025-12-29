@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th12 21, 2025 lúc 03:58 AM
+-- Thời gian đã tạo: Th12 29, 2025 lúc 03:04 PM
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
 -- Phiên bản PHP: 8.2.12
 
@@ -42,7 +42,8 @@ CREATE TABLE `tblbaiviet` (
 --
 
 INSERT INTO `tblbaiviet` (`Mabaiviet`, `Noidung`, `Machude`, `Ngaytao`, `Teptin`, `Username`, `Trangthai`) VALUES
-(3, 'Noi dung 1', 2, '2025-11-18', '1765242242_Ảnh chụp màn hình 2024-11-18 091528.png', 'giathinh', 1);
+(3, 'Noi dung 1', 2, '2025-11-18', '1765242242_Ảnh chụp màn hình 2024-11-18 091528.png', 'giathinh', 1),
+(8, 'Tết dương lịch nghỉ mấy ngày vậy mọi người', 1, '2025-12-29', '', 'minhanh', 1);
 
 -- --------------------------------------------------------
 
@@ -67,7 +68,11 @@ CREATE TABLE `tblbinhluan` (
 INSERT INTO `tblbinhluan` (`Mabinhluan`, `Noidung`, `Mabaiviet`, `Username`, `Ngaytao`, `Trangthai`, `parent_id`) VALUES
 (12, 'haha', 3, 'admin1', '2025-12-09', 1, 0),
 (13, 'haha', 3, 'admin1', '2025-12-09', 0, 0),
-(15, 'hihi', 3, 'admin1', '2025-12-21', 1, 12);
+(15, 'hihi', 3, 'admin1', '2025-12-21', 1, 12),
+(16, '1 ngày 1/1 hay sao ấy', 8, 'giathinh', '2025-12-29', 1, 0),
+(17, '4 ngày từ ngày 1/1 đến hết CN á', 8, 'vanbao', '2025-12-29', 1, 0),
+(18, 'phải k cha', 8, 'vanbao', '2025-12-29', 1, 16),
+(19, '@vanbao 1/1 đúng rồi', 8, 'quocviet', '2025-12-29', 1, 16);
 
 -- --------------------------------------------------------
 
@@ -86,13 +91,13 @@ CREATE TABLE `tblchude` (
 --
 
 INSERT INTO `tblchude` (`Machude`, `Tenchude`, `Trangthai`) VALUES
-(1, 'Hỏi đáp - Thắc mắc', 0),
-(2, 'Tin học Văn phòng (Word, Excel, PP)', 0),
-(3, 'Lập trình Căn bản (C/C++, Python, Java)', 0),
-(4, 'Lập trình Web (HTML, CSS, JS, PHP)', 0),
-(5, 'Cơ sở dữ liệu (SQL)', 0),
-(6, 'Phần cứng & Mạng máy tính', 0),
-(7, 'Đồ họa & Thiết kế', 0);
+(1, 'Hỏi đáp - Thắc mắc', 1),
+(2, 'Tin học Văn phòng (Word, Excel, PP)', 1),
+(3, 'Lập trình Căn bản (C/C++, Python, Java)', 1),
+(4, 'Lập trình Web (HTML, CSS, JS, PHP)', 1),
+(5, 'Cơ sở dữ liệu (SQL)', 1),
+(6, 'Phần cứng & Mạng máy tính', 1),
+(7, 'Đồ họa & Thiết kế', 1);
 
 -- --------------------------------------------------------
 
@@ -105,9 +110,18 @@ CREATE TABLE `tblcontact` (
   `Tennguoigui` varchar(100) NOT NULL,
   `Noidung` text NOT NULL,
   `Email` varchar(50) NOT NULL,
-  `Ngaygui` date NOT NULL,
+  `Ngaygui` datetime NOT NULL,
   `Trangthai` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `tblcontact`
+--
+
+INSERT INTO `tblcontact` (`id`, `Tennguoigui`, `Noidung`, `Email`, `Ngaygui`, `Trangthai`) VALUES
+(4, 'Nguyễn Thị Lan Anh', 'Cho em tham gia clb với', 'lananh@gmail.com', '2025-12-29 00:00:00', 1),
+(5, 'Hoàng Quốc Việt', 'Clb khi nào bầu ban chủ nhiệm mới vậy?', 'quocviet.hoang@tvu.edu.vn', '2025-12-29 14:47:26', 0),
+(6, 'Hoàng Quốc Việt', 'Khi nào clb giải thể vậy?', 'quocviet.hoang@tvu.edu.vn', '2025-12-29 20:49:29', 0);
 
 -- --------------------------------------------------------
 
@@ -163,7 +177,7 @@ CREATE TABLE `tblhoatdong` (
 INSERT INTO `tblhoatdong` (`hoatdong_id`, `ten_hoat_dong`, `mo_ta_hoat_dong`, `ngay_bat_dau`, `dia_diem`, `trang_thai`) VALUES
 (1, 'Workshop Lập trình Web cơ bản cho người mới bắt đầu', 'Buổi workshop hướng dẫn các bạn sinh viên làm quen với HTML, CSS và Javascript.', '2025-11-25 08:30:00', 'Phòng máy A1.201, Khu 1, ĐH Trà Vinh', 1),
 (2, 'Cuộc thi ', 'Cuộc thi giải thuật toán hàng tháng dành cho tất cả thành viên CLB. Giải thưởng hấp dẫn đang chờ đón!', '2025-12-05 07:00:00', 'Trực tuyến trên nền tảng HackerRank', 1),
-(3, 'Buổi sinh hoạt CLB cuối năm', 'Tổng kết hoạt động năm 2025 và định hướng cho năm 2026. Có tiệc trà và giao lưu văn nghệ.', '2025-12-29 18:00:00', 'Hội trường B5.101', 0);
+(3, 'Buổi sinh hoạt CLB cuối năm', 'Tổng kết hoạt động năm 2025 và định hướng cho năm 2026. Có tiệc trà và giao lưu văn nghệ.', '2025-12-29 18:00:00', 'Hội trường B5.101', 1);
 
 -- --------------------------------------------------------
 
@@ -185,8 +199,8 @@ CREATE TABLE `tblslideshow` (
 --
 
 INSERT INTO `tblslideshow` (`Id`, `Title`, `Description`, `ImageUrl`, `Status`, `username`) VALUES
-(9, '', '', 'images/750banner.jpg', 0, ''),
-(10, '', '', 'images/240banner1.jpg', 0, '');
+(9, 'CLB Tin học', '', 'images/750banner.jpg', 1, ''),
+(10, 'CLB Tin học', '', 'images/240banner1.jpg', 1, '');
 
 -- --------------------------------------------------------
 
@@ -286,13 +300,13 @@ ALTER TABLE `tbluser`
 -- AUTO_INCREMENT cho bảng `tblbaiviet`
 --
 ALTER TABLE `tblbaiviet`
-  MODIFY `Mabaiviet` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `Mabaiviet` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT cho bảng `tblbinhluan`
 --
 ALTER TABLE `tblbinhluan`
-  MODIFY `Mabinhluan` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `Mabinhluan` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT cho bảng `tblchude`
@@ -304,7 +318,7 @@ ALTER TABLE `tblchude`
 -- AUTO_INCREMENT cho bảng `tblcontact`
 --
 ALTER TABLE `tblcontact`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT cho bảng `tbldangkyhoatdong`

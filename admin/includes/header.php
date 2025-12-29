@@ -116,6 +116,13 @@ if (!isset($_SESSION['username']) || $_SESSION['role'] != 1) {
                 </a>
             </li>
 
+            <li>
+                <a href="<?= $base_path ?>slideshowManager/slideshows.php"
+                    class="<?= (strpos($_SERVER['PHP_SELF'], 'slideshowManager') !== false) ? 'active' : '' ?>">
+                    <i class='bx bx-images'></i> Quản lý Slideshow
+                </a>
+            </li>
+
             <li class="mt-5">
                 <a href="<?= $base_path ?>../logout.php" class="text-danger"><i class='bx bx-log-out'></i> Đăng xuất</a>
             </li>

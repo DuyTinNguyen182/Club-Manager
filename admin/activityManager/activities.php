@@ -1,6 +1,10 @@
 <?php
 $path_to_admin = '../';
 include('../includes/header.php');
+
+$current_time = date('Y-m-d H:i:s');
+$sql_auto_update = "UPDATE tblhoatdong SET trang_thai = 1 WHERE ngay_bat_dau < '$current_time' AND trang_thai = 0";
+$conn->query($sql_auto_update);
 ?>
 
 <div class="card shadow-sm">
@@ -31,7 +35,7 @@ include('../includes/header.php');
                 $stt = 1;
                 if ($result->num_rows > 0) {
                     while ($row = $result->fetch_assoc()) {
-                        ?>
+                ?>
                         <tr>
                             <td class="text-center fw-bold"><?= $stt++; ?></td>
                             <td>
@@ -57,14 +61,14 @@ include('../includes/header.php');
                                 <a href="edit.php?id=<?= $row['hoatdong_id'] ?>" class="btn btn-warning btn-sm" title="Sửa">
                                     <i class='bx bx-edit-alt'></i>
                                 </a>
-                                <a href="delete.php?id=<?= $row['hoatdong_id'] ?>" class="btn btn-danger btn-sm" 
-                                   onclick="return confirm('Bạn có chắc muốn xóa hoạt động này?')" 
-                                   title="Xóa">
+                                <a href="delete.php?id=<?= $row['hoatdong_id'] ?>" class="btn btn-danger btn-sm"
+                                    onclick="return confirm('Bạn có chắc muốn xóa hoạt động này?')"
+                                    title="Xóa">
                                     <i class='bx bx-trash'></i>
                                 </a>
                             </td>
                         </tr>
-                        <?php
+                <?php
                     }
                 } else {
                     echo "<tr><td colspan='6' class='text-center text-muted py-4'>Chưa có hoạt động nào.</td></tr>";

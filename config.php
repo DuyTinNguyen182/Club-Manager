@@ -1,15 +1,14 @@
 <?php
+date_default_timezone_set('Asia/Ho_Chi_Minh');
+
 // kết nối csdl
 $hostname     = "localhost";
 $username     = "root";
 $password     = "";
 $databasename = "club_db";
 
-$conn = mysqli_connect($hostname, $username, $password) or 
+$conn = mysqli_connect($hostname, $username, $password) or
 	die("Không thể kết nối host !");
-mysqli_select_db($conn,$databasename)or 
+mysqli_select_db($conn, $databasename) or
 	die("Không thể kết nối cơ sở dữ liệu !");
-mysqli_query($conn,"SET NAMES 'utf8'");
-
-?>
-
+mysqli_query($conn, "SET NAMES 'utf8'");

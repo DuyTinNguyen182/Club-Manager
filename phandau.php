@@ -23,6 +23,7 @@ if (isset($_SESSION['emailUser'])) {
     exit();
   }
 }
+$current_page = basename($_SERVER['PHP_SELF']);
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -568,43 +569,52 @@ if (isset($_SESSION['emailUser'])) {
       <span>CLB TIN HỌC TVU</span>
     </a>
     <div class="nav-links">
-      <a href="index.php" class="active"><i class="fa-solid fa-house"></i> Trang chủ</a>
-      <a href="contact.php"><i class="fa-solid fa-envelope"></i> Liên hệ</a>
+      <div class="nav-links">
+        <a href="index.php" class="<?= ($current_page == 'index.php') ? 'active' : '' ?>">
+          <i class="fa-solid fa-house"></i> Trang chủ
+        </a>
 
-      <?php if (isset($_SESSION["emailUser"])) { ?>
+        <a href="contact.php" class="<?= ($current_page == 'contact.php') ? 'active' : '' ?>">
+          <i class="fa-solid fa-envelope"></i> Liên hệ
+        </a>
 
-        <a href="hoatdongdadangky.php"><i class="fa-solid fa-calendar-check"></i> Hoạt động đã đăng ký</a>
-        <?php
-        $avatarPath = 'uploads/default.jpg';
-        if (isset($_SESSION['avatar']) && !empty($_SESSION['avatar'])) {
-          $avatarPath = 'uploads/' . $_SESSION['avatar'];
-        }
-        ?>
-        <div class="user-menu">
-          <div class="user-info">
-            <img src="<?= $avatarPath ?>" alt="Avatar"
-              style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid #ccc;">
-            <span>Hi, <?php echo $_SESSION['fullname']; ?></span>
-            <i class="fa-solid fa-chevron-down" style="font-size: 0.8em"></i>
-          </div>
-          <div class="dropdown-content">
-            <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 1) { ?>
-              <a href="admin/index.php" style="color: #2563eb; font-weight: bold;"><i class="fa-solid fa-gauge-high"></i>
-                Trang quản trị</a>
+        <?php if (isset($_SESSION["emailUser"])) { ?>
+
+          <a href="hoatdongdadangky.php" class="<?= ($current_page == 'hoatdongdadangky.php') ? 'active' : '' ?>">
+            <i class="fa-solid fa-calendar-check"></i> Hoạt động đã đăng ký
+          </a>
+
+          <?php
+          $avatarPath = 'uploads/default.jpg';
+          if (isset($_SESSION['avatar']) && !empty($_SESSION['avatar'])) {
+            $avatarPath = 'uploads/' . $_SESSION['avatar'];
+          }
+          ?>
+          <div class="user-menu">
+            <div class="user-info">
+              <img src="<?= $avatarPath ?>" alt="Avatar"
+                style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid #ccc;">
+              <span>Hi, <?php echo $_SESSION['fullname']; ?></span>
+              <i class="fa-solid fa-chevron-down" style="font-size: 0.8em"></i>
+            </div>
+            <div class="dropdown-content">
+              <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 1) { ?>
+                <a href="admin/index.php" style="color: #2563eb; font-weight: bold;"><i class="fa-solid fa-gauge-high"></i>
+                  Trang quản trị</a>
+                <div class="divider"></div>
+              <?php } ?>
+              <a href="thongtincanhan.php"><i class="fa-solid fa-user"></i> Thông tin cá nhân</a>
               <div class="divider"></div>
-            <?php } ?>
-            <a href="thongtincanhan.php"><i class="fa-solid fa-user"></i> Thông tin cá nhân</a>
-            <div class="divider"></div>
-            <a href="doimatkhau.php"><i class="fa-solid fa-key"></i> Đổi mật khẩu</a>
-            <div class="divider"></div>
-            <a href="logout.php" style="color: #ef4444;"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a>
+              <a href="doimatkhau.php"><i class="fa-solid fa-key"></i> Đổi mật khẩu</a>
+              <div class="divider"></div>
+              <a href="logout.php" style="color: #ef4444;"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a>
+            </div>
           </div>
-        </div>
-      <?php } else { ?>
-        <a href="signup.php">Đăng ký</a>
-        <a href="login.php" class="btn btn-primary">Đăng nhập</a>
-      <?php } ?>
-    </div>
+        <?php } else { ?>
+          <a href="signup.php">Đăng ký</a>
+          <a href="login.php" class="btn btn-primary">Đăng nhập</a>
+        <?php } ?>
+      </div>
   </nav>
 
   <div class="container">

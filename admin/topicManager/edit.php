@@ -44,7 +44,9 @@ if (isset($_POST['btnUpdate'])) {
                     <h5 class="mb-0 fw-bold"><i class='bx bx-edit'></i> Sửa chủ đề: #<?= $row['Machude'] ?></h5>
                 </div>
                 <div class="card-body">
-                    <?php if (isset($error_msg)) { echo "<div class='alert alert-danger'>$error_msg</div>"; } ?>
+                    <?php if (isset($error_msg)) {
+                        echo "<div class='alert alert-danger'>$error_msg</div>";
+                    } ?>
 
                     <form action="" method="POST">
                         <div class="mb-3">
@@ -55,8 +57,8 @@ if (isset($_POST['btnUpdate'])) {
                         <div class="mb-3">
                             <label class="form-label fw-bold">Trạng thái</label>
                             <select name="trangthai" class="form-select">
-                                <option value="0" <?= ($row['Trangthai'] == 0) ? 'selected' : '' ?>>Hiển thị</option>
-                                <option value="1" <?= ($row['Trangthai'] == 1) ? 'selected' : '' ?>>Ẩn</option>
+                                <option value="0" <?= ($row['Trangthai'] == 0) ? 'selected' : '' ?>>Ẩn</option>
+                                <option value="1" <?= ($row['Trangthai'] == 1) ? 'selected' : '' ?>>Hiển thị</option>
                             </select>
                         </div>
 

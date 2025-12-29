@@ -2,7 +2,10 @@
 $path_to_admin = '../';
 include('../includes/header.php');
 
-if (!isset($_GET['id'])) { header("Location: index.php"); exit(); }
+if (!isset($_GET['id'])) {
+    header("Location: index.php");
+    exit();
+}
 $id = $_GET['id'];
 
 $sql = "SELECT * FROM tblhoatdong WHERE hoatdong_id = '$id'";
@@ -20,6 +23,9 @@ if (isset($_POST['btnUpdate'])) {
     $ngay_bat_dau = $_POST['ngay_bat_dau'];
     $dia_diem = $_POST['dia_diem'];
     $trang_thai = $_POST['trang_thai'];
+
+    $now = date('Y-m-d H:i:s');
+    $trang_thai = ($ngay_bat_dau < $now) ? 1 : 0;
 
     $sql_update = "UPDATE tblhoatdong SET 
                    ten_hoat_dong = '$ten_hoat_dong', 
@@ -48,7 +54,9 @@ $datetime_value = date('Y-m-d\TH:i', strtotime($row['ngay_bat_dau']));
                     <h5 class="mb-0 fw-bold"><i class='bx bx-edit'></i> Sửa Hoạt động: #<?= $id ?></h5>
                 </div>
                 <div class="card-body">
-                    <?php if (isset($error_msg)) { echo "<div class='alert alert-danger'>$error_msg</div>"; } ?>
+                    <?php if (isset($error_msg)) {
+                        echo "<div class='alert alert-danger'>$error_msg</div>";
+                    } ?>
 
                     <form action="" method="POST">
                         <div class="mb-3">
@@ -56,18 +64,9 @@ $datetime_value = date('Y-m-d\TH:i', strtotime($row['ngay_bat_dau']));
                             <input type="text" name="ten_hoat_dong" class="form-control" value="<?= $row['ten_hoat_dong'] ?>" required>
                         </div>
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">Thời gian bắt đầu</label>
-                                <input type="datetime-local" name="ngay_bat_dau" class="form-control" value="<?= $datetime_value ?>" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">Trạng thái</label>
-                                <select name="trang_thai" class="form-select">
-                                    <option value="0" <?= ($row['trang_thai'] == 0) ? 'selected' : '' ?>>Sắp diễn ra</option>
-                                    <option value="1" <?= ($row['trang_thai'] == 1) ? 'selected' : '' ?>>Đã kết thúc</option>
-                                </select>
-                            </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Thời gian bắt đầu</label>
+                            <input type="datetime-local" name="ngay_bat_dau" class="form-control" value="<?= $datetime_value ?>" required>
                         </div>
 
                         <div class="mb-3">
