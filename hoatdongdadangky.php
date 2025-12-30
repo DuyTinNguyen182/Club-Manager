@@ -10,11 +10,8 @@ if (!isset($_SESSION['username'])) {
 $username = $_SESSION['username'];
 
 // 2. Truy vấn danh sách hoạt động user đã đăng ký
-// JOIN giữa bảng đăng ký và bảng hoạt động để lấy tên và ngày
-// Giả định: Bảng tbldangkyhoatdong có cột 'trang_thai' (0: Đã đăng ký, 1: Đã tham gia, 2: Vắng)
-// Nếu chưa có cột này, SQL vẫn chạy nhưng bạn cần vào database thêm cột hoặc mặc định hiển thị "Đã đăng ký"
-
-$sql = "SELECT dk.trang_thai, hd.hoatdong_id, hd.ten_hoat_dong, hd.ngay_bat_dau 
+// CẬP NHẬT: Thêm hd.ngay_ket_thuc vào SELECT
+$sql = "SELECT dk.trang_thai, dk.minh_chung, hd.hoatdong_id, hd.ten_hoat_dong, hd.ngay_bat_dau, hd.ngay_ket_thuc 
         FROM tbldangkyhoatdong dk
         JOIN tblhoatdong hd ON dk.hoatdong_id = hd.hoatdong_id
         WHERE dk.username = ?
@@ -27,7 +24,7 @@ $result = $stmt->get_result();
 ?>
 
 <style>
-    /* Sử dụng lại style base giống file chitiethoatdong.php */
+    /* CSS Base */
     .list-container {
         max-width: 1000px;
         margin: 30px auto;
@@ -46,7 +43,7 @@ $result = $stmt->get_result();
         border-bottom: 2px solid #f1f5f9;
     }
 
-    /* Style cho bảng */
+    /* Table Styles */
     .custom-table {
         width: 100%;
         border-collapse: separate;
@@ -58,7 +55,9 @@ $result = $stmt->get_result();
         padding: 15px;
         color: #64748b;
         font-weight: 600;
-        font-size: 0.95rem;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
 
     .custom-table td {
@@ -83,16 +82,30 @@ $result = $stmt->get_result();
         font-weight: 700;
         color: #334155;
         text-decoration: none;
-        margin-bottom: 5px;
+        margin-bottom: 8px;
     }
 
     .activity-name:hover {
         color: #0d6efd;
     }
 
-    .activity-date {
+    /* Style cho phần hiển thị ngày giờ */
+    .activity-time-block {
         font-size: 0.9rem;
         color: #64748b;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+    .time-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .time-label {
+        font-size: 0.8rem;
+        color: #94a3b8;
+        width: 30px; /* Cố định chiều rộng để thẳng hàng */
     }
 
     /* Badge trạng thái */
@@ -102,26 +115,22 @@ $result = $stmt->get_result();
         font-size: 0.85rem;
         font-weight: 600;
         white-space: nowrap;
+        display: inline-block;
     }
+    .st-registered { background: #e0f2fe; color: #0284c7; }
+    .st-attended { background: #dcfce7; color: #16a34a; }
+    .st-absent { background: #fee2e2; color: #dc2626; }
 
-    .st-registered {
-        background: #e0f2fe;
-        color: #0284c7;
+    /* Badge minh chứng */
+    .proof-badge {
+        font-size: 0.85rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 6px;
     }
-
-    /* Xanh dương */
-    .st-attended {
-        background: #dcfce7;
-        color: #16a34a;
-    }
-
-    /* Xanh lá */
-    .st-absent {
-        background: #fee2e2;
-        color: #dc2626;
-    }
-
-    /* Đỏ */
+    .proof-done { color: #10b981; }
+    .proof-pending { color: #f59e0b; }
 </style>
 
 <div class="content-section" style="background-color: #f1f5f9; min-height: 80vh; padding-top: 20px;">
@@ -137,15 +146,16 @@ $result = $stmt->get_result();
                 <table class="custom-table">
                     <thead>
                         <tr>
-                            <th width="50%">Thông tin hoạt động</th>
-                            <th width="25%" class="text-center">Trạng thái</th>
+                            <th width="45%">Thông tin hoạt động</th>
+                            <th width="25%">Minh chứng</th>
+                            <th width="30%" class="text-center">Điểm danh</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php while ($row = $result->fetch_assoc()):
 
+                            // 1. Xử lý trạng thái điểm danh
                             $status_code = isset($row['trang_thai']) ? $row['trang_thai'] : 0;
-
                             $status_html = '';
                             switch ($status_code) {
                                 case 1:
@@ -158,17 +168,67 @@ $result = $stmt->get_result();
                                     $status_html = '<span class="status-badge st-registered"><i class="fa-solid fa-pen"></i> Đã đăng ký</span>';
                                     break;
                             }
+
+                            // 2. Xử lý thời gian & Minh chứng
+                            $has_proof = !empty($row['minh_chung']);
+                            
+                            $t_start = strtotime($row['ngay_bat_dau']);
+                            // Nếu không có ngày kết thúc thì lấy ngày bắt đầu
+                            $t_end = !empty($row['ngay_ket_thuc']) ? strtotime($row['ngay_ket_thuc']) : $t_start;
+                            
+                            // Logic Hết hạn: Bây giờ > Ngày kết thúc (Chính xác hơn là ngày bắt đầu)
+                            $is_expired = time() > $t_end;
                         ?>
                             <tr>
                                 <td>
                                     <a href="chitiethoatdong.php?id=<?php echo $row['hoatdong_id']; ?>" class="activity-name">
                                         <?php echo htmlspecialchars($row['ten_hoat_dong']); ?>
                                     </a>
-                                    <span class="activity-date">
-                                        <i class="fa-regular fa-clock"></i>
-                                        <?php echo date("H:i d/m/Y", strtotime($row['ngay_bat_dau'])); ?>
-                                    </span>
+                                    
+                                    <div class="activity-time-block">
+                                        <div class="time-row">
+                                            <span class="time-label">Từ:</span>
+                                            <i class="fa-regular fa-clock" style="font-size:0.8rem; margin-right:4px;"></i>
+                                            <?php echo date("H:i - d/m/Y", $t_start); ?>
+                                        </div>
+                                        <div class="time-row">
+                                            <span class="time-label">Đến:</span>
+                                            <i class="fa-regular fa-clock" style="font-size:0.8rem; margin-right:4px;"></i>
+                                            <?php echo date("H:i - d/m/Y", $t_end); ?>
+                                        </div>
+                                    </div>
                                 </td>
+
+                                <td>
+                                    <?php if ($has_proof): ?>
+                                        <div class="proof-badge proof-done">
+                                            <i class="fa-solid fa-file-circle-check"></i>
+                                            <span>Đã nộp</span>
+                                        </div>
+                                        <small style="color: #64748b; font-size: 0.8rem;">
+                                            <a href="chitiethoatdong.php?id=<?php echo $row['hoatdong_id']; ?>"
+                                                style="text-decoration:none; color:inherit;">(Xem lại)</a>
+                                        </small>
+
+                                    <?php else: ?>
+                                        <div class="proof-badge proof-pending">
+                                            <i class="fa-solid fa-circle-exclamation"></i>
+                                            <span>Chưa nộp</span>
+                                        </div>
+
+                                        <small style="font-size: 0.8rem;">
+                                            <?php if (!$is_expired): ?>
+                                                <a href="chitiethoatdong.php?id=<?php echo $row['hoatdong_id']; ?>"
+                                                    style="color: #0d6efd; text-decoration:none;">
+                                                    <i class="fa-solid fa-upload"></i> Nộp ngay
+                                                </a>
+                                            <?php else: ?>
+                                                <span style="color: #94a3b8;">(Đã kết thúc)</span>
+                                            <?php endif; ?>
+                                        </small>
+                                    <?php endif; ?>
+                                </td>
+
                                 <td class="text-center">
                                     <?php echo $status_html; ?>
                                 </td>
@@ -178,9 +238,12 @@ $result = $stmt->get_result();
                 </table>
             <?php else: ?>
                 <div class="text-center py-5">
-                    <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" alt="Empty" style="width: 80px; opacity: 0.5; margin-bottom: 15px;">
+                    <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" alt="Empty"
+                        style="width: 80px; opacity: 0.5; margin-bottom: 15px;">
                     <p class="text-muted">Bạn chưa đăng ký hoạt động nào.</p>
-                    <a href="index.php" class="btn btn-primary">Tìm hoạt động ngay</a>
+                    <a href="index.php" class="btn btn-primary"
+                        style="background:#0d6efd; color:#fff; padding:10px 20px; border-radius:8px; text-decoration:none;">Tìm
+                        hoạt động ngay</a>
                 </div>
             <?php endif; ?>
         </div>

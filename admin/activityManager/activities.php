@@ -2,8 +2,14 @@
 $path_to_admin = '../';
 include('../includes/header.php');
 
+// 1. Cấu hình múi giờ để so sánh chính xác
+date_default_timezone_set('Asia/Ho_Chi_Minh');
 $current_time = date('Y-m-d H:i:s');
-$sql_auto_update = "UPDATE tblhoatdong SET trang_thai = 1 WHERE ngay_bat_dau < '$current_time' AND trang_thai = 0";
+
+// 2. Cập nhật trạng thái tự động (Tuỳ chọn: Nếu bạn dùng cột trang_thai trong DB)
+// Nếu đã qua ngày kết thúc -> Set thành 1 (Đã kết thúc)
+// Lưu ý: Logic hiển thị bên dưới sẽ tính toán lại chính xác hơn theo thời gian thực
+$sql_auto_update = "UPDATE tblhoatdong SET trang_thai = 1 WHERE ngay_ket_thuc < '$current_time' AND trang_thai = 0";
 $conn->query($sql_auto_update);
 ?>
 
@@ -19,44 +25,72 @@ $conn->query($sql_auto_update);
             <thead class="table-light">
                 <tr>
                     <th class="text-center" style="width: 50px;">STT</th>
-                    <th>Tên hoạt động</th>
-                    <th>Thời gian & Địa điểm</th>
+                    <th style="width: 25%;">Tên hoạt động</th>
+                    <th style="width: 25%;">Thời gian</th>
+                    <th style="width: 15%;">Địa điểm</th>
                     <th>Mô tả</th>
-                    <th class="text-center">Trạng thái</th>
-                    <th class="text-center" style="width: 120px;">Hành động</th>
+                    <th class="text-center" style="width: 100px;">Trạng thái</th>
+                    <th class="text-center" style="width: 100px;">Hành động</th>
                 </tr>
             </thead>
             <tbody>
                 <?php
-                // Sắp xếp theo ngày bắt đầu giảm dần (mới nhất lên đầu)
+                // Sắp xếp: Mới nhất lên đầu
                 $sql = "SELECT * FROM tblhoatdong ORDER BY ngay_bat_dau DESC";
                 $result = $conn->query($sql);
 
                 $stt = 1;
                 if ($result->num_rows > 0) {
                     while ($row = $result->fetch_assoc()) {
+                        // --- XỬ LÝ THỜI GIAN ---
+                        $t_start = strtotime($row['ngay_bat_dau']);
+                        // Nếu không có ngày kết thúc thì lấy bằng ngày bắt đầu
+                        $t_end = !empty($row['ngay_ket_thuc']) ? strtotime($row['ngay_ket_thuc']) : $t_start;
+                        $now = time();
+
+                        // --- XÁC ĐỊNH TRẠNG THÁI HIỂN THỊ ---
+                        if ($now < $t_start) {
+                            $badge = '<span class="badge bg-success">Sắp diễn ra</span>'; // Xanh lá
+                        } elseif ($now >= $t_start && $now <= $t_end) {
+                            $badge = '<span class="badge bg-warning text-dark">Đang diễn ra</span>'; // Cam/Vàng
+                        } else {
+                            $badge = '<span class="badge bg-secondary">Đã kết thúc</span>'; // Xám
+                        }
                 ?>
                         <tr>
                             <td class="text-center fw-bold"><?= $stt++; ?></td>
+                            
                             <td>
                                 <div class="fw-bold text-primary"><?= $row['ten_hoat_dong'] ?></div>
                             </td>
+
                             <td>
-                                <div><i class='bx bx-calendar'></i> <?= date('d/m/Y H:i', strtotime($row['ngay_bat_dau'])) ?></div>
-                                <small class="text-muted"><i class='bx bx-map'></i> <?= $row['dia_diem'] ?></small>
+                                <div class="d-flex flex-column" style="font-size: 0.9rem;">
+                                    <span class="text-muted mb-1">
+                                        <i class='bx bx-time'></i> Từ: 
+                                        <span class="text-dark fw-bold"><?= date('H:i d/m/Y', $t_start) ?></span>
+                                    </span>
+                                    <span class="text-muted">
+                                        <i class='bx bx-time-five'></i> Đến: 
+                                        <span class="text-dark fw-bold"><?= date('H:i d/m/Y', $t_end) ?></span>
+                                    </span>
+                                </div>
                             </td>
+
                             <td>
-                                <div class="text-truncate" style="max-width: 200px;">
+                                <small class="text-dark"><i class='bx bx-map'></i> <?= $row['dia_diem'] ?></small>
+                            </td>
+
+                            <td>
+                                <div class="text-truncate" style="max-width: 150px;" title="<?= htmlspecialchars($row['mo_ta_hoat_dong']) ?>">
                                     <?= htmlspecialchars($row['mo_ta_hoat_dong']) ?>
                                 </div>
                             </td>
+
                             <td class="text-center">
-                                <?php if ($row['trang_thai'] == 0): ?>
-                                    <span class="badge bg-success">Sắp diễn ra</span>
-                                <?php else: ?>
-                                    <span class="badge bg-secondary">Đã kết thúc</span>
-                                <?php endif; ?>
+                                <?= $badge ?>
                             </td>
+
                             <td class="text-center">
                                 <a href="edit.php?id=<?= $row['hoatdong_id'] ?>" class="btn btn-warning btn-sm" title="Sửa">
                                     <i class='bx bx-edit-alt'></i>
@@ -71,7 +105,7 @@ $conn->query($sql_auto_update);
                 <?php
                     }
                 } else {
-                    echo "<tr><td colspan='6' class='text-center text-muted py-4'>Chưa có hoạt động nào.</td></tr>";
+                    echo "<tr><td colspan='7' class='text-center text-muted py-4'>Chưa có hoạt động nào.</td></tr>";
                 }
                 ?>
             </tbody>

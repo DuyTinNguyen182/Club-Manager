@@ -19,24 +19,17 @@ if (!$row_hd) {
     exit();
 }
 
-// 3. XỬ LÝ FORM ĐIỂM DANH (Khi bấm nút Xác nhận)
+// 3. XỬ LÝ FORM ĐIỂM DANH
 if (isset($_POST['btnSaveAttendance'])) {
-    // Lấy mảng danh sách user hiển thị trong form
     $users_list = isset($_POST['users']) ? $_POST['users'] : [];
-
-    // Lấy mảng các user ĐƯỢC CHECK (đã tham gia)
     $present_list = isset($_POST['present']) ? $_POST['present'] : [];
 
     foreach ($users_list as $username) {
-        // Nếu username nằm trong mảng present_list => set status = 1 (Đã tham gia)
-        // Nếu không => set status = 2 (Vắng)
         $status = in_array($username, $present_list) ? 1 : 2;
-
         $stmt = $conn->prepare("UPDATE tbldangkyhoatdong SET trang_thai = ? WHERE hoatdong_id = ? AND username = ?");
         $stmt->bind_param("iis", $status, $hoatdong_id, $username);
         $stmt->execute();
     }
-
     echo "<script>alert('Cập nhật điểm danh thành công!'); window.location.href='take_attendance.php?id=$hoatdong_id';</script>";
 }
 
@@ -48,7 +41,7 @@ if (isset($_GET['search']) && !empty($_GET['search'])) {
     $search_sql = " AND u.fullname LIKE '%$search_query%' ";
 }
 
-// 5. Lấy danh sách thành viên đã đăng ký
+// 5. Lấy danh sách thành viên
 $sql_dk = "SELECT dk.*, u.fullname, u.email, u.username 
            FROM tbldangkyhoatdong dk 
            JOIN tbluser u ON dk.username = u.username 
@@ -90,8 +83,8 @@ $result_dk = $conn->query($sql_dk);
                                 <th width="50">STT</th>
                                 <th>Tên thành viên</th>
                                 <th>Email</th>
-                                <th>Ngày đăng ký</th>
-                                <th width="150">Trạng thái hiện tại</th>
+                                <th width="120">Minh chứng</th> 
+                                <th width="150">Trạng thái</th>
                                 <th width="120" class="bg-warning bg-opacity-10">Tham gia</th>
                             </tr>
                         </thead>
@@ -105,8 +98,31 @@ $result_dk = $conn->query($sql_dk);
                                         <td class="text-center"><?= $stt++ ?></td>
                                         <td class="fw-bold"><?= $row['fullname'] ?></td>
                                         <td><?= $row['email'] ?></td>
-                                        <td class="text-center"><?= date('d/m/Y H:i', strtotime($row['ngay_dangky'])) ?></td>
 
+                                        <td class="text-center">
+                                            <?php if (!empty($row['minh_chung'])): 
+                                                // Đường dẫn file (Lưu ý: file admin nằm trong thư mục con nên cần ../ để ra ngoài)
+                                                $file_path = "../../uploads/proofs/" . $row['minh_chung'];
+                                                $ext = strtolower(pathinfo($row['minh_chung'], PATHINFO_EXTENSION));
+                                                
+                                                // Nếu là ảnh -> Hiển thị thumbnail
+                                                if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif'])): 
+                                            ?>
+                                                <a href="<?= $file_path ?>" target="_blank" title="Xem ảnh lớn">
+                                                    <img src="<?= $file_path ?>" alt="Proof" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;">
+                                                </a>
+                                            <?php else: 
+                                                // Nếu là file khác (PDF, Doc) -> Hiển thị nút tải/xem
+                                            ?>
+                                                <a href="<?= $file_path ?>" target="_blank" class="btn btn-sm btn-outline-info">
+                                                    <i class='bx bx-file'></i> File
+                                                </a>
+                                            <?php endif; ?>
+
+                                            <?php else: ?>
+                                                <span class="text-muted small"><em>--</em></span>
+                                            <?php endif; ?>
+                                        </td>
                                         <td class="text-center">
                                             <?php
                                             if ($row['trang_thai'] == 0) echo '<span class="badge bg-info text-dark">Chưa điểm danh</span>';
@@ -117,7 +133,6 @@ $result_dk = $conn->query($sql_dk);
 
                                         <td class="text-center bg-warning bg-opacity-10">
                                             <input type="hidden" name="users[]" value="<?= $row['username'] ?>">
-
                                             <div class="form-check d-flex justify-content-center">
                                                 <input class="form-check-input" type="checkbox"
                                                     name="present[]"
@@ -139,7 +154,7 @@ $result_dk = $conn->query($sql_dk);
 
                 <div class="d-flex justify-content-between align-items-center mt-3 p-3 bg-light rounded border">
                     <div class="text-muted">
-                        <small>* Tick vào ô để xác nhận <b>Đã tham gia</b>. Bỏ tick sẽ tính là <b>Vắng</b>.</small>
+                        <small>* Xem minh chứng trước khi tick <b>Tham gia</b>.</small>
                     </div>
                     <button type="submit" name="btnSaveAttendance" class="btn btn-primary px-4 fw-bold">
                         <i class='bx bx-save'></i> Xác nhận điểm danh
