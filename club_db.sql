@@ -3,8 +3,8 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th12 29, 2025 lúc 03:04 PM
--- Phiên bản máy phục vụ: 10.4.32-MariaDB
+-- Thời gian đã tạo: Th1 04, 2026 lúc 07:18 AM
+-- Phiên bản máy phục vụ: 8.0.43
 -- Phiên bản PHP: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
@@ -28,13 +28,13 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `tblbaiviet` (
-  `Mabaiviet` int(11) NOT NULL,
-  `Noidung` text NOT NULL,
-  `Machude` int(11) NOT NULL,
+  `Mabaiviet` int NOT NULL,
+  `Noidung` text COLLATE utf8mb4_general_ci NOT NULL,
+  `Machude` int NOT NULL,
   `Ngaytao` date NOT NULL,
-  `Teptin` varchar(255) DEFAULT NULL,
-  `Username` varchar(50) NOT NULL,
-  `Trangthai` int(11) NOT NULL
+  `Teptin` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `Username` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `Trangthai` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -52,13 +52,13 @@ INSERT INTO `tblbaiviet` (`Mabaiviet`, `Noidung`, `Machude`, `Ngaytao`, `Teptin`
 --
 
 CREATE TABLE `tblbinhluan` (
-  `Mabinhluan` int(11) NOT NULL,
-  `Noidung` text NOT NULL,
-  `Mabaiviet` int(11) NOT NULL,
-  `Username` varchar(50) NOT NULL,
+  `Mabinhluan` int NOT NULL,
+  `Noidung` text COLLATE utf8mb4_general_ci NOT NULL,
+  `Mabaiviet` int NOT NULL,
+  `Username` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
   `Ngaytao` date NOT NULL,
-  `Trangthai` int(11) NOT NULL,
-  `parent_id` int(11) DEFAULT 0
+  `Trangthai` int NOT NULL,
+  `parent_id` int DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -81,9 +81,9 @@ INSERT INTO `tblbinhluan` (`Mabinhluan`, `Noidung`, `Mabaiviet`, `Username`, `Ng
 --
 
 CREATE TABLE `tblchude` (
-  `Machude` int(11) NOT NULL,
-  `Tenchude` text NOT NULL,
-  `Trangthai` int(11) NOT NULL
+  `Machude` int NOT NULL,
+  `Tenchude` text COLLATE utf8mb4_general_ci NOT NULL,
+  `Trangthai` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -106,12 +106,12 @@ INSERT INTO `tblchude` (`Machude`, `Tenchude`, `Trangthai`) VALUES
 --
 
 CREATE TABLE `tblcontact` (
-  `id` int(11) NOT NULL,
-  `Tennguoigui` varchar(100) NOT NULL,
-  `Noidung` text NOT NULL,
-  `Email` varchar(50) NOT NULL,
+  `id` int NOT NULL,
+  `Tennguoigui` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `Noidung` text COLLATE utf8mb4_general_ci NOT NULL,
+  `Email` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
   `Ngaygui` datetime NOT NULL,
-  `Trangthai` int(11) NOT NULL
+  `Trangthai` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -130,30 +130,31 @@ INSERT INTO `tblcontact` (`id`, `Tennguoigui`, `Noidung`, `Email`, `Ngaygui`, `T
 --
 
 CREATE TABLE `tbldangkyhoatdong` (
-  `dangky_id` int(11) NOT NULL,
-  `hoatdong_id` int(11) NOT NULL,
-  `username` varchar(50) NOT NULL,
-  `ngay_dangky` datetime NOT NULL DEFAULT current_timestamp(),
-  `trang_thai` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0: Đã đăng ký, 1: Đã tham gia, 2: Vắng'
+  `dangky_id` int NOT NULL,
+  `hoatdong_id` int NOT NULL,
+  `username` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `ngay_dangky` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `minh_chung` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `trang_thai` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0: Đã đăng ký, 1: Đã tham gia, 2: Vắng'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `tbldangkyhoatdong`
 --
 
-INSERT INTO `tbldangkyhoatdong` (`dangky_id`, `hoatdong_id`, `username`, `ngay_dangky`, `trang_thai`) VALUES
-(3, 1, 'camtu', '2025-11-10 08:30:00', 0),
-(4, 1, 'duytin', '2025-11-05 09:15:00', 0),
-(5, 1, 'giathinh', '2025-10-28 14:00:00', 0),
-(6, 1, 'minhanh', '2025-11-18 10:45:00', 0),
-(7, 1, 'quocviet', '2025-10-20 16:20:00', 0),
-(8, 1, 'vanbao', '2025-11-02 07:50:00', 0),
-(9, 2, 'camtu', '2025-11-12 09:00:00', 2),
-(10, 2, 'duytin', '2025-10-30 15:10:00', 2),
-(11, 2, 'giathinh', '2025-11-08 08:40:00', 1),
-(12, 2, 'minhanh', '2025-11-20 11:30:00', 2),
-(13, 2, 'quocviet', '2025-10-25 13:55:00', 1),
-(14, 2, 'vanbao', '2025-11-15 17:05:00', 1);
+INSERT INTO `tbldangkyhoatdong` (`dangky_id`, `hoatdong_id`, `username`, `ngay_dangky`, `minh_chung`, `trang_thai`) VALUES
+(3, 1, 'camtu', '2025-11-10 08:30:00', NULL, 0),
+(4, 1, 'duytin', '2025-11-05 09:15:00', NULL, 0),
+(5, 1, 'giathinh', '2025-10-28 14:00:00', NULL, 0),
+(6, 1, 'minhanh', '2025-11-18 10:45:00', NULL, 0),
+(7, 1, 'quocviet', '2025-10-20 16:20:00', NULL, 0),
+(8, 1, 'vanbao', '2025-11-02 07:50:00', NULL, 0),
+(9, 2, 'camtu', '2025-11-12 09:00:00', NULL, 2),
+(10, 2, 'duytin', '2025-10-30 15:10:00', NULL, 2),
+(11, 2, 'giathinh', '2025-11-08 08:40:00', NULL, 1),
+(12, 2, 'minhanh', '2025-11-20 11:30:00', NULL, 2),
+(13, 2, 'quocviet', '2025-10-25 13:55:00', NULL, 1),
+(14, 2, 'vanbao', '2025-11-15 17:05:00', NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -162,22 +163,23 @@ INSERT INTO `tbldangkyhoatdong` (`dangky_id`, `hoatdong_id`, `username`, `ngay_d
 --
 
 CREATE TABLE `tblhoatdong` (
-  `hoatdong_id` int(11) NOT NULL,
-  `ten_hoat_dong` varchar(200) NOT NULL,
-  `mo_ta_hoat_dong` text NOT NULL,
+  `hoatdong_id` int NOT NULL,
+  `ten_hoat_dong` varchar(200) COLLATE utf8mb4_general_ci NOT NULL,
+  `mo_ta_hoat_dong` text COLLATE utf8mb4_general_ci NOT NULL,
   `ngay_bat_dau` datetime NOT NULL,
-  `dia_diem` varchar(255) DEFAULT NULL,
-  `trang_thai` int(11) NOT NULL DEFAULT 0 COMMENT '0: Sắp diễn ra, 1: Đã kết thúc'
+  `ngay_ket_thuc` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `dia_diem` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `trang_thai` int NOT NULL DEFAULT '0' COMMENT '0: Sắp diễn ra, 1: Đã kết thúc'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `tblhoatdong`
 --
 
-INSERT INTO `tblhoatdong` (`hoatdong_id`, `ten_hoat_dong`, `mo_ta_hoat_dong`, `ngay_bat_dau`, `dia_diem`, `trang_thai`) VALUES
-(1, 'Workshop Lập trình Web cơ bản cho người mới bắt đầu', 'Buổi workshop hướng dẫn các bạn sinh viên làm quen với HTML, CSS và Javascript.', '2025-11-25 08:30:00', 'Phòng máy A1.201, Khu 1, ĐH Trà Vinh', 1),
-(2, 'Cuộc thi ', 'Cuộc thi giải thuật toán hàng tháng dành cho tất cả thành viên CLB. Giải thưởng hấp dẫn đang chờ đón!', '2025-12-05 07:00:00', 'Trực tuyến trên nền tảng HackerRank', 1),
-(3, 'Buổi sinh hoạt CLB cuối năm', 'Tổng kết hoạt động năm 2025 và định hướng cho năm 2026. Có tiệc trà và giao lưu văn nghệ.', '2025-12-29 18:00:00', 'Hội trường B5.101', 1);
+INSERT INTO `tblhoatdong` (`hoatdong_id`, `ten_hoat_dong`, `mo_ta_hoat_dong`, `ngay_bat_dau`, `ngay_ket_thuc`, `dia_diem`, `trang_thai`) VALUES
+(1, 'Workshop Lập trình Web cơ bản cho người mới bắt đầu', 'Buổi workshop hướng dẫn các bạn sinh viên làm quen với HTML, CSS và Javascript.', '2025-11-25 08:30:00', '2026-01-04 13:11:32', 'Phòng máy A1.201, Khu 1, ĐH Trà Vinh', 1),
+(2, 'Cuộc thi ', 'Cuộc thi giải thuật toán hàng tháng dành cho tất cả thành viên CLB. Giải thưởng hấp dẫn đang chờ đón!', '2025-12-05 07:00:00', '2026-01-04 13:11:32', 'Trực tuyến trên nền tảng HackerRank', 1),
+(3, 'Buổi sinh hoạt CLB cuối năm', 'Tổng kết hoạt động năm 2025 và định hướng cho năm 2026. Có tiệc trà và giao lưu văn nghệ.', '2025-12-29 18:00:00', '2026-01-04 13:11:32', 'Hội trường B5.101', 1);
 
 -- --------------------------------------------------------
 
@@ -186,12 +188,12 @@ INSERT INTO `tblhoatdong` (`hoatdong_id`, `ten_hoat_dong`, `mo_ta_hoat_dong`, `n
 --
 
 CREATE TABLE `tblslideshow` (
-  `Id` int(11) NOT NULL,
-  `Title` varchar(255) NOT NULL,
-  `Description` text NOT NULL,
-  `ImageUrl` varchar(255) NOT NULL,
-  `Status` int(11) NOT NULL,
-  `username` varchar(50) NOT NULL
+  `Id` int NOT NULL,
+  `Title` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `Description` text COLLATE utf8mb4_general_ci NOT NULL,
+  `ImageUrl` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `Status` int NOT NULL,
+  `username` varchar(50) COLLATE utf8mb4_general_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -209,14 +211,14 @@ INSERT INTO `tblslideshow` (`Id`, `Title`, `Description`, `ImageUrl`, `Status`, 
 --
 
 CREATE TABLE `tbluser` (
-  `username` varchar(50) NOT NULL,
-  `password` varchar(50) NOT NULL,
-  `fullname` varchar(50) NOT NULL,
-  `gender` int(11) NOT NULL,
-  `email` varchar(50) NOT NULL,
-  `avatar` varchar(255) NOT NULL,
-  `role` int(11) NOT NULL,
-  `status` int(11) NOT NULL
+  `username` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `password` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `fullname` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `gender` int NOT NULL,
+  `email` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `avatar` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `role` int NOT NULL,
+  `status` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -300,43 +302,43 @@ ALTER TABLE `tbluser`
 -- AUTO_INCREMENT cho bảng `tblbaiviet`
 --
 ALTER TABLE `tblbaiviet`
-  MODIFY `Mabaiviet` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `Mabaiviet` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT cho bảng `tblbinhluan`
 --
 ALTER TABLE `tblbinhluan`
-  MODIFY `Mabinhluan` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `Mabinhluan` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT cho bảng `tblchude`
 --
 ALTER TABLE `tblchude`
-  MODIFY `Machude` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `Machude` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT cho bảng `tblcontact`
 --
 ALTER TABLE `tblcontact`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT cho bảng `tbldangkyhoatdong`
 --
 ALTER TABLE `tbldangkyhoatdong`
-  MODIFY `dangky_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `dangky_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT cho bảng `tblhoatdong`
 --
 ALTER TABLE `tblhoatdong`
-  MODIFY `hoatdong_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `hoatdong_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT cho bảng `tblslideshow`
 --
 ALTER TABLE `tblslideshow`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `Id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- Các ràng buộc cho các bảng đã đổ
