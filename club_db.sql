@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th1 04, 2026 lúc 07:18 AM
+-- Thời gian đã tạo: Th1 08, 2026 lúc 04:54 PM
 -- Phiên bản máy phục vụ: 8.0.43
 -- Phiên bản PHP: 8.2.12
 
@@ -192,17 +192,16 @@ CREATE TABLE `tblslideshow` (
   `Title` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
   `Description` text COLLATE utf8mb4_general_ci NOT NULL,
   `ImageUrl` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
-  `Status` int NOT NULL,
-  `username` varchar(50) COLLATE utf8mb4_general_ci NOT NULL
+  `Status` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `tblslideshow`
 --
 
-INSERT INTO `tblslideshow` (`Id`, `Title`, `Description`, `ImageUrl`, `Status`, `username`) VALUES
-(9, 'CLB Tin học', '', 'images/750banner.jpg', 1, ''),
-(10, 'CLB Tin học', '', 'images/240banner1.jpg', 1, '');
+INSERT INTO `tblslideshow` (`Id`, `Title`, `Description`, `ImageUrl`, `Status`) VALUES
+(9, 'CLB Tin học', '', 'images/750banner.jpg', 1),
+(10, 'CLB Tin học', '', 'images/240banner1.jpg', 1);
 
 -- --------------------------------------------------------
 
@@ -227,7 +226,7 @@ CREATE TABLE `tbluser` (
 
 INSERT INTO `tbluser` (`username`, `password`, `fullname`, `gender`, `email`, `avatar`, `role`, `status`) VALUES
 ('admin1', 'e10adc3949ba59abbe56e057f20f883e', 'Nguyễn Duy Tín', 0, 'duytin.admin@tvu.edu.vn', '', 1, 1),
-('admin2', 'e10adc3949ba59abbe56e057f20f883e', 'Nguyễn Phước Hiệp', 0, 'phuochiep.admin@tvu.edu.vn', '', 1, 1),
+('admin2', 'e10adc3949ba59abbe56e057f20f883e', 'Nguyễn Phước Hiệp', 0, 'phuochiep.admin@tvu.edu.vn', 'avatar_admin2_1767885338.jpg', 1, 1),
 ('admin3', 'e10adc3949ba59abbe56e057f20f883e', 'Gia Thịnh', 0, 'giathinh.admin@tvu.edu.vn', '', 1, 1),
 ('camtu', 'e10adc3949ba59abbe56e057f20f883e', 'Phạm Thị Cẩm Tú', 0, 'camtu.pham@tvu.edu.vn', '', 0, 1),
 ('duytin', '6afd9643f3e1a07bb92faa4bb403ba32', 'Nguyen Duy Tin', 0, 'duytin@gmail.com', 'z4242815564484_63596ac735d7ce4d2fe59c3739962378.jpg', 0, 0),
@@ -308,7 +307,7 @@ ALTER TABLE `tblbaiviet`
 -- AUTO_INCREMENT cho bảng `tblbinhluan`
 --
 ALTER TABLE `tblbinhluan`
-  MODIFY `Mabinhluan` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `Mabinhluan` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT cho bảng `tblchude`

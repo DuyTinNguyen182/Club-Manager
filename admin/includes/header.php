@@ -88,13 +88,7 @@ if (!isset($_SESSION['username']) || $_SESSION['role'] != 1) {
                     class="<?= (strpos($_SERVER['PHP_SELF'], 'postManager') !== false) ? 'active' : '' ?>">
                     <i class='bx bxs-edit'></i> Quản lý Bài viết
                 </a>
-            </li>
-            <li>
-                <a href="<?= $base_path ?>commentManager/comments.php"
-                    class="<?= (strpos($_SERVER['PHP_SELF'], 'commentManager') !== false) ? 'active' : '' ?>">
-                    <i class='bx bx-message-rounded-dots'></i> Quản lý Bình luận
-                </a>
-            </li>
+            </li>            
             <li>
                 <a href="<?= $base_path ?>activityManager/activities.php"
                     class="<?= (strpos($_SERVER['PHP_SELF'], 'activityManager') !== false) ? 'active' : '' ?>">

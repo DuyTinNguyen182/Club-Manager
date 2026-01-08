@@ -296,22 +296,22 @@ if (isset($_POST['sbDangky'])) {
 			border-color: #c3e6cb;
 		}
 
-		/* Footer Link */
-		.register-link {
+		.login-link {
 			text-align: center;
 			margin-top: 1.5rem;
 			font-size: 0.95rem;
 		}
 
-		.register-link a {
+		.login-link a {
 			color: var(--primary-color);
 			font-weight: 500;
 			text-decoration: none;
 		}
 
-		.register-link a:hover {
+		.login-link a:hover {
 			text-decoration: underline;
 		}
+
 	</style>
 </head>
 
@@ -380,6 +380,10 @@ if (isset($_POST['sbDangky'])) {
 			</div>
 
 			<button type="submit" class="btn-submit" name="sbDangky">Đăng ký tài khoản</button>
+			<div class="login-link">
+				Đã có tài khoản? <a href="login.php">Đăng nhập ngay</a>
+				<br><br>
+			</div>
 		</form>
 	</div>
 
