@@ -18,7 +18,6 @@ $google_login_error = '';
 
 // 3. KHỞI TẠO GOOGLE CLIENT
 
-
 // 4. XỬ LÝ GOOGLE OAUTH CALLBACK
 if (isset($_GET['code'])) {
     try {

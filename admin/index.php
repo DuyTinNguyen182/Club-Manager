@@ -1,57 +1,244 @@
 <?php
-include('includes/header.php'); 
+include('includes/header.php');
 
-  if ($_SESSION['role'] != 1) {
-        header("Location: index.php");
-        exit();
-    }
+if (!isset($_SESSION['role']) || $_SESSION['role'] != 1) {
+    echo "<script>window.location.href='../index.php';</script>";
+    exit();
+}
+
+// --- TRUY VẤN DỮ LIỆU ---
+// 1. Thống kê số lượng
+$total_users = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total FROM tbluser"))['total'];
+$total_posts = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total FROM tblbaiviet"))['total'];
+$total_contacts = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total FROM tblcontact"))['total'];
+$act_count = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total FROM tblhoatdong"));
+
+// 2. Lấy dữ liệu chi tiết (GIỮ LIMIT 4)
+$limit = 4;
+$res_new_users = mysqli_query($conn, "SELECT * FROM tbluser WHERE role = 0 ORDER BY username DESC LIMIT $limit");
+$res_new_contacts = mysqli_query($conn, "SELECT * FROM tblcontact ORDER BY Ngaygui DESC LIMIT $limit");
+$res_new_activities = mysqli_query($conn, "SELECT * FROM tblhoatdong ORDER BY ngay_bat_dau DESC LIMIT $limit");
+$res_new_posts = mysqli_query($conn, "SELECT b.*, u.fullname FROM tblbaiviet b JOIN tbluser u ON b.Username = u.username ORDER BY b.Ngaytao DESC LIMIT $limit");
 ?>
 
-<div class="container-fluid">
-    <h3 class="mb-4">Tổng quan hệ thống</h3>
+<style>
+    /* CSS Tùy chỉnh */
+    .card-dashboard {
+        height: 100%;
+        border: none;
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        border-radius: 0.35rem;
+    }
 
-    <div class="row g-4">
-        <div class="col-md-4">
-            <div class="card text-white bg-primary mb-3 shadow h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h5 class="card-title">Thành viên</h5>
-                            <h2 class="fw-bold">150</h2>
-                        </div>
-                        <i class='bx bxs-user bx-lg opacity-50'></i>
+    /* Đã XÓA max-height và overflow để không bị cuộn */
+    .table-custom {
+        margin-bottom: 0;
+    }
+
+    .dashboard-stat-card {
+        transition: transform .2s;
+        border: none;
+        border-radius: 0.35rem;
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+    }
+
+    .dashboard-stat-card:hover {
+        transform: translateY(-5px);
+    }
+</style>
+
+<div class="container-fluid p-0">
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary h-100 dashboard-stat-card">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-uppercase mb-1">Thành viên</h6>
+                        <h2 class="fw-bold m-0"><?php echo $total_users; ?></h2>
+                    </div>
+                    <i class='bx bxs-user bx-lg opacity-50'></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success h-100 dashboard-stat-card">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-uppercase mb-1">Bài viết</h6>
+                        <h2 class="fw-bold m-0"><?php echo $total_posts; ?></h2>
+                    </div>
+                    <i class='bx bxs-file-txt bx-lg opacity-50'></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning h-100 dashboard-stat-card">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-uppercase mb-1">Liên hệ</h6>
+                        <h2 class="fw-bold text-white m-0"><?php echo $total_contacts; ?></h2>
+                    </div>
+                    <i class='bx bxs-envelope bx-lg opacity-50 text-white'></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-danger h-100 dashboard-stat-card">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-uppercase mb-1">Hoạt động</h6>
+                        <h2 class="fw-bold m-0"><?php echo $act_count['total']; ?></h2>
+                    </div>
+                    <i class='bx bxs-calendar-event bx-lg opacity-50'></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+
+        <div class="col-lg-6">
+            <div class="card card-dashboard">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom">
+                    <h6 class="m-0 fw-bold text-warning"><i class='bx bx-envelope'></i> Liên hệ mới</h6>
+                    <a href="contactManager/contacts.php" class="btn btn-sm btn-outline-warning">Xem thêm</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle table-custom">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Người gửi</th>
+                                    <th>Ngày</th>
+                                    <th>Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php while ($row = mysqli_fetch_assoc($res_new_contacts)): ?>
+                                    <tr>
+                                        <td class="py-3">
+                                            <div class="fw-bold text-truncate" style="max-width: 200px;"><?php echo htmlspecialchars($row['Tennguoigui']); ?></div>
+                                            <small class="text-muted d-block text-truncate" style="max-width: 200px;"><?php echo htmlspecialchars($row['Email']); ?></small>
+                                        </td>
+                                        <td><small><?php echo date('d/m', strtotime($row['Ngaygui'])); ?></small></td>
+                                        <td><?php echo ($row['Trangthai'] == 0) ? '<span class="badge bg-danger">Chưa xử lý</span>' : '<span class="badge bg-success">Đã xử lý</span>'; ?></td>
+                                    </tr>
+                                <?php endwhile; ?>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-4">
-            <div class="card text-white bg-success mb-3 shadow h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h5 class="card-title">Bài viết</h5>
-                            <h2 class="fw-bold">45</h2>
-                        </div>
-                        <i class='bx bxs-file-txt bx-lg opacity-50'></i>
+        <div class="col-lg-6">
+            <div class="card card-dashboard">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom">
+                    <h6 class="m-0 fw-bold text-primary"><i class='bx bx-calendar'></i> Hoạt động sắp tới</h6>
+                    <a href="activityManager/activities.php" class="btn btn-sm btn-outline-primary">Xem thêm</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle table-custom">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Tên hoạt động</th>
+                                    <th>Ngày BĐ</th>
+                                    <th>Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php while ($row = mysqli_fetch_assoc($res_new_activities)): ?>
+                                    <tr>
+                                        <td class="py-3">
+                                            <div class="text-truncate" style="max-width: 250px;" title="<?php echo $row['ten_hoat_dong']; ?>">
+                                                <?php echo $row['ten_hoat_dong']; ?>
+                                            </div>
+                                        </td>
+                                        <td><small><?php echo date('d/m/Y', strtotime($row['ngay_bat_dau'])); ?></small></td>
+                                        <td><?php echo ($row['trang_thai'] == 0) ? '<span class="badge bg-success">Sắp diễn ra</span>' : '<span class="badge bg-secondary">Đã kết thúc</span>'; ?></td>
+                                    </tr>
+                                <?php endwhile; ?>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-4">
-            <div class="card text-white bg-warning mb-3 shadow h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h5 class="card-title">Chủ đề</h5>
-                            <h2 class="fw-bold">8</h2>
-                        </div>
-                        <i class='bx bxs-category bx-lg opacity-50'></i>
+        <div class="col-lg-6">
+            <div class="card card-dashboard">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom">
+                    <h6 class="m-0 fw-bold text-info"><i class='bx bx-user-plus'></i> Thành viên mới</h6>
+                    <a href="usermanager/members.php" class="btn btn-sm btn-outline-info">Xem thêm</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle table-custom">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>User</th>
+                                    <th>Họ tên</th>
+                                    <th>Email</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php while ($row = mysqli_fetch_assoc($res_new_users)): ?>
+                                    <tr>
+                                        <td class="py-3">
+                                            <div class="d-flex align-items-center">
+                                                <?php if (!empty($row['avatar'])): ?>
+                                                    <img src="../uploads/<?php echo $row['avatar']; ?>" class="rounded-circle me-2" width="32" height="32" style="object-fit:cover;">
+                                                <?php else: ?>
+                                                    <i class='bx bxs-user-circle fs-4 me-2 text-secondary'></i>
+                                                <?php endif; ?>
+                                                <strong class="text-truncate" style="max-width: 100px;"><?php echo htmlspecialchars($row['username']); ?></strong>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="text-truncate" style="max-width: 150px;"><?php echo htmlspecialchars($row['fullname']); ?></div>
+                                        </td>
+                                        <td>
+                                            <div class="text-truncate" style="max-width: 150px;"><small><?php echo htmlspecialchars($row['email']); ?></small></div>
+                                        </td>
+                                    </tr>
+                                <?php endwhile; ?>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
+
+        <div class="col-lg-6">
+            <div class="card card-dashboard">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom">
+                    <h6 class="m-0 fw-bold text-success"><i class='bx bx-news'></i> Bài viết mới</h6>
+                    <a href="postManager/posts.php" class="btn btn-sm btn-outline-success">Xem thêm</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive"> <?php if (mysqli_num_rows($res_new_posts) > 0): ?>
+                            <ul class="list-group list-group-flush">
+                                <?php while ($post = mysqli_fetch_assoc($res_new_posts)): ?>
+                                    <li class="list-group-item py-3">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="me-3 text-truncate">
+                                                <div class="fw-bold text-truncate" style="max-width: 350px;"><?php echo htmlspecialchars(strip_tags($post['Noidung'])); ?></div>
+                                                <small class="text-muted"><i class='bx bx-user'></i> <?php echo $post['fullname']; ?></small>
+                                            </div>
+                                            <small class="text-nowrap text-muted"><?php echo date('d/m', strtotime($post['Ngaytao'])); ?></small>
+                                        </div>
+                                    </li>
+                                <?php endwhile; ?>
+                            </ul>
+                        <?php else: ?>
+                            <p class="text-center text-muted m-4">Chưa có bài viết nào</p>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 

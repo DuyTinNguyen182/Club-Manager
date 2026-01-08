@@ -130,7 +130,7 @@ if (!isset($_SESSION['username']) || $_SESSION['role'] != 1) {
     </div>
 
     <div class="content">
-        <nav class="navbar navbar-light bg-white shadow-sm mb-4 rounded">
+        <nav class="navbar navbar-light bg-white shadow-sm mb-0 rounded">
             <div class="container-fluid">
                 <span class="navbar-brand mb-0 h1">Xin chào, Admin</span>
 
