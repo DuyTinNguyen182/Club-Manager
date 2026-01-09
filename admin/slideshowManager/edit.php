@@ -4,7 +4,7 @@ include('../includes/header.php');
 
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
-    $sql = "SELECT * FROM tblslideshow WHERE Id = '$id'";
+    $sql = "SELECT * FROM tblslideshow WHERE ma_slide = '$id'";
     $result = $conn->query($sql);
     $row = $result->fetch_assoc();
     if (!$row) {
@@ -21,31 +21,28 @@ if (isset($_POST['btnUpdate'])) {
     $description = mysqli_real_escape_string($conn, $_POST['description']);
     $status = $_POST['status'];
 
-    // Logic xử lý ảnh
-    $db_image_path = $row['ImageUrl']; // Mặc định giữ ảnh cũ
+    $db_image_path = $row['hinh_anh']; 
 
     if (!empty($_FILES['image']['name'])) {
-        // Nếu có chọn ảnh mới
         $target_dir = "../../images/";
         $image_name = basename($_FILES["image"]["name"]);
         $target_file_name = time() . "_" . $image_name;
         $target_file = $target_dir . $target_file_name;
 
         if (move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)) {
-            // Xóa ảnh cũ nếu tồn tại
-            if (file_exists("../../" . $row['ImageUrl'])) {
-                unlink("../../" . $row['ImageUrl']);
+            if (file_exists("../../" . $row['hinh_anh'])) {
+                unlink("../../" . $row['hinh_anh']);
             }
             $db_image_path = "images/" . $target_file_name;
         }
     }
 
     $sql_update = "UPDATE tblslideshow SET 
-                   Title = '$title', 
-                   Description = '$description', 
-                   ImageUrl = '$db_image_path', 
-                   Status = '$status' 
-                   WHERE Id = '$id'";
+                   tieu_de = '$title', 
+                   mo_ta = '$description', 
+                   hinh_anh = '$db_image_path', 
+                   trang_thai = '$status' 
+                   WHERE ma_slide = '$id'";
 
     if ($conn->query($sql_update) === TRUE) {
         echo "<script>alert('Cập nhật thành công!'); window.location.href='slideshows.php';</script>";
@@ -60,7 +57,7 @@ if (isset($_POST['btnUpdate'])) {
         <div class="col-md-8">
             <div class="card shadow">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0 fw-bold"><i class='bx bx-edit'></i> Sửa Slide: #<?= $row['Id'] ?></h5>
+                    <h5 class="mb-0 fw-bold"><i class='bx bx-edit'></i> Sửa Slide: #<?= $row['ma_slide'] ?></h5>
                 </div>
                 <div class="card-body">
                     <?php if (isset($error_msg)) {
@@ -70,17 +67,17 @@ if (isset($_POST['btnUpdate'])) {
                     <form action="" method="POST" enctype="multipart/form-data">
                         <div class="mb-3">
                             <label class="form-label fw-bold">Tiêu đề</label>
-                            <input type="text" name="title" class="form-control" value="<?= $row['Title'] ?>" required>
+                            <input type="text" name="title" class="form-control" value="<?= $row['tieu_de'] ?>" required>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label fw-bold">Mô tả</label>
-                            <textarea name="description" class="form-control" rows="3"><?= $row['Description'] ?></textarea>
+                            <textarea name="description" class="form-control" rows="3"><?= $row['mo_ta'] ?></textarea>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label fw-bold">Hình ảnh hiện tại</label> <br>
-                            <img src="../../<?= $row['ImageUrl'] ?>" style="max-width: 200px; border: 1px solid #ddd; padding: 5px;">
+                            <img src="../../<?= $row['hinh_anh'] ?>" style="max-width: 200px; border: 1px solid #ddd; padding: 5px;">
                         </div>
 
                         <div class="mb-3">
@@ -91,8 +88,8 @@ if (isset($_POST['btnUpdate'])) {
                         <div class="mb-3">
                             <label class="form-label fw-bold">Trạng thái</label>
                             <select name="status" class="form-select">
-                                <option value="1" <?= ($row['Status'] == 1) ? 'selected' : '' ?>>Hiển thị</option>
-                                <option value="0" <?= ($row['Status'] == 0) ? 'selected' : '' ?>>Ẩn</option>
+                                <option value="1" <?= ($row['trang_thai'] == 1) ? 'selected' : '' ?>>Hiển thị</option>
+                                <option value="0" <?= ($row['trang_thai'] == 0) ? 'selected' : '' ?>>Ẩn</option>
                             </select>
                         </div>
 

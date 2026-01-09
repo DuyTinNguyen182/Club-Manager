@@ -4,6 +4,7 @@ session_start();
 
 require_once('../../config.php');
 
+// CẬP NHẬT: role -> quyen
 if (!isset($_SESSION['role']) || $_SESSION['role'] != 1) {
     echo "<script>alert('Bạn không có quyền!'); window.location.href='../../login.php';</script>";
     exit();
@@ -18,7 +19,7 @@ if (isset($_GET['user'])) {
     }
 
     $sql = "DELETE FROM tbluser WHERE username = '$user_to_delete'";
-    
+
     if ($conn->query($sql) === TRUE) {
         echo "<script>alert('Xóa thành viên thành công!'); window.location.href='members.php';</script>";
     } else {

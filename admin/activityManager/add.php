@@ -11,7 +11,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $ngay_ket_thuc = $_POST['ngay_ket_thuc'];
     $mo_ta = $_POST['mo_ta_hoat_dong'];
 
-    // Validate: Ngày kết thúc phải sau ngày bắt đầu
     if (strtotime($ngay_ket_thuc) <= strtotime($ngay_bat_dau)) {
         $msg = "<div class='alert alert-danger'>Lỗi: Ngày kết thúc phải diễn ra sau ngày bắt đầu!</div>";
     } else {

@@ -2,15 +2,13 @@
 $path_to_admin = '../';
 include('../includes/header.php');
 
-// 1. Kiểm tra ID hoạt động
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
     echo "<script>alert('Không tìm thấy hoạt động!'); window.location.href='attendance.php';</script>";
     exit();
 }
 $hoatdong_id = intval($_GET['id']);
 
-// 2. Lấy thông tin hoạt động
-$sql_hd = "SELECT * FROM tblhoatdong WHERE hoatdong_id = $hoatdong_id";
+$sql_hd = "SELECT * FROM tblhoatdong WHERE ma_hoat_dong = $hoatdong_id";
 $result_hd = $conn->query($sql_hd);
 $row_hd = $result_hd->fetch_assoc();
 
@@ -19,34 +17,31 @@ if (!$row_hd) {
     exit();
 }
 
-// 3. XỬ LÝ FORM ĐIỂM DANH
 if (isset($_POST['btnSaveAttendance'])) {
     $users_list = isset($_POST['users']) ? $_POST['users'] : [];
     $present_list = isset($_POST['present']) ? $_POST['present'] : [];
 
     foreach ($users_list as $username) {
         $status = in_array($username, $present_list) ? 1 : 2;
-        $stmt = $conn->prepare("UPDATE tbldangkyhoatdong SET trang_thai = ? WHERE hoatdong_id = ? AND username = ?");
+        $stmt = $conn->prepare("UPDATE tbldangkyhoatdong SET trang_thai = ? WHERE ma_hoat_dong = ? AND username = ?");
         $stmt->bind_param("iis", $status, $hoatdong_id, $username);
         $stmt->execute();
     }
     echo "<script>alert('Cập nhật điểm danh thành công!'); window.location.href='take_attendance.php?id=$hoatdong_id';</script>";
 }
 
-// 4. Xử lý tìm kiếm
 $search_query = "";
 $search_sql = "";
 if (isset($_GET['search']) && !empty($_GET['search'])) {
     $search_query = $_GET['search'];
-    $search_sql = " AND u.fullname LIKE '%$search_query%' ";
+    $search_sql = " AND u.ho_va_ten LIKE '%$search_query%' ";
 }
 
-// 5. Lấy danh sách thành viên
-$sql_dk = "SELECT dk.*, u.fullname, u.email, u.username 
+$sql_dk = "SELECT dk.*, u.ho_va_ten, u.email, u.username 
            FROM tbldangkyhoatdong dk 
            JOIN tbluser u ON dk.username = u.username 
-           WHERE dk.hoatdong_id = $hoatdong_id $search_sql
-           ORDER BY dk.ngay_dangky ASC";
+           WHERE dk.ma_hoat_dong = $hoatdong_id $search_sql
+           ORDER BY dk.ngay_dang_ky ASC";
 $result_dk = $conn->query($sql_dk);
 ?>
 
@@ -96,23 +91,20 @@ $result_dk = $conn->query($sql_dk);
                             ?>
                                     <tr>
                                         <td class="text-center"><?= $stt++ ?></td>
-                                        <td class="fw-bold"><?= $row['fullname'] ?></td>
+                                        <td class="fw-bold"><?= $row['ho_va_ten'] ?></td>
                                         <td><?= $row['email'] ?></td>
 
                                         <td class="text-center">
                                             <?php if (!empty($row['minh_chung'])): 
-                                                // Đường dẫn file (Lưu ý: file admin nằm trong thư mục con nên cần ../ để ra ngoài)
                                                 $file_path = "../../uploads/proofs/" . $row['minh_chung'];
                                                 $ext = strtolower(pathinfo($row['minh_chung'], PATHINFO_EXTENSION));
                                                 
-                                                // Nếu là ảnh -> Hiển thị thumbnail
                                                 if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif'])): 
                                             ?>
                                                 <a href="<?= $file_path ?>" target="_blank" title="Xem ảnh lớn">
                                                     <img src="<?= $file_path ?>" alt="Proof" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;">
                                                 </a>
                                             <?php else: 
-                                                // Nếu là file khác (PDF, Doc) -> Hiển thị nút tải/xem
                                             ?>
                                                 <a href="<?= $file_path ?>" target="_blank" class="btn btn-sm btn-outline-info">
                                                     <i class='bx bx-file'></i> File

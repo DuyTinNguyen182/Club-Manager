@@ -10,18 +10,15 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] != 1) {
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
 
-    // Lấy thông tin ảnh để xóa file vật lý
-    $sql_get = "SELECT ImageUrl FROM tblslideshow WHERE Id = '$id'";
+    $sql_get = "SELECT hinh_anh FROM tblslideshow WHERE ma_slide = '$id'";
     $result = $conn->query($sql_get);
 
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
-        $file_path = "../../" . $row['ImageUrl'];
+        $file_path = "../../" . $row['hinh_anh'];
 
-        // Xóa trong database
-        $sql = "DELETE FROM tblslideshow WHERE Id = '$id'";
+        $sql = "DELETE FROM tblslideshow WHERE ma_slide = '$id'";
         if ($conn->query($sql) === TRUE) {
-            // Nếu xóa DB thành công thì xóa file ảnh
             if (file_exists($file_path)) {
                 unlink($file_path);
             }
@@ -33,3 +30,4 @@ if (isset($_GET['id'])) {
 } else {
     header("Location: slideshows.php");
 }
+?>

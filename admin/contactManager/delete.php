@@ -8,7 +8,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] != 1) {
 
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
-    $sql = "DELETE FROM tblcontact WHERE id = '$id'";
+    $sql = "DELETE FROM tblcontact WHERE ma_lien_he = '$id'";
     
     if ($conn->query($sql) === TRUE) {
         echo "<script>alert('Đã xóa liên hệ!'); window.location.href='contacts.php';</script>";

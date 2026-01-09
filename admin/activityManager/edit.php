@@ -2,7 +2,6 @@
 $path_to_admin = '../';
 include('../includes/header.php');
 
-// 1. Kiểm tra ID
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
     header("Location: index.php");
     exit();
@@ -10,8 +9,7 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
 $id = $_GET['id'];
 $msg = "";
 
-// 2. Lấy thông tin hoạt động từ DB
-$sql = "SELECT * FROM tblhoatdong WHERE hoatdong_id = '$id'";
+$sql = "SELECT * FROM tblhoatdong WHERE ma_hoat_dong = '$id'";
 $result = $conn->query($sql);
 $row = $result->fetch_assoc();
 
@@ -20,20 +18,16 @@ if (!$row) {
     exit();
 }
 
-// 3. XỬ LÝ CẬP NHẬT KHI SUBMIT
 if (isset($_POST['btnUpdate'])) {
     $ten_hoat_dong = $_POST['ten_hoat_dong'];
     $mo_ta = $_POST['mo_ta'];
     $ngay_bat_dau = $_POST['ngay_bat_dau'];
-    $ngay_ket_thuc = $_POST['ngay_ket_thuc']; // Lấy giá trị mới
+    $ngay_ket_thuc = $_POST['ngay_ket_thuc']; 
     $dia_diem = $_POST['dia_diem'];
 
-    // Validate: Ngày kết thúc phải sau ngày bắt đầu
     if (strtotime($ngay_ket_thuc) <= strtotime($ngay_bat_dau)) {
         $msg = "<div class='alert alert-danger'>Lỗi: Ngày kết thúc phải diễn ra sau ngày bắt đầu!</div>";
     } else {
-        // Cập nhật trạng thái tự động (0: Sắp/Đang diễn ra, 1: Đã kết thúc)
-        // Logic: Nếu hiện tại > ngày kết thúc => Đã xong
         $now = date('Y-m-d H:i:s');
         $trang_thai = ($now > $ngay_ket_thuc) ? 1 : 0;
 
@@ -44,7 +38,7 @@ if (isset($_POST['btnUpdate'])) {
                        ngay_ket_thuc = ?,
                        dia_diem = ?,
                        trang_thai = ?
-                       WHERE hoatdong_id = ?";
+                       WHERE ma_hoat_dong = ?";
         
         $stmt = $conn->prepare($sql_update);
         $stmt->bind_param("sssssii", $ten_hoat_dong, $mo_ta, $ngay_bat_dau, $ngay_ket_thuc, $dia_diem, $trang_thai, $id);
@@ -58,9 +52,7 @@ if (isset($_POST['btnUpdate'])) {
     }
 }
 
-// 4. Chuẩn bị dữ liệu hiển thị vào form
 $time_start_val = date('Y-m-d\TH:i', strtotime($row['ngay_bat_dau']));
-// Nếu chưa có ngày kết thúc thì để trống hoặc lấy bằng ngày bắt đầu
 $time_end_val = !empty($row['ngay_ket_thuc']) ? date('Y-m-d\TH:i', strtotime($row['ngay_ket_thuc'])) : '';
 ?>
 

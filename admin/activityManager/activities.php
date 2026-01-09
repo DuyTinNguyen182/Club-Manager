@@ -2,13 +2,9 @@
 $path_to_admin = '../';
 include('../includes/header.php');
 
-// 1. Cấu hình múi giờ để so sánh chính xác
 date_default_timezone_set('Asia/Ho_Chi_Minh');
 $current_time = date('Y-m-d H:i:s');
 
-// 2. Cập nhật trạng thái tự động (Tuỳ chọn: Nếu bạn dùng cột trang_thai trong DB)
-// Nếu đã qua ngày kết thúc -> Set thành 1 (Đã kết thúc)
-// Lưu ý: Logic hiển thị bên dưới sẽ tính toán lại chính xác hơn theo thời gian thực
 $sql_auto_update = "UPDATE tblhoatdong SET trang_thai = 1 WHERE ngay_ket_thuc < '$current_time' AND trang_thai = 0";
 $conn->query($sql_auto_update);
 ?>
@@ -35,26 +31,22 @@ $conn->query($sql_auto_update);
             </thead>
             <tbody>
                 <?php
-                // Sắp xếp: Mới nhất lên đầu
                 $sql = "SELECT * FROM tblhoatdong ORDER BY ngay_bat_dau DESC";
                 $result = $conn->query($sql);
 
                 $stt = 1;
                 if ($result->num_rows > 0) {
                     while ($row = $result->fetch_assoc()) {
-                        // --- XỬ LÝ THỜI GIAN ---
                         $t_start = strtotime($row['ngay_bat_dau']);
-                        // Nếu không có ngày kết thúc thì lấy bằng ngày bắt đầu
                         $t_end = !empty($row['ngay_ket_thuc']) ? strtotime($row['ngay_ket_thuc']) : $t_start;
                         $now = time();
 
-                        // --- XÁC ĐỊNH TRẠNG THÁI HIỂN THỊ ---
                         if ($now < $t_start) {
-                            $badge = '<span class="badge bg-success">Sắp diễn ra</span>'; // Xanh lá
+                            $badge = '<span class="badge bg-success">Sắp diễn ra</span>'; 
                         } elseif ($now >= $t_start && $now <= $t_end) {
-                            $badge = '<span class="badge bg-warning text-dark">Đang diễn ra</span>'; // Cam/Vàng
+                            $badge = '<span class="badge bg-warning text-dark">Đang diễn ra</span>'; 
                         } else {
-                            $badge = '<span class="badge bg-secondary">Đã kết thúc</span>'; // Xám
+                            $badge = '<span class="badge bg-secondary">Đã kết thúc</span>'; 
                         }
                 ?>
                         <tr>
@@ -92,10 +84,10 @@ $conn->query($sql_auto_update);
                             </td>
 
                             <td class="text-center">
-                                <a href="edit.php?id=<?= $row['hoatdong_id'] ?>" class="btn btn-warning btn-sm" title="Sửa">
+                                <a href="edit.php?id=<?= $row['ma_hoat_dong'] ?>" class="btn btn-warning btn-sm" title="Sửa">
                                     <i class='bx bx-edit-alt'></i>
                                 </a>
-                                <a href="delete.php?id=<?= $row['hoatdong_id'] ?>" class="btn btn-danger btn-sm"
+                                <a href="delete.php?id=<?= $row['ma_hoat_dong'] ?>" class="btn btn-danger btn-sm"
                                     onclick="return confirm('Bạn có chắc muốn xóa hoạt động này?')"
                                     title="Xóa">
                                     <i class='bx bx-trash'></i>

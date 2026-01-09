@@ -7,25 +7,19 @@ if (isset($_POST['btnAdd'])) {
     $description = mysqli_real_escape_string($conn, $_POST['description']);
     $status = $_POST['status'];
 
-    // Xử lý upload ảnh
-    $target_dir = "../../images/"; // Thư mục lưu ảnh (root/images)
+    $target_dir = "../../images/"; 
     $image_name = basename($_FILES["image"]["name"]);
-    // Thêm timestamp để tránh trùng tên
     $target_file_name = time() . "_" . $image_name;
     $target_file = $target_dir . $target_file_name;
-    $db_image_path = "images/" . $target_file_name; // Đường dẫn lưu vào DB
+    $db_image_path = "images/" . $target_file_name; 
     $uploadOk = 1;
 
-    // Kiểm tra file ảnh
     $check = getimagesize($_FILES["image"]["tmp_name"]);
     if ($check !== false) {
         if (move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)) {
-            // Upload thành công -> Insert vào DB
-            // username tạm để là admin hoặc lấy từ session nếu có
-            $username = isset($_SESSION['username']) ? $_SESSION['username'] : 'admin';
-
-            $sql = "INSERT INTO tblslideshow (Title, Description, ImageUrl, Status, username) 
-                    VALUES ('$title', '$description', '$db_image_path', '$status', '$username')";
+            
+            $sql = "INSERT INTO tblslideshow (tieu_de, mo_ta, hinh_anh, trang_thai) 
+                    VALUES ('$title', '$description', '$db_image_path', '$status')";
 
             if ($conn->query($sql) === TRUE) {
                 echo "<script>alert('Thêm slide thành công!'); window.location.href='slideshows.php';</script>";

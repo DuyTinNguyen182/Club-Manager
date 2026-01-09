@@ -5,16 +5,18 @@ require_once('../config.php');
 
 if (isset($_POST['btnAdd'])) {
     $username = $_POST['username'];
+    // CẬP NHẬT: fullname -> ho_va_ten
     $fullname = $_POST['fullname'];
 
-    // --- LẤY DỮ LIỆU MỚI ---
+    // CẬP NHẬT: student_code -> ma_sinh_vien, class_code -> ma_lop
     $student_code = $_POST['student_code'];
-    $class_code   = $_POST['class_code'];
+    $class_code = $_POST['class_code'];
 
-    $email    = $_POST['email'];
+    $email = $_POST['email'];
     $password = $_POST['password'];
-    $role     = $_POST['role'];
-    $status   = $_POST['status'];
+    // CẬP NHẬT: role -> quyen, status -> trang_thai
+    $role = $_POST['role'];
+    $status = $_POST['status'];
 
     $checkSQL = "SELECT username FROM tbluser WHERE username = '$username' OR email = '$email'";
     $checkResult = $conn->query($checkSQL);
@@ -25,8 +27,8 @@ if (isset($_POST['btnAdd'])) {
         $pass_hash = md5($password);
         $avatar_default = '0';
 
-        // --- CẬP NHẬT CÂU LỆNH INSERT ---
-        $sql_insert = "INSERT INTO tbluser (username, password, fullname, student_code, class_code, email, gender, role, status, avatar) 
+        // CẬP NHẬT CÂU LỆNH INSERT VỚI TÊN CỘT MỚI
+        $sql_insert = "INSERT INTO tbluser (username, password, ho_va_ten, ma_sinh_vien, ma_lop, email, gioi_tinh, quyen, trang_thai, anh_dai_dien) 
                        VALUES ('$username', '$pass_hash', '$fullname', '$student_code', '$class_code', '$email', 0, '$role', '$status', '$avatar_default')";
 
         if ($conn->query($sql_insert) === TRUE) {
@@ -57,7 +59,8 @@ if (isset($_POST['btnAdd'])) {
                     <form action="" method="POST">
                         <div class="mb-3">
                             <label class="form-label fw-bold">Username <span class="text-danger">*</span></label>
-                            <input type="text" name="username" class="form-control" placeholder="Viết liền không dấu" required>
+                            <input type="text" name="username" class="form-control" placeholder="Viết liền không dấu"
+                                required>
                         </div>
 
                         <div class="mb-3">

@@ -8,7 +8,8 @@ if (isset($_POST['btnAdd'])) {
 
     // Kiểm tra rỗng
     if (!empty($tenchude)) {
-        $sql = "INSERT INTO tblchude (Tenchude, Trangthai) VALUES ('$tenchude', '$trangthai')";
+        // CẬP NHẬT: Tenchude -> ten_chu_de, Trangthai -> trang_thai
+        $sql = "INSERT INTO tblchude (ten_chu_de, trang_thai) VALUES ('$tenchude', '$trangthai')";
 
         if ($conn->query($sql) === TRUE) {
             echo "<script>alert('Thêm chủ đề thành công!'); window.location.href='topics.php';</script>";
@@ -29,19 +30,22 @@ if (isset($_POST['btnAdd'])) {
                     <h5 class="mb-0 fw-bold"><i class='bx bx-folder-plus'></i> Thêm Chủ đề mới</h5>
                 </div>
                 <div class="card-body">
-                    <?php if (isset($error_msg)) { echo "<div class='alert alert-danger'>$error_msg</div>"; } ?>
+                    <?php if (isset($error_msg)) {
+                        echo "<div class='alert alert-danger'>$error_msg</div>";
+                    } ?>
 
                     <form action="" method="POST">
                         <div class="mb-3">
                             <label class="form-label fw-bold">Tên chủ đề <span class="text-danger">*</span></label>
-                            <input type="text" name="tenchude" class="form-control" placeholder="Nhập tên chủ đề..." required>
+                            <input type="text" name="tenchude" class="form-control" placeholder="Nhập tên chủ đề..."
+                                required>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label fw-bold">Trạng thái</label>
                             <select name="trangthai" class="form-select">
-                                <option value="0">Hiển thị</option>
-                                <option value="1">Ẩn</option>
+                                <option value="1">Hiển thị</option>
+                                <option value="0">Ẩn</option>
                             </select>
                         </div>
 

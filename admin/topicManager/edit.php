@@ -5,7 +5,8 @@ include('../includes/header.php');
 // Kiểm tra ID có tồn tại trên URL không
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
-    $sql = "SELECT * FROM tblchude WHERE Machude = '$id'";
+    // CẬP NHẬT: Machude -> ma_chu_de
+    $sql = "SELECT * FROM tblchude WHERE ma_chu_de = '$id'";
     $result = $conn->query($sql);
     $row = $result->fetch_assoc();
 
@@ -23,10 +24,11 @@ if (isset($_POST['btnUpdate'])) {
     $tenchude = $_POST['tenchude'];
     $trangthai = $_POST['trangthai'];
 
+    // CẬP NHẬT: Tenchude -> ten_chu_de, Trangthai -> trang_thai, Machude -> ma_chu_de
     $sql_update = "UPDATE tblchude SET 
-                   Tenchude = '$tenchude', 
-                   Trangthai = '$trangthai' 
-                   WHERE Machude = '$id'";
+                   ten_chu_de = '$tenchude', 
+                   trang_thai = '$trangthai' 
+                   WHERE ma_chu_de = '$id'";
 
     if ($conn->query($sql_update) === TRUE) {
         echo "<script>alert('Cập nhật thành công!'); window.location.href='topics.php';</script>";
@@ -41,7 +43,7 @@ if (isset($_POST['btnUpdate'])) {
         <div class="col-md-6">
             <div class="card shadow">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0 fw-bold"><i class='bx bx-edit'></i> Sửa chủ đề: #<?= $row['Machude'] ?></h5>
+                    <h5 class="mb-0 fw-bold"><i class='bx bx-edit'></i> Sửa chủ đề: #<?= $row['ma_chu_de'] ?></h5>
                 </div>
                 <div class="card-body">
                     <?php if (isset($error_msg)) {
@@ -51,14 +53,15 @@ if (isset($_POST['btnUpdate'])) {
                     <form action="" method="POST">
                         <div class="mb-3">
                             <label class="form-label fw-bold">Tên chủ đề</label>
-                            <input type="text" name="tenchude" class="form-control" value="<?= $row['Tenchude'] ?>" required>
+                            <input type="text" name="tenchude" class="form-control" value="<?= $row['ten_chu_de'] ?>"
+                                required>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label fw-bold">Trạng thái</label>
                             <select name="trangthai" class="form-select">
-                                <option value="0" <?= ($row['Trangthai'] == 0) ? 'selected' : '' ?>>Ẩn</option>
-                                <option value="1" <?= ($row['Trangthai'] == 1) ? 'selected' : '' ?>>Hiển thị</option>
+                                <option value="0" <?= ($row['trang_thai'] == 0) ? 'selected' : '' ?>>Ẩn</option>
+                                <option value="1" <?= ($row['trang_thai'] == 1) ? 'selected' : '' ?>>Hiển thị</option>
                             </select>
                         </div>
 

@@ -25,22 +25,23 @@ include('../includes/header.php');
             </thead>
             <tbody>
                 <?php
-                // JOIN bảng bài viết với bảng chủ đề để lấy tên chủ đề
-                $sql = "SELECT b.*, c.Tenchude 
+                // CẬP NHẬT: Sửa tên cột Mabaiviet -> ma_bai_viet, Machude -> ma_chu_de, Tenchude -> ten_chu_de
+                $sql = "SELECT b.*, c.ten_chu_de 
                         FROM tblbaiviet b 
-                        LEFT JOIN tblchude c ON b.Machude = c.Machude 
-                        ORDER BY b.Mabaiviet DESC";
+                        LEFT JOIN tblchude c ON b.ma_chu_de = c.ma_chu_de 
+                        ORDER BY b.ma_bai_viet DESC";
                 $result = $conn->query($sql);
 
                 $stt = 1;
                 if ($result->num_rows > 0) {
                     while ($row = $result->fetch_assoc()) {
                         $uploadDir = "../../uploads/";
-                        $defaultImg = "../../uploads/no-image.jpg"; 
-                        $img_display = $defaultImg; 
-                
-                        if (!empty($row['Teptin'])) {
-                            $checkPath = $uploadDir . $row['Teptin'];
+                        $defaultImg = "../../uploads/no-image.jpg";
+                        $img_display = $defaultImg;
+
+                        // CẬP NHẬT: Sửa Teptin -> tep_tin
+                        if (!empty($row['tep_tin'])) {
+                            $checkPath = $uploadDir . $row['tep_tin'];
                             if (file_exists($checkPath)) {
                                 $img_display = $checkPath;
                             }
@@ -56,28 +57,28 @@ include('../includes/header.php');
 
                             <td class="align-middle">
                                 <div class="text-truncate fw-bold text-primary" style="max-width: 250px; cursor: help;"
-                                    title="<?= htmlspecialchars($row['Noidung']) ?>">
-                                    <?= htmlspecialchars($row['Noidung']) ?>
+                                    title="<?= htmlspecialchars($row['noi_dung']) ?>">
+                                    <?= htmlspecialchars($row['noi_dung']) ?>
                                 </div>
                                 <small class="text-muted d-block mt-1">
-                                    <i class='bx bx-time-five'></i> <?= date('H:i d/m/Y', strtotime($row['Ngaytao'])) ?>
+                                    <i class='bx bx-time-five'></i> <?= date('H:i d/m/Y', strtotime($row['ngay_tao'])) ?>
                                 </small>
                             </td>
 
                             <td class="align-middle">
                                 <span class="badge bg-info text-dark">
-                                    <?= !empty($row['Tenchude']) ? $row['Tenchude'] : 'Chưa phân loại' ?>
+                                    <?= !empty($row['ten_chu_de']) ? $row['ten_chu_de'] : 'Chưa phân loại' ?>
                                 </span>
                             </td>
 
                             <td class="align-middle">
                                 <small class="fw-bold text-secondary">
-                                    <i class='bx bx-user'></i> <?= $row['Username'] ?>
+                                    <i class='bx bx-user'></i> <?= $row['username'] ?>
                                 </small>
                             </td>
 
                             <td class="text-center align-middle">
-                                <?php if ($row['Trangthai'] == 1): ?>
+                                <?php if ($row['trang_thai'] == 1): ?>
                                     <span class="badge bg-success"><i class='bx bx-check-circle'></i> Đã duyệt</span>
                                 <?php else: ?>
                                     <span class="badge bg-warning text-dark"><i class='bx bx-hourglass'></i> Chờ duyệt</span>
@@ -86,11 +87,11 @@ include('../includes/header.php');
 
                             <td class="text-center align-middle">
                                 <div class="btn-group" role="group">
-                                    <a href="edit.php?id=<?= $row['Mabaiviet'] ?>" class="btn btn-outline-warning btn-sm"
+                                    <a href="edit.php?id=<?= $row['ma_bai_viet'] ?>" class="btn btn-outline-warning btn-sm"
                                         title="Sửa">
                                         <i class='bx bx-edit-alt'></i>
                                     </a>
-                                    <a href="delete.php?id=<?= $row['Mabaiviet'] ?>" class="btn btn-outline-danger btn-sm"
+                                    <a href="delete.php?id=<?= $row['ma_bai_viet'] ?>" class="btn btn-outline-danger btn-sm"
                                         onclick="return confirm('Bạn có chắc chắn muốn xóa bài viết này không?')" title="Xóa">
                                         <i class='bx bx-trash'></i>
                                     </a>

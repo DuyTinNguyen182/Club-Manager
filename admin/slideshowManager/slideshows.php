@@ -3,11 +3,9 @@ $path_to_admin = '../';
 require_once('../config.php');
 include('../includes/header.php');
 
-// Xử lý toggle trạng thái (Ẩn/Hiện)
 if (isset($_GET['action']) && $_GET['action'] == 'toggle' && isset($_GET['id'])) {
     $id = $_GET['id'];
-    // Đảo ngược trạng thái: 1 -> 0, 0 -> 1
-    $sql_update = "UPDATE tblslideshow SET Status = 1 - Status WHERE Id = $id";
+    $sql_update = "UPDATE tblslideshow SET trang_thai = 1 - trang_thai WHERE ma_slide = $id";
     if ($conn->query($sql_update)) {
         header("Location: " . $_SERVER['PHP_SELF']);
         exit();
@@ -37,30 +35,29 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle' && isset($_GET['id']))
             </thead>
             <tbody>
                 <?php
-                $sql = "SELECT * FROM tblslideshow ORDER BY Id DESC";
+                $sql = "SELECT * FROM tblslideshow ORDER BY ma_slide DESC";
                 $result = $conn->query($sql);
                 $stt = 1;
                 if ($result->num_rows > 0) {
                     while ($row = $result->fetch_assoc()) {
-                        // Đường dẫn ảnh hiển thị (từ thư mục gốc)
-                        $img_path = '../../' . $row['ImageUrl'];
+                        $img_path = '../../' . $row['hinh_anh'];
                 ?>
                         <tr>
                             <td class="text-center fw-bold"><?= $stt++; ?></td>
                             <td class="text-center">
-                                <?php if (!empty($row['ImageUrl']) && file_exists($img_path)): ?>
+                                <?php if (!empty($row['hinh_anh']) && file_exists($img_path)): ?>
                                     <img src="<?= $img_path ?>" alt="Slide" style="width: 100px; height: 60px; object-fit: cover; border-radius: 4px;">
                                 <?php else: ?>
                                     <span class="text-muted small">No Image</span>
                                 <?php endif; ?>
                             </td>
                             <td>
-                                <div class="fw-bold text-primary"><?= $row['Title'] ?></div>
-                                <small class="text-muted"><?= $row['Description'] ?></small>
+                                <div class="fw-bold text-primary"><?= $row['tieu_de'] ?></div>
+                                <small class="text-muted"><?= $row['mo_ta'] ?></small>
                             </td>
                             <td class="text-center">
-                                <a href="?action=toggle&id=<?= $row['Id'] ?>" style="text-decoration: none;">
-                                    <?php if ($row['Status'] == 1): ?>
+                                <a href="?action=toggle&id=<?= $row['ma_slide'] ?>" style="text-decoration: none;">
+                                    <?php if ($row['trang_thai'] == 1): ?>
                                         <span class="badge bg-success" title="Đang hiện -> Nhấn để ẩn">Hiển thị</span>
                                     <?php else: ?>
                                         <span class="badge bg-secondary" title="Đang ẩn -> Nhấn để hiện">Ẩn</span>
@@ -68,10 +65,10 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle' && isset($_GET['id']))
                                 </a>
                             </td>
                             <td class="text-center">
-                                <a href="edit.php?id=<?= $row['Id'] ?>" class="btn btn-warning btn-sm" title="Sửa">
+                                <a href="edit.php?id=<?= $row['ma_slide'] ?>" class="btn btn-warning btn-sm" title="Sửa">
                                     <i class='bx bx-edit-alt'></i>
                                 </a>
-                                <a href="delete.php?id=<?= $row['Id'] ?>" class="btn btn-danger btn-sm"
+                                <a href="delete.php?id=<?= $row['ma_slide'] ?>" class="btn btn-danger btn-sm"
                                     onclick="return confirm('Bạn có chắc muốn xóa slide này?')" title="Xóa">
                                     <i class='bx bx-trash'></i>
                                 </a>

@@ -22,7 +22,7 @@ if (isset($_POST['btnUpdate'])) {
 
     // --- LẤY DỮ LIỆU TỪ FORM ---
     $student_code = $_POST['student_code'];
-    $class_code   = $_POST['class_code'];
+    $class_code = $_POST['class_code'];
 
     $email = $_POST['email'];
     $role = $_POST['role'];
@@ -34,14 +34,14 @@ if (isset($_POST['btnUpdate'])) {
         $sql_pass = ", password = '$pass_new'";
     }
 
-    // --- CẬP NHẬT CÂU LỆNH UPDATE ---
+    // --- CẬP NHẬT CÂU LỆNH UPDATE VỚI TÊN CỘT MỚI ---
     $sql_update = "UPDATE tbluser SET 
-                   fullname = '$fullname', 
-                   student_code = '$student_code',
-                   class_code = '$class_code',
+                   ho_va_ten = '$fullname', 
+                   ma_sinh_vien = '$student_code',
+                   ma_lop = '$class_code',
                    email = '$email', 
-                   role = '$role',
-                   status = '$status' 
+                   quyen = '$role',
+                   trang_thai = '$status' 
                    $sql_pass 
                    WHERE username = '$username'";
 
@@ -77,17 +77,19 @@ if (isset($_POST['btnUpdate'])) {
 
                         <div class="mb-3">
                             <label class="form-label fw-bold">Họ và tên</label>
-                            <input type="text" name="fullname" class="form-control" value="<?= $row['fullname'] ?>" required>
+                            <input type="text" name="fullname" class="form-control" value="<?= $row['ho_va_ten'] ?>"
+                                required>
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label fw-bold">Mã số sinh viên</label>
-                                <input type="text" name="student_code" class="form-control" value="<?= $row['student_code'] ?>">
+                                <input type="text" name="student_code" class="form-control"
+                                    value="<?= $row['ma_sinh_vien'] ?>">
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label fw-bold">Mã lớp</label>
-                                <input type="text" name="class_code" class="form-control" value="<?= $row['class_code'] ?>">
+                                <input type="text" name="class_code" class="form-control" value="<?= $row['ma_lop'] ?>">
                             </div>
                         </div>
 
@@ -98,23 +100,24 @@ if (isset($_POST['btnUpdate'])) {
 
                         <div class="mb-3">
                             <label class="form-label fw-bold text-danger">Đổi mật khẩu (Để trống nếu không đổi)</label>
-                            <input type="password" name="password" class="form-control" placeholder="Nhập mật khẩu mới...">
+                            <input type="password" name="password" class="form-control"
+                                placeholder="Nhập mật khẩu mới...">
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label fw-bold">Vai trò</label>
                                 <select name="role" class="form-select">
-                                    <option value="0" <?= ($row['role'] == 0) ? 'selected' : '' ?>>Thành viên</option>
-                                    <option value="1" <?= ($row['role'] == 1) ? 'selected' : '' ?>>Admin</option>
+                                    <option value="0" <?= ($row['quyen'] == 0) ? 'selected' : '' ?>>Thành viên</option>
+                                    <option value="1" <?= ($row['quyen'] == 1) ? 'selected' : '' ?>>Admin</option>
                                 </select>
                             </div>
 
                             <div class="col-md-6 mb-3">
                                 <label class="form-label fw-bold">Trạng thái</label>
                                 <select name="status" class="form-select">
-                                    <option value="1" <?= ($row['status'] == 1) ? 'selected' : '' ?>>Hoạt động</option>
-                                    <option value="0" <?= ($row['status'] == 0) ? 'selected' : '' ?>>Bị khóa</option>
+                                    <option value="1" <?= ($row['trang_thai'] == 1) ? 'selected' : '' ?>>Hoạt động</option>
+                                    <option value="0" <?= ($row['trang_thai'] == 0) ? 'selected' : '' ?>>Bị khóa</option>
                                 </select>
                             </div>
                         </div>

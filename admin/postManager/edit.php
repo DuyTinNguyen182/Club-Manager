@@ -6,7 +6,8 @@ if (!isset($_GET['id'])) { header("Location: index.php"); exit(); }
 $id = $_GET['id'];
 
 // Lấy thông tin bài viết cũ
-$sql = "SELECT * FROM tblbaiviet WHERE Mabaiviet = '$id'";
+// CẬP NHẬT: Mabaiviet -> ma_bai_viet
+$sql = "SELECT * FROM tblbaiviet WHERE ma_bai_viet = '$id'";
 $result = $conn->query($sql);
 $row = $result->fetch_assoc();
 
@@ -16,7 +17,8 @@ if (isset($_POST['btnUpdate'])) {
     $trangthai = $_POST['trangthai'];
     
     // Giữ ảnh cũ mặc định
-    $teptin = $row['Teptin'];
+    // CẬP NHẬT: Teptin -> tep_tin
+    $teptin = $row['tep_tin'];
 
     // Nếu có chọn ảnh mới
     if (isset($_FILES['teptin']) && $_FILES['teptin']['error'] == 0) {
@@ -26,19 +28,21 @@ if (isset($_POST['btnUpdate'])) {
         
         if (move_uploaded_file($_FILES["teptin"]["tmp_name"], $target_file)) {
             // Xóa ảnh cũ nếu có
-            if (!empty($row['Teptin']) && file_exists("../../uploads/" . $row['Teptin'])) {
-                unlink("../../uploads/" . $row['Teptin']);
+            if (!empty($row['tep_tin']) && file_exists("../../uploads/" . $row['tep_tin'])) {
+                unlink("../../uploads/" . $row['tep_tin']);
             }
             $teptin = $filename;
         }
     }
 
+    // CẬP NHẬT: Đổi tên cột trong câu lệnh UPDATE
+    // noi_dung, ma_chu_de, tep_tin, trang_thai, ma_bai_viet
     $sql_update = "UPDATE tblbaiviet SET 
-                   Noidung = '$noidung', 
-                   Machude = '$machude', 
-                   Teptin = '$teptin', 
-                   Trangthai = '$trangthai' 
-                   WHERE Mabaiviet = '$id'";
+                   noi_dung = '$noidung', 
+                   ma_chu_de = '$machude', 
+                   tep_tin = '$teptin', 
+                   trang_thai = '$trangthai' 
+                   WHERE ma_bai_viet = '$id'";
 
     if ($conn->query($sql_update) === TRUE) {
         echo "<script>alert('Cập nhật thành công!'); window.location.href='posts.php';</script>";
@@ -59,7 +63,7 @@ if (isset($_POST['btnUpdate'])) {
                     <div class="col-md-8">
                         <div class="mb-3">
                             <label class="form-label fw-bold">Nội dung</label>
-                            <textarea name="noidung" class="form-control" rows="6" required><?= $row['Noidung'] ?></textarea>
+                            <textarea name="noidung" class="form-control" rows="6" required><?= $row['noi_dung'] ?></textarea>
                         </div>
                     </div>
                     <div class="col-md-4">
@@ -69,8 +73,9 @@ if (isset($_POST['btnUpdate'])) {
                                 <?php
                                 $res_cd = $conn->query("SELECT * FROM tblchude");
                                 while ($rc = $res_cd->fetch_assoc()) {
-                                    $selected = ($rc['Machude'] == $row['Machude']) ? 'selected' : '';
-                                    echo "<option value='" . $rc['Machude'] . "' $selected>" . $rc['Tenchude'] . "</option>";
+                                    // CẬP NHẬT: Machude -> ma_chu_de, Tenchude -> ten_chu_de
+                                    $selected = ($rc['ma_chu_de'] == $row['ma_chu_de']) ? 'selected' : '';
+                                    echo "<option value='" . $rc['ma_chu_de'] . "' $selected>" . $rc['ten_chu_de'] . "</option>";
                                 }
                                 ?>
                             </select>
@@ -78,8 +83,8 @@ if (isset($_POST['btnUpdate'])) {
 
                         <div class="mb-3">
                             <label class="form-label fw-bold">Ảnh hiện tại</label><br>
-                            <?php if (!empty($row['Teptin'])): ?>
-                                <img src="../../uploads/<?= $row['Teptin'] ?>" width="100" class="mb-2 border rounded">
+                            <?php if (!empty($row['tep_tin'])): ?>
+                                <img src="../../uploads/<?= $row['tep_tin'] ?>" width="100" class="mb-2 border rounded">
                             <?php endif; ?>
                             <input type="file" name="teptin" class="form-control">
                         </div>
@@ -87,8 +92,8 @@ if (isset($_POST['btnUpdate'])) {
                         <div class="mb-3">
                             <label class="form-label fw-bold">Trạng thái</label>
                             <select name="trangthai" class="form-select">
-                                <option value="1" <?= ($row['Trangthai'] == 1) ? 'selected' : '' ?>>Đã duyệt</option>
-                                <option value="0" <?= ($row['Trangthai'] == 0) ? 'selected' : '' ?>>Chờ duyệt</option>
+                                <option value="1" <?= ($row['trang_thai'] == 1) ? 'selected' : '' ?>>Đã duyệt</option>
+                                <option value="0" <?= ($row['trang_thai'] == 0) ? 'selected' : '' ?>>Chờ duyệt</option>
                             </select>
                         </div>
                     </div>

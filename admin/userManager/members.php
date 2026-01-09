@@ -5,7 +5,8 @@ require_once('../../config.php');
 if (isset($_GET['action']) && $_GET['action'] == 'toggle' && isset($_GET['user'])) {
     $user = $_GET['user'];
     $user = $conn->real_escape_string($user);
-    $sql_update = "UPDATE tbluser SET status = 1 - status WHERE username = '$user'";
+    // CẬP NHẬT: status -> trang_thai
+    $sql_update = "UPDATE tbluser SET trang_thai = 1 - trang_thai WHERE username = '$user'";
     if ($conn->query($sql_update)) {
         header("Location: " . $_SERVER['PHP_SELF']);
         exit();
@@ -44,20 +45,22 @@ include('../includes/header.php');
                 </thead>
                 <tbody>
                     <?php
-                    $sql = "SELECT * FROM tbluser ORDER BY role DESC";
+                    // CẬP NHẬT: role -> quyen
+                    $sql = "SELECT * FROM tbluser ORDER BY quyen DESC";
                     $result = $conn->query($sql);
 
                     $stt = 1;
                     if ($result->num_rows > 0) {
                         while ($row = $result->fetch_assoc()) {
                             $avatarPath = "../../uploads/default.jpg";
-                            if (!empty($row['avatar'])) {
-                                $checkPath = "../../uploads/" . $row['avatar'];
+                            // CẬP NHẬT: avatar -> anh_dai_dien
+                            if (!empty($row['anh_dai_dien'])) {
+                                $checkPath = "../../uploads/" . $row['anh_dai_dien'];
                                 if (file_exists($checkPath)) {
                                     $avatarPath = $checkPath;
                                 }
                             }
-                    ?>
+                            ?>
                             <tr>
                                 <td class="text-center fw-bold"><?= $stt++; ?></td>
                                 <td>
@@ -65,16 +68,16 @@ include('../includes/header.php');
                                         style="object-fit: cover;">
                                 </td>
                                 <td>
-                                    <div class="fw-bold"><?= $row['fullname'] ?></div>
+                                    <div class="fw-bold"><?= $row['ho_va_ten'] ?></div>
                                     <small class="text-muted">@<?= $row['username'] ?></small>
                                 </td>
 
-                                <td><?= $row['student_code'] ?></td>
-                                <td><?= $row['class_code'] ?></td>
+                                <td><?= $row['ma_sinh_vien'] ?></td>
+                                <td><?= $row['ma_lop'] ?></td>
 
                                 <td><?= $row['email'] ?></td>
                                 <td class="text-center">
-                                    <?php if ($row['role'] == 1): ?>
+                                    <?php if ($row['quyen'] == 1): ?>
                                         <span class="badge bg-danger">Admin</span>
                                     <?php else: ?>
                                         <span class="badge bg-primary">Thành viên</span>
@@ -83,8 +86,8 @@ include('../includes/header.php');
 
                                 <td class="text-center">
                                     <a href="?action=toggle&user=<?= $row['username'] ?>" style="text-decoration: none;"
-                                        onclick="return confirm('Bạn có muốn thay đổi trạng thái của <?= $row['fullname'] ?>?')">
-                                        <?php if ($row['status'] == 1): ?>
+                                        onclick="return confirm('Bạn có muốn thay đổi trạng thái của <?= $row['ho_va_ten'] ?>?')">
+                                        <?php if ($row['trang_thai'] == 1): ?>
                                             <span class="badge bg-success"><i class='bx bx-check'></i> Hoạt động</span>
                                         <?php else: ?>
                                             <span class="badge bg-secondary">Khóa</span>
@@ -97,12 +100,12 @@ include('../includes/header.php');
                                         <i class='bx bx-edit-alt'></i>
                                     </a>
                                     <a href="delete.php?user=<?= $row['username'] ?>" class="btn btn-danger btn-sm"
-                                        onclick="return confirm('Xóa thành viên <?= $row['fullname'] ?>?')" title="Xóa">
+                                        onclick="return confirm('Xóa thành viên <?= $row['ho_va_ten'] ?>?')" title="Xóa">
                                         <i class='bx bx-trash'></i>
                                     </a>
                                 </td>
                             </tr>
-                    <?php
+                            <?php
                         }
                     } else {
                         echo "<tr><td colspan='9' class='text-center text-muted py-4'>Chưa có thành viên nào.</td></tr>";

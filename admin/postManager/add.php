@@ -7,7 +7,7 @@ if (isset($_POST['btnAdd'])) {
     $machude = $_POST['machude'];
     $trangthai = $_POST['trangthai'];
     $username = $_SESSION['username']; // Lấy người đang đăng nhập
-    $ngaytao = date('Y-m-d'); // Lấy ngày hiện tại
+    $ngaytao = date('Y-m-d H:i:s'); // Lấy ngày giờ hiện tại
 
     // Xử lý upload ảnh
     $teptin = "";
@@ -22,13 +22,13 @@ if (isset($_POST['btnAdd'])) {
         }
     }
 
-    $sql = "INSERT INTO tblbaiviet (Noidung, Machude, Ngaytao, Teptin, Username, Trangthai) 
+    $sql = "INSERT INTO tblbaiviet (noi_dung, ma_chu_de, ngay_tao, tep_tin, username, trang_thai) 
             VALUES ('$noidung', '$machude', '$ngaytao', '$teptin', '$username', '$trangthai')";
 
     if ($conn->query($sql) === TRUE) {
         echo "<script>alert('Thêm bài viết thành công!'); window.location.href='posts.php';</script>";
     } else {
-        $error_msg = "Lỗi: " . $conn->error;
+        echo "<script>alert('Lỗi: " . $conn->error . "');</script>";
     }
 }
 ?>
@@ -52,10 +52,12 @@ if (isset($_POST['btnAdd'])) {
                             <select name="machude" class="form-select" required>
                                 <option value="">-- Chọn chủ đề --</option>
                                 <?php
-                                $sql_cd = "SELECT * FROM tblchude WHERE Trangthai = 1";
+                                // CẬP NHẬT: Trangthai -> trang_thai
+                                $sql_cd = "SELECT * FROM tblchude WHERE trang_thai = 1";
                                 $res_cd = $conn->query($sql_cd);
                                 while ($row_cd = $res_cd->fetch_assoc()) {
-                                    echo "<option value='" . $row_cd['Machude'] . "'>" . $row_cd['Tenchude'] . "</option>";
+                                    // CẬP NHẬT: Machude -> ma_chu_de, Tenchude -> ten_chu_de
+                                    echo "<option value='" . $row_cd['ma_chu_de'] . "'>" . $row_cd['ten_chu_de'] . "</option>";
                                 }
                                 ?>
                             </select>

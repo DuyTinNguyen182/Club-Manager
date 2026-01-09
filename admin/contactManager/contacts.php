@@ -21,8 +21,7 @@ include('../includes/header.php');
             </thead>
             <tbody>
                 <?php
-                // Sắp xếp thư mới nhất lên đầu
-                $sql = "SELECT * FROM tblcontact ORDER BY Ngaygui DESC";
+                $sql = "SELECT * FROM tblcontact ORDER BY ngay_gui DESC";
                 $result = $conn->query($sql);
 
                 $stt = 1;
@@ -32,23 +31,23 @@ include('../includes/header.php');
                         <tr>
                             <td class="text-center fw-bold"><?= $stt++; ?></td>
                             <td>
-                                <div class="fw-bold"><?= htmlspecialchars($row['Tennguoigui']) ?></div>
-                                <small class="text-muted"><?= htmlspecialchars($row['Email']) ?></small>
+                                <div class="fw-bold"><?= htmlspecialchars($row['ten_nguoi_gui']) ?></div>
+                                <small class="text-muted"><?= htmlspecialchars($row['email']) ?></small>
                             </td>
                             <td>
                                 <div class="text-truncate" style="max-width: 300px;">
-                                    <?= htmlspecialchars($row['Noidung']) ?>
+                                    <?= htmlspecialchars($row['noi_dung']) ?>
                                 </div>
                             </td>
                             <td class="text-center">
-                                <small><?= date('d/m/Y H:i', strtotime($row['Ngaygui'])) ?></small>
+                                <small><?= date('d/m/Y H:i', strtotime($row['ngay_gui'])) ?></small>
                             </td>
                             
                             <td class="text-center">
-                                <a href="toggle_status.php?id=<?= $row['id'] ?>&status=<?= $row['Trangthai'] ?>" 
+                                <a href="toggle_status.php?id=<?= $row['ma_lien_he'] ?>&status=<?= $row['trang_thai'] ?>" 
                                    class="text-decoration-none"
                                    onclick="return confirm('Bạn muốn đổi trạng thái xử lý của thư này?')">
-                                    <?php if ($row['Trangthai'] == 1): ?>
+                                    <?php if ($row['trang_thai'] == 1): ?>
                                         <span class="badge bg-success p-2 w-100"><i class='bx bx-check-double'></i> Đã phản hồi</span>
                                     <?php else: ?>
                                         <span class="badge bg-warning text-dark p-2 w-100"><i class='bx bx-time'></i> Chờ xử lý</span>
@@ -57,10 +56,10 @@ include('../includes/header.php');
                             </td>
 
                             <td class="text-center">
-                                <a href="detail.php?id=<?= $row['id'] ?>" class="btn btn-info btn-sm text-white" title="Xem chi tiết">
+                                <a href="detail.php?id=<?= $row['ma_lien_he'] ?>" class="btn btn-info btn-sm text-white" title="Xem chi tiết">
                                     <i class='bx bx-show'></i>
                                 </a>
-                                <a href="delete.php?id=<?= $row['id'] ?>" class="btn btn-danger btn-sm" 
+                                <a href="delete.php?id=<?= $row['ma_lien_he'] ?>" class="btn btn-danger btn-sm" 
                                    onclick="return confirm('Bạn có chắc muốn xóa liên hệ này?')" 
                                    title="Xóa">
                                     <i class='bx bx-trash'></i>

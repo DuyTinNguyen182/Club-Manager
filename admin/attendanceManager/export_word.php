@@ -2,19 +2,16 @@
 session_start();
 require_once('../../config.php');
 
-// 1. Kiểm tra quyền Admin
 if (!isset($_SESSION['role']) || $_SESSION['role'] != 1) {
     die("Bạn không có quyền truy cập.");
 }
 
-// 2. Kiểm tra ID
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
     die("Thiếu ID hoạt động.");
 }
 $id = intval($_GET['id']);
 
-// 3. Lấy thông tin hoạt động
-$sql_hd = "SELECT * FROM tblhoatdong WHERE hoatdong_id = $id";
+$sql_hd = "SELECT * FROM tblhoatdong WHERE ma_hoat_dong = $id";
 $result_hd = $conn->query($sql_hd);
 $row_hd = $result_hd->fetch_assoc();
 
@@ -22,14 +19,13 @@ if (!$row_hd) {
     die("Hoạt động không tồn tại.");
 }
 
-$sql_user = "SELECT u.fullname, u.email 
+$sql_user = "SELECT u.ho_va_ten, u.email, u.ma_sinh_vien, u.ma_lop 
              FROM tbldangkyhoatdong dk 
              JOIN tbluser u ON dk.username = u.username 
-             WHERE dk.hoatdong_id = $id AND dk.trang_thai = 1
-             ORDER BY u.fullname ASC";
+             WHERE dk.ma_hoat_dong = $id AND dk.trang_thai = 1
+             ORDER BY u.ho_va_ten ASC";
 $result_user = $conn->query($sql_user);
 
-// 5. Cấu hình Header để tải về file Word
 $filename = "Danh_sach_" . date('dmY') . ".doc";
 header("Content-Type: application/vnd.ms-word");
 header("Expires: 0");
@@ -42,7 +38,6 @@ header("content-disposition: attachment;filename=$filename");
 <head>
     <meta charset="utf-8">
     <style>
-        /* CSS nội tuyến để định dạng trong Word */
         body {
             font-family: 'Times New Roman', serif;
             font-size: 13pt;
@@ -118,7 +113,7 @@ header("content-disposition: attachment;filename=$filename");
     </div>
 
     <div class="sub-info">
-        Thời gian: <?php echo date("H:i - d/m/Y", strtotime($row_hd['ngay_bat_dau'])); ?><br>
+        Thời gian: Từ <?php echo date("H:i d/m/Y", strtotime($row_hd['ngay_bat_dau'])); ?> đến <?php echo date("H:i d/m/Y", strtotime($row_hd['ngay_ket_thuc'])); ?><br>
         Địa điểm: <?php echo htmlspecialchars($row_hd['dia_diem']); ?>
     </div>
 
@@ -127,7 +122,8 @@ header("content-disposition: attachment;filename=$filename");
             <tr>
                 <th style="width: 50px;">STT</th>
                 <th>Họ và tên</th>
-                <th>Email</th>
+                <th style="width: 120px;">MSSV</th>
+                <th style="width: 100px;">Mã lớp</th>                
                 <th style="width: 150px;">Ghi chú</th>
             </tr>
         </thead>
@@ -139,14 +135,16 @@ header("content-disposition: attachment;filename=$filename");
             ?>
                     <tr>
                         <td class="text-center"><?php echo $stt++; ?></td>
-                        <td><?php echo htmlspecialchars($u['fullname']); ?></td>
-                        <td><?php echo htmlspecialchars($u['email']); ?></td>
+                        <td><?php echo htmlspecialchars($u['ho_va_ten']); ?></td>
+                        <td class="text-center"><?php echo htmlspecialchars($u['ma_sinh_vien']); ?></td>
+                        <td class="text-center"><?php echo htmlspecialchars($u['ma_lop']); ?></td>
+                        
                         <td></td>
                     </tr>
             <?php
                 }
             } else {
-                echo "<tr><td colspan='4' class='text-center'>Chưa có thành viên đăng ký</td></tr>";
+                echo "<tr><td colspan='5' class='text-center'>Chưa có thành viên đăng ký</td></tr>";
             }
             ?>
         </tbody>

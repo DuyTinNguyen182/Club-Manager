@@ -8,7 +8,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] != 1) {
 
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
-    $sql = "DELETE FROM tblhoatdong WHERE hoatdong_id = '$id'";
+    $sql = "DELETE FROM tblhoatdong WHERE ma_hoat_dong = '$id'";
     
     if ($conn->query($sql) === TRUE) {
         echo "<script>alert('Xóa hoạt động thành công!'); window.location.href='activities.php';</script>";

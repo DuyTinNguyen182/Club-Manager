@@ -1,6 +1,7 @@
 <?php
 include('includes/header.php');
 
+// Sửa role -> quyen
 if (!isset($_SESSION['role']) || $_SESSION['role'] != 1) {
     echo "<script>window.location.href='../index.php';</script>";
     exit();
@@ -15,10 +16,14 @@ $act_count = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total FR
 
 // 2. Lấy dữ liệu chi tiết (GIỮ LIMIT 4)
 $limit = 4;
-$res_new_users = mysqli_query($conn, "SELECT * FROM tbluser WHERE role = 0 ORDER BY username DESC LIMIT $limit");
-$res_new_contacts = mysqli_query($conn, "SELECT * FROM tblcontact ORDER BY Ngaygui DESC LIMIT $limit");
+// Sửa role -> quyen
+$res_new_users = mysqli_query($conn, "SELECT * FROM tbluser WHERE quyen = 0 ORDER BY username DESC LIMIT $limit");
+// Sửa Ngaygui -> ngay_gui
+$res_new_contacts = mysqli_query($conn, "SELECT * FROM tblcontact ORDER BY ngay_gui DESC LIMIT $limit");
+// tblhoatdong giữ nguyên
 $res_new_activities = mysqli_query($conn, "SELECT * FROM tblhoatdong ORDER BY ngay_bat_dau DESC LIMIT $limit");
-$res_new_posts = mysqli_query($conn, "SELECT b.*, u.fullname FROM tblbaiviet b JOIN tbluser u ON b.Username = u.username ORDER BY b.Ngaytao DESC LIMIT $limit");
+// Sửa Username -> username, Ngaytao -> ngay_tao, fullname -> ho_va_ten
+$res_new_posts = mysqli_query($conn, "SELECT b.*, u.ho_va_ten FROM tblbaiviet b JOIN tbluser u ON b.username = u.username ORDER BY b.ngay_tao DESC LIMIT $limit");
 ?>
 
 <style>
@@ -117,11 +122,14 @@ $res_new_posts = mysqli_query($conn, "SELECT b.*, u.fullname FROM tblbaiviet b J
                                 <?php while ($row = mysqli_fetch_assoc($res_new_contacts)): ?>
                                     <tr>
                                         <td class="py-3">
-                                            <div class="fw-bold text-truncate" style="max-width: 200px;"><?php echo htmlspecialchars($row['Tennguoigui']); ?></div>
-                                            <small class="text-muted d-block text-truncate" style="max-width: 200px;"><?php echo htmlspecialchars($row['Email']); ?></small>
+                                            <div class="fw-bold text-truncate" style="max-width: 200px;">
+                                                <?php echo htmlspecialchars($row['ten_nguoi_gui']); ?></div>
+                                            <small class="text-muted d-block text-truncate"
+                                                style="max-width: 200px;"><?php echo htmlspecialchars($row['email']); ?></small>
                                         </td>
-                                        <td><small><?php echo date('d/m', strtotime($row['Ngaygui'])); ?></small></td>
-                                        <td><?php echo ($row['Trangthai'] == 0) ? '<span class="badge bg-danger">Chưa xử lý</span>' : '<span class="badge bg-success">Đã xử lý</span>'; ?></td>
+                                        <td><small><?php echo date('d/m', strtotime($row['ngay_gui'])); ?></small></td>
+                                        <td><?php echo ($row['trang_thai'] == 0) ? '<span class="badge bg-danger">Chưa xử lý</span>' : '<span class="badge bg-success">Đã xử lý</span>'; ?>
+                                        </td>
                                     </tr>
                                 <?php endwhile; ?>
                             </tbody>
@@ -151,12 +159,15 @@ $res_new_posts = mysqli_query($conn, "SELECT b.*, u.fullname FROM tblbaiviet b J
                                 <?php while ($row = mysqli_fetch_assoc($res_new_activities)): ?>
                                     <tr>
                                         <td class="py-3">
-                                            <div class="text-truncate" style="max-width: 250px;" title="<?php echo $row['ten_hoat_dong']; ?>">
+                                            <div class="text-truncate" style="max-width: 250px;"
+                                                title="<?php echo $row['ten_hoat_dong']; ?>">
                                                 <?php echo $row['ten_hoat_dong']; ?>
                                             </div>
                                         </td>
-                                        <td><small><?php echo date('d/m/Y', strtotime($row['ngay_bat_dau'])); ?></small></td>
-                                        <td><?php echo ($row['trang_thai'] == 0) ? '<span class="badge bg-success">Sắp diễn ra</span>' : '<span class="badge bg-secondary">Đã kết thúc</span>'; ?></td>
+                                        <td><small><?php echo date('d/m/Y', strtotime($row['ngay_bat_dau'])); ?></small>
+                                        </td>
+                                        <td><?php echo ($row['trang_thai'] == 0) ? '<span class="badge bg-success">Sắp diễn ra</span>' : '<span class="badge bg-secondary">Đã kết thúc</span>'; ?>
+                                        </td>
                                     </tr>
                                 <?php endwhile; ?>
                             </tbody>
@@ -187,19 +198,24 @@ $res_new_posts = mysqli_query($conn, "SELECT b.*, u.fullname FROM tblbaiviet b J
                                     <tr>
                                         <td class="py-3">
                                             <div class="d-flex align-items-center">
-                                                <?php if (!empty($row['avatar'])): ?>
-                                                    <img src="../uploads/<?php echo $row['avatar']; ?>" class="rounded-circle me-2" width="32" height="32" style="object-fit:cover;">
+                                                <?php if (!empty($row['anh_dai_dien'])): ?>
+                                                    <img src="../uploads/<?php echo $row['anh_dai_dien']; ?>"
+                                                        class="rounded-circle me-2" width="32" height="32"
+                                                        style="object-fit:cover;">
                                                 <?php else: ?>
                                                     <i class='bx bxs-user-circle fs-4 me-2 text-secondary'></i>
                                                 <?php endif; ?>
-                                                <strong class="text-truncate" style="max-width: 100px;"><?php echo htmlspecialchars($row['username']); ?></strong>
+                                                <strong class="text-truncate"
+                                                    style="max-width: 100px;"><?php echo htmlspecialchars($row['username']); ?></strong>
                                             </div>
                                         </td>
                                         <td>
-                                            <div class="text-truncate" style="max-width: 150px;"><?php echo htmlspecialchars($row['fullname']); ?></div>
+                                            <div class="text-truncate" style="max-width: 150px;">
+                                                <?php echo htmlspecialchars($row['ho_va_ten']); ?></div>
                                         </td>
                                         <td>
-                                            <div class="text-truncate" style="max-width: 150px;"><small><?php echo htmlspecialchars($row['email']); ?></small></div>
+                                            <div class="text-truncate" style="max-width: 150px;">
+                                                <small><?php echo htmlspecialchars($row['email']); ?></small></div>
                                         </td>
                                     </tr>
                                 <?php endwhile; ?>
@@ -223,10 +239,13 @@ $res_new_posts = mysqli_query($conn, "SELECT b.*, u.fullname FROM tblbaiviet b J
                                     <li class="list-group-item py-3">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div class="me-3 text-truncate">
-                                                <div class="fw-bold text-truncate" style="max-width: 350px;"><?php echo htmlspecialchars(strip_tags($post['Noidung'])); ?></div>
-                                                <small class="text-muted"><i class='bx bx-user'></i> <?php echo $post['fullname']; ?></small>
+                                                <div class="fw-bold text-truncate" style="max-width: 350px;">
+                                                    <?php echo htmlspecialchars(strip_tags($post['noi_dung'])); ?></div>
+                                                <small class="text-muted"><i class='bx bx-user'></i>
+                                                    <?php echo $post['ho_va_ten']; ?></small>
                                             </div>
-                                            <small class="text-nowrap text-muted"><?php echo date('d/m', strtotime($post['Ngaytao'])); ?></small>
+                                            <small
+                                                class="text-nowrap text-muted"><?php echo date('d/m', strtotime($post['ngay_tao'])); ?></small>
                                         </div>
                                     </li>
                                 <?php endwhile; ?>

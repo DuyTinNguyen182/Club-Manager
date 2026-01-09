@@ -3,10 +3,12 @@ $path_to_admin = '../';
 require_once('../config.php');
 include('../includes/header.php');
 
+// Xử lý Toggle trạng thái nhanh
 if (isset($_GET['action']) && $_GET['action'] == 'toggle' && isset($_GET['id'])) {
     $id = $_GET['id'];
 
-    $sql_update = "UPDATE tblchude SET Trangthai = 1 - Trangthai WHERE Machude = $id";
+    // CẬP NHẬT: Trangthai -> trang_thai, Machude -> ma_chu_de
+    $sql_update = "UPDATE tblchude SET trang_thai = 1 - trang_thai WHERE ma_chu_de = $id";
 
     if ($conn->query($sql_update)) {
         header("Location: " . $_SERVER['PHP_SELF']);
@@ -30,7 +32,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle' && isset($_GET['id']))
             <thead class="table-light">
                 <tr>
                     <th class="text-center" style="width: 50px;">STT</th>
-                    
+
                     <th>Tên chủ đề</th>
                     <th class="text-center">Trạng thái</th>
                     <th class="text-center" style="width: 150px;">Hành động</th>
@@ -38,8 +40,8 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle' && isset($_GET['id']))
             </thead>
             <tbody>
                 <?php
-                // Lấy danh sách chủ đề
-                $sql = "SELECT * FROM tblchude ORDER BY Machude DESC";
+                // CẬP NHẬT: Machude -> ma_chu_de
+                $sql = "SELECT * FROM tblchude ORDER BY ma_chu_de DESC";
                 $result = $conn->query($sql);
 
                 $stt = 1;
@@ -48,23 +50,25 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle' && isset($_GET['id']))
                         ?>
                         <tr>
                             <td class="text-center fw-bold"><?= $stt++; ?></td>
-                            <td class="fw-bold text-primary"><?= $row['Tenchude'] ?></td>
+                            <td class="fw-bold text-primary"><?= $row['ten_chu_de'] ?></td>
+
                             <td class="text-center">
-                                <a href="?action=toggle&id=<?= $row['Machude'] ?>" style="text-decoration: none;">
-                                    <?php if ($row['Trangthai'] == 1): ?>
+                                <a href="?action=toggle&id=<?= $row['ma_chu_de'] ?>" style="text-decoration: none;">
+                                    <?php if ($row['trang_thai'] == 1): ?>
                                         <span class="badge bg-success" title="Nhấn để ẩn">Hiển thị</span>
                                     <?php else: ?>
                                         <span class="badge bg-secondary" title="Nhấn để hiện">Ẩn</span>
                                     <?php endif; ?>
                                 </a>
                             </td>
+
                             <td class="text-center">
-                                <a href="edit.php?id=<?= $row['Machude'] ?>" class="btn btn-warning btn-sm" title="Sửa">
+                                <a href="edit.php?id=<?= $row['ma_chu_de'] ?>" class="btn btn-warning btn-sm" title="Sửa">
                                     <i class='bx bx-edit-alt'></i>
                                 </a>
 
-                                <a href="delete.php?id=<?= $row['Machude'] ?>" class="btn btn-danger btn-sm"
-                                    onclick="return confirm('Bạn có chắc muốn xóa chủ đề: <?= $row['Tenchude'] ?>?')"
+                                <a href="delete.php?id=<?= $row['ma_chu_de'] ?>" class="btn btn-danger btn-sm"
+                                    onclick="return confirm('Bạn có chắc muốn xóa chủ đề: <?= $row['ten_chu_de'] ?>?')"
                                     title="Xóa">
                                     <i class='bx bx-trash'></i>
                                 </a>
