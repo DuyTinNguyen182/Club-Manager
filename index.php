@@ -159,7 +159,7 @@ require("phandau.php");
                         <div class="feed-info">
                             <span class="feed-author"><?php echo !empty($bv['ho_va_ten']) ? $bv['ho_va_ten'] : $bv['username']; ?></span>
                             <span class="feed-time">
-                                <?php echo date('H:i - d/m/Y', strtotime($bv['ngay_tao'])); ?>
+                                <?php echo date('H:i d/m/Y', strtotime($bv['ngay_tao'])); ?>
                                 <i class="fa-solid fa-earth-americas" style="font-size: 10px; margin-left: 4px;"></i>
                             </span>
                         </div>

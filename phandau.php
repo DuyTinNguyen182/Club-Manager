@@ -580,7 +580,11 @@ $current_page = basename($_SERVER['PHP_SELF']);
             <i class="fa-solid fa-envelope"></i> Liên hệ
         </a>
 
-        </a> <a href="https://drive.google.com/drive/folders/1VL0nzaq-va33Wij3VJqsxlOYT3Pfmf8L" target="_blank" style="color: #2563eb; font-weight: 600;">
+        <!-- </a> <a href="https://drive.google.com/drive/folders/1VL0nzaq-va33Wij3VJqsxlOYT3Pfmf8L" target="_blank" style="color: #2563eb; font-weight: 600;">
+            <i class="fa-brands fa-google-drive"></i> Kho Minh Chứng
+        </a> -->
+
+        </a> <a href="https://drive.google.com/drive/folders/1VL0nzaq-va33Wij3VJqsxlOYT3Pfmf8L" target="_blank">
             <i class="fa-brands fa-google-drive"></i> Kho Minh Chứng
         </a>
 

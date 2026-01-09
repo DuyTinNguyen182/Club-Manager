@@ -465,7 +465,7 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
                                             <span class="cmt-author">
                                                 <?php echo !empty($cmt['ho_va_ten']) ? $cmt['ho_va_ten'] : $cmt['username']; ?>
                                                 <span
-                                                    class="cmt-time"><?php echo date('d/m H:i', strtotime($cmt['ngay_tao'])); ?></span>
+                                                    class="cmt-time"><?php echo date('H:i d/m/Y', strtotime($cmt['ngay_tao'])); ?></span>
                                             </span>
                                             <p style="margin:4px 0 0;"><?php echo $cmt['noi_dung']; ?></p>
                                         </div>
@@ -520,7 +520,7 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
                                                                 <span class="cmt-author">
                                                                     <?php echo !empty($reply['ho_va_ten']) ? $reply['ho_va_ten'] : $reply['username']; ?>
                                                                     <span
-                                                                        class="cmt-time"><?php echo date('d/m H:i', strtotime($reply['ngay_tao'])); ?></span>
+                                                                        class="cmt-time"><?php echo date('H:i d/m/Y', strtotime($reply['ngay_tao'])); ?></span>
                                                                 </span>
                                                                 <p style="margin:4px 0 0;"><?php echo $reply['noi_dung']; ?></p>
                                                             </div>
