@@ -383,7 +383,7 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
         </div>
 
         <?php
-        $sql_bv = "SELECT bv.*, u.avatar FROM tblbaiviet bv JOIN tbluser u ON bv.Username = u.Username 
+        $sql_bv = "SELECT bv.*, u.avatar, u.fullname FROM tblbaiviet bv JOIN tbluser u ON bv.Username = u.Username 
                    WHERE bv.Machude = $machude AND bv.Trangthai = 1 ORDER BY bv.Ngaytao DESC";
         $rs_bv = $conn->query($sql_bv);
 
@@ -401,7 +401,7 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
                         <img src="uploads/<?php echo $bv['avatar']; ?>" class="feed-avatar"
                             onerror="this.src='https://ui-avatars.com/api/?name=<?php echo $bv['Username']; ?>'">
                         <div>
-                            <h4 style="margin:0; font-size:1rem;"><?php echo $bv['Username']; ?></h4>
+                            <h4 style="margin:0; font-size:1rem;"><?php echo !empty($bv['fullname']) ? $bv['fullname'] : $bv['Username']; ?></h4>
                             <span
                                 style="font-size:0.8rem; color:#64748b"><?php echo date('H:i d/m/Y', strtotime($bv['Ngaytao'])); ?></span>
                         </div>
@@ -440,7 +440,7 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
                         <?php
                         // 1. Lấy tất cả bình luận của bài viết ra mảng trước để dễ xử lý
                         $all_comments = [];
-                        $sql_bl = "SELECT bl.*, u.avatar FROM tblbinhluan bl JOIN tbluser u ON bl.Username = u.Username 
+                        $sql_bl = "SELECT bl.*, u.avatar, u.fullname FROM tblbinhluan bl JOIN tbluser u ON bl.Username = u.Username 
                                    WHERE bl.Mabaiviet = $id_baiviet AND bl.Trangthai = 1 ORDER BY bl.Ngaytao ASC";
                         $rs_bl = $conn->query($sql_bl);
                         while ($row_bl = $rs_bl->fetch_assoc()) {
@@ -457,7 +457,7 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
                                     <div style="flex-grow:1;">
                                         <div class="cmt-bubble">
                                             <span class="cmt-author">
-                                                <?php echo $cmt['Username']; ?>
+                                                <?php echo !empty($cmt['fullname']) ? $cmt['fullname'] : $cmt['Username']; ?>
                                                 <span class="cmt-time"><?php echo date('d/m H:i', strtotime($cmt['Ngaytao'])); ?></span>
                                             </span>
                                             <p style="margin:4px 0 0;"><?php echo $cmt['Noidung']; ?></p>
@@ -509,7 +509,7 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
                                                         <div style="flex-grow:1;">
                                                             <div class="cmt-bubble" style="background:#f1f5f9;">
                                                                 <span class="cmt-author">
-                                                                    <?php echo $reply['Username']; ?>
+                                                                    <?php echo !empty($reply['fullname']) ? $reply['fullname'] : $reply['Username']; ?>
                                                                     <span
                                                                         class="cmt-time"><?php echo date('d/m H:i', strtotime($reply['Ngaytao'])); ?></span>
                                                                 </span>

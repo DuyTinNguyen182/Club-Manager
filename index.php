@@ -133,8 +133,13 @@ require("phandau.php");
 
     <div class="feed-list">
         <?php
-        // Cần đảm bảo bảng tblbaiviet có cột Machude
-        $sql_baiviet = "SELECT * FROM tblbaiviet WHERE Trangthai = 1 ORDER BY Ngaytao DESC LIMIT 5";
+        // Cần đảm bảo bảng tblbaiviet có cột Machude & avatar
+        $sql_baiviet = "SELECT bv.*, u.fullname, u.avatar   
+                FROM tblbaiviet bv 
+                JOIN tbluser u ON bv.Username = u.username 
+                WHERE bv.Trangthai = 1 
+                ORDER BY bv.Ngaytao DESC LIMIT 5";
+        
         $result_baiviet = $conn->query($sql_baiviet);
 
         if ($result_baiviet && $result_baiviet->num_rows > 0) {
@@ -143,12 +148,15 @@ require("phandau.php");
                 <div class="feed-item">
                     <div class="feed-header">
                         <div class="feed-avatar">
-                            <i class="fa-solid fa-circle-user"></i>
+                            <img src="uploads/<?php echo $bv['avatar']; ?>" 
+                            alt="Avatar" 
+                            style="width: 100%; height: 100%; object-fit: cover;"
+                            onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=<?php echo $bv['Username']; ?>&background=random';">
                         </div>
                         <div class="feed-info">
-                            <span class="feed-author"><?php echo $bv['Username']; ?></span>
+                            <span class="feed-author"><?php echo !empty($bv['fullname']) ? $bv['fullname'] : $bv['Username']; ?></span>
                             <span class="feed-time">
-                                <?php echo date('d/m/Y', strtotime($bv['Ngaytao'])); ?>
+                                <?php echo date('H:i - d/m/Y', strtotime($bv['Ngaytao'])); ?>
                                 <i class="fa-solid fa-earth-americas" style="font-size: 10px; margin-left: 4px;"></i>
                             </span>
                         </div>
