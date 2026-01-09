@@ -95,6 +95,7 @@ require("phandau.php");
 
     <div class="item-list">
         <?php
+        // Cột trang_thai và ngay_bat_dau giữ nguyên tên
         $sql_hoatdong = "SELECT * FROM tblhoatdong WHERE trang_thai = 0 AND ngay_bat_dau >= NOW() ORDER BY ngay_bat_dau ASC LIMIT 3";
         $result_hoatdong = $conn->query($sql_hoatdong);
 
@@ -106,7 +107,7 @@ require("phandau.php");
                         <i class="fa-regular fa-calendar-days"></i>
                     </div>
                     <div class="item-content">
-                        <a href="chitiethoatdong.php?id=<?php echo $hd['hoatdong_id']; ?>" class="item-title">
+                        <a href="chitiethoatdong.php?id=<?php echo $hd['ma_hoat_dong']; ?>" class="item-title">
                             <?php echo $hd['ten_hoat_dong']; ?>
                         </a>
                         <div class="item-meta">
@@ -133,12 +134,14 @@ require("phandau.php");
 
     <div class="feed-list">
         <?php
-        // Cần đảm bảo bảng tblbaiviet có cột Machude & avatar
-        $sql_baiviet = "SELECT bv.*, u.fullname, u.avatar   
+        // Cập nhật câu truy vấn với tên cột mới
+        // tbluser: fullname -> ho_va_ten, avatar -> anh_dai_dien
+        // tblbaiviet: Username -> username, Trangthai -> trang_thai, Ngaytao -> ngay_tao
+        $sql_baiviet = "SELECT bv.*, u.ho_va_ten, u.anh_dai_dien 
                 FROM tblbaiviet bv 
-                JOIN tbluser u ON bv.Username = u.username 
-                WHERE bv.Trangthai = 1 
-                ORDER BY bv.Ngaytao DESC LIMIT 5";
+                JOIN tbluser u ON bv.username = u.username 
+                WHERE bv.trang_thai = 1 
+                ORDER BY bv.ngay_tao DESC LIMIT 5";
         
         $result_baiviet = $conn->query($sql_baiviet);
 
@@ -148,15 +151,15 @@ require("phandau.php");
                 <div class="feed-item">
                     <div class="feed-header">
                         <div class="feed-avatar">
-                            <img src="uploads/<?php echo $bv['avatar']; ?>" 
+                            <img src="uploads/<?php echo $bv['anh_dai_dien']; ?>" 
                             alt="Avatar" 
                             style="width: 100%; height: 100%; object-fit: cover;"
-                            onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=<?php echo $bv['Username']; ?>&background=random';">
+                            onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=<?php echo $bv['username']; ?>&background=random';">
                         </div>
                         <div class="feed-info">
-                            <span class="feed-author"><?php echo !empty($bv['fullname']) ? $bv['fullname'] : $bv['Username']; ?></span>
+                            <span class="feed-author"><?php echo !empty($bv['ho_va_ten']) ? $bv['ho_va_ten'] : $bv['username']; ?></span>
                             <span class="feed-time">
-                                <?php echo date('H:i - d/m/Y', strtotime($bv['Ngaytao'])); ?>
+                                <?php echo date('H:i - d/m/Y', strtotime($bv['ngay_tao'])); ?>
                                 <i class="fa-solid fa-earth-americas" style="font-size: 10px; margin-left: 4px;"></i>
                             </span>
                         </div>
@@ -165,8 +168,8 @@ require("phandau.php");
                     <div class="feed-content">
                         <p>
                             <?php
-                            // Lấy nội dung và cắt ngắn nếu quá dài
-                            $noidung = strip_tags($bv['Noidung']);
+                            // Sửa Noidung -> noi_dung
+                            $noidung = strip_tags($bv['noi_dung']);
                             if (strlen($noidung) > 300)
                                 echo substr($noidung, 0, 300) . "...";
                             else
@@ -174,7 +177,7 @@ require("phandau.php");
                             ?>
                         </p>
 
-                        <a href="danhmuc_baiviet.php?id=<?php echo $bv['Machude']; ?>&open=<?php echo $bv['Mabaiviet']; ?>#post-<?php echo $bv['Mabaiviet']; ?>"
+                        <a href="danhmuc_baiviet.php?id=<?php echo $bv['ma_chu_de']; ?>&open=<?php echo $bv['ma_bai_viet']; ?>#post-<?php echo $bv['ma_bai_viet']; ?>"
                             class="feed-readmore">
                             Xem chi tiết bài viết
                         </a>

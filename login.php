@@ -18,6 +18,7 @@ $google_login_error = '';
 
 // 3. KHỞI TẠO GOOGLE CLIENT
 
+
 // 4. XỬ LÝ GOOGLE OAUTH CALLBACK
 if (isset($_GET['code'])) {
     try {
@@ -60,8 +61,12 @@ if ($client->getAccessToken()) {
 
             $_SESSION['username'] = $user_data['username'];
             $_SESSION['emailUser'] = $user_data['email'];
-            $_SESSION['role'] = $user_data['role'];
-            $_SESSION['fullname'] = $user_data['fullname'];
+            // Sửa role -> quyen
+            $_SESSION['role'] = $user_data['quyen'];
+            // Sửa fullname -> ho_va_ten
+            $_SESSION['fullname'] = $user_data['ho_va_ten'];
+            // Thêm avatar -> anh_dai_dien cho đầy đủ
+            $_SESSION['avatar'] = $user_data['anh_dai_dien'];
 
             header('Location: index.php');
             exit();
@@ -73,11 +78,10 @@ if ($client->getAccessToken()) {
             $avatar = $googleUserInfo['picture']; // Link ảnh đại diện từ Google
 
             // Tạo username từ email (phần trước @)
-            // Lọc bỏ ký tự đặc biệt, chỉ giữ lại chữ/số
             $username_base = preg_replace("/[^a-zA-Z0-9]/", "", explode('@', $email_google)[0]);
             if (empty($username_base)) {
                 $username_base = 'user';
-            } // Đề phòng email lạ
+            }
 
             $new_username = $username_base;
             $counter = 0;
@@ -92,25 +96,22 @@ if ($client->getAccessToken()) {
                 $result_check = $stmt_check_username->get_result();
 
                 if ($result_check->num_rows == 0) {
-                    // Tên username này OK, không trùng
                     break;
                 }
-
-                // Bị trùng, thử tên khác (ví dụ: user -> user1, user2)
                 $counter++;
                 $new_username = $username_base . $counter;
             }
             $stmt_check_username->close();
 
-            // Tạo mật khẩu ngẫu nhiên (vì họ sẽ luôn đăng nhập bằng Google)
+            // Tạo mật khẩu ngẫu nhiên
             $random_pass = md5(rand() . time());
-            $default_gender = 0; // 0 = Nam (mặc định)
-            $default_role = 0;   // 0 = User (mặc định)
-            $default_status = 1; // 1 = Active (vì Google đã xác thực)
+            $default_gender = 0; // 0 = Nam
+            $default_role = 0;   // 0 = User
+            $default_status = 1; // 1 = Active
 
-            // SQL để chèn user mới
+            // Sửa câu lệnh INSERT với tên cột mới
             $sql_insert = "INSERT INTO tbluser 
-                           (username, password, fullname, gender, email, avatar, role, status) 
+                           (username, password, ho_va_ten, gioi_tinh, email, anh_dai_dien, quyen, trang_thai) 
                            VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
             $stmt_insert = $conn->prepare($sql_insert);
@@ -131,11 +132,12 @@ if ($client->getAccessToken()) {
                 $_SESSION['username'] = $new_username;
                 $_SESSION['emailUser'] = $email_google;
                 $_SESSION['role'] = $default_role;
+                $_SESSION['fullname'] = $fullname;
+                $_SESSION['avatar'] = $avatar;
 
-                header('Location: index.php'); // Chuyển hướng
+                header('Location: index.php');
                 exit();
             } else {
-                // Lỗi khi chèn vào CSDL
                 $google_login_error = "Lỗi khi tạo tài khoản: " . $conn->error;
                 unset($_SESSION['access_token']);
                 $client->revokeToken();
@@ -144,7 +146,6 @@ if ($client->getAccessToken()) {
         }
         $stmt_google->close();
     } catch (Exception $e) {
-        // Token hết hạn hoặc lỗi
         $google_login_error = "Phiên Google hết hạn, vui lòng thử lại.";
         unset($_SESSION['access_token']);
         $client->revokeToken();
@@ -157,7 +158,7 @@ if (!$client->getAccessToken()) {
 }
 
 
-// 7. XỬ LÝ ĐĂNG NHẬP THƯỜNG (FORM CŨ CỦA BẠN)
+// 7. XỬ LÝ ĐĂNG NHẬP THƯỜNG
 if (isset($_REQUEST['sbSubmit'])) {
     $tendangnhap = $_REQUEST['txtUsername'];
     $matkhau_raw = $_REQUEST['txtPassword'];
@@ -173,13 +174,19 @@ if (isset($_REQUEST['sbSubmit'])) {
         $matkhau_hashed_db = $row['password'];
         $matkhau_input_md5 = md5($matkhau_raw);
 
-        if ($matkhau_input_md5 === $matkhau_hashed_db && $row['status']) {
+        // Sửa status -> trang_thai
+        if ($matkhau_input_md5 === $matkhau_hashed_db && $row['trang_thai']) {
             $_SESSION['username'] = $row['username'];
             $_SESSION['emailUser'] = $row['email'];
-            $_SESSION['role'] = $row['role'];
+            // Sửa role -> quyen
+            $_SESSION['role'] = $row['quyen'];
+            // Thêm các biến session khác để đồng bộ với index.php
+            $_SESSION['fullname'] = $row['ho_va_ten'];
+            $_SESSION['avatar'] = $row['anh_dai_dien'];
+
             header("Location: index.php");
             exit();
-        } else if ($matkhau_input_md5 === $matkhau_hashed_db && !$row['status']) {
+        } else if ($matkhau_input_md5 === $matkhau_hashed_db && !$row['trang_thai']) {
             $local_login_error = 'Tài khoản chưa được kích hoạt vui lòng liên hệ admin để được kích hoạt';
         } else {
             $local_login_error = 'Tên đăng nhập hoặc mật khẩu không đúng';

@@ -10,10 +10,10 @@ if (!isset($_SESSION['username'])) {
 $username = $_SESSION['username'];
 
 // 2. Truy vấn danh sách hoạt động user đã đăng ký
-// CẬP NHẬT: Thêm hd.ngay_ket_thuc vào SELECT
-$sql = "SELECT dk.trang_thai, dk.minh_chung, hd.hoatdong_id, hd.ten_hoat_dong, hd.ngay_bat_dau, hd.ngay_ket_thuc 
+// CẬP NHẬT: Sửa hoatdong_id -> ma_hoat_dong
+$sql = "SELECT dk.trang_thai, dk.minh_chung, hd.ma_hoat_dong, hd.ten_hoat_dong, hd.ngay_bat_dau, hd.ngay_ket_thuc 
         FROM tbldangkyhoatdong dk
-        JOIN tblhoatdong hd ON dk.hoatdong_id = hd.hoatdong_id
+        JOIN tblhoatdong hd ON dk.ma_hoat_dong = hd.ma_hoat_dong
         WHERE dk.username = ?
         ORDER BY hd.ngay_bat_dau DESC";
 
@@ -176,12 +176,12 @@ $result = $stmt->get_result();
                             // Nếu không có ngày kết thúc thì lấy ngày bắt đầu
                             $t_end = !empty($row['ngay_ket_thuc']) ? strtotime($row['ngay_ket_thuc']) : $t_start;
                             
-                            // Logic Hết hạn: Bây giờ > Ngày kết thúc (Chính xác hơn là ngày bắt đầu)
+                            // Logic Hết hạn: Bây giờ > Ngày kết thúc
                             $is_expired = time() > $t_end;
                         ?>
                             <tr>
                                 <td>
-                                    <a href="chitiethoatdong.php?id=<?php echo $row['hoatdong_id']; ?>" class="activity-name">
+                                    <a href="chitiethoatdong.php?id=<?php echo $row['ma_hoat_dong']; ?>" class="activity-name">
                                         <?php echo htmlspecialchars($row['ten_hoat_dong']); ?>
                                     </a>
                                     
@@ -206,7 +206,7 @@ $result = $stmt->get_result();
                                             <span>Đã nộp</span>
                                         </div>
                                         <small style="color: #64748b; font-size: 0.8rem;">
-                                            <a href="chitiethoatdong.php?id=<?php echo $row['hoatdong_id']; ?>"
+                                            <a href="chitiethoatdong.php?id=<?php echo $row['ma_hoat_dong']; ?>"
                                                 style="text-decoration:none; color:inherit;">(Xem lại)</a>
                                         </small>
 
@@ -218,7 +218,7 @@ $result = $stmt->get_result();
 
                                         <small style="font-size: 0.8rem;">
                                             <?php if (!$is_expired): ?>
-                                                <a href="chitiethoatdong.php?id=<?php echo $row['hoatdong_id']; ?>"
+                                                <a href="chitiethoatdong.php?id=<?php echo $row['ma_hoat_dong']; ?>"
                                                     style="color: #0d6efd; text-decoration:none;">
                                                     <i class="fa-solid fa-upload"></i> Nộp ngay
                                                 </a>

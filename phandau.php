@@ -13,9 +13,9 @@ if (isset($_SESSION['emailUser'])) {
   if ($resultbs && $resultbs->num_rows > 0) {
     $row = $resultbs->fetch_assoc();
     $_SESSION['username'] = $row['username'];
-    $_SESSION['role'] = $row['role'];
-    $_SESSION['fullname'] = $row['fullname'];
-    $_SESSION['avatar'] = $row['avatar'];
+    $_SESSION['role'] = $row['quyen'];
+    $_SESSION['fullname'] = $row['ho_va_ten'];
+    $_SESSION['avatar'] = $row['anh_dai_dien'];
   } else {
     session_unset();
     session_destroy();
@@ -625,18 +625,18 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
   <div class="container">
     <?php
-    $sql = "SELECT * FROM tblslideshow WHERE Status = 1";
+    $sql = "SELECT * FROM tblslideshow WHERE trang_thai = 1";
     $rs = $conn->query($sql);
     if ($rs && $rs->num_rows > 0) { ?>
       <div class="slider-container">
         <div class="slides" id="slideWrapper">
           <?php while ($r = $rs->fetch_assoc()) { ?>
             <div class="slide">
-              <img src="<?= $r['ImageUrl'] ?>" alt="Slide Image">
-              <?php if (!empty($r['Title'])) { ?>
+              <img src="<?= $r['hinh_anh'] ?>" alt="Slide Image">
+              <?php if (!empty($r['tieu_de'])) { ?>
                 <div class="caption">
-                  <h3><?= $r['Title'] ?></h3>
-                  <p><?= $r['Description'] ?></p>
+                  <h3><?= $r['tieu_de'] ?></h3>
+                  <p><?= $r['mo_ta'] ?></p>
                 </div>
               <?php } ?>
             </div>
@@ -652,7 +652,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
       <aside class="sidebar">
         <div class="sidebar-card">
           <?php
-          $sqlcd = "SELECT * FROM tblchude WHERE Trangthai = 1";
+          $sqlcd = "SELECT * FROM tblchude WHERE trang_thai = 1";
           $resultcd = $conn->query($sqlcd);
           $sl = ($resultcd) ? $resultcd->num_rows : 0;
           ?>
@@ -661,8 +661,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
             <?php
             if ($sl > 0) {
               while ($r = $resultcd->fetch_assoc()) { ?>
-                <a href="danhmuc_baiviet.php?id=<?php echo $r['Machude']; ?>">
-                  <?php echo $r['Tenchude']; ?>
+                <a href="danhmuc_baiviet.php?id=<?php echo $r['ma_chu_de']; ?>">
+                  <?php echo $r['ten_chu_de']; ?>
                 </a>
             <?php }
             } else {
@@ -674,4 +674,3 @@ $current_page = basename($_SERVER['PHP_SELF']);
       </aside>
 
       <main class="content">
-        

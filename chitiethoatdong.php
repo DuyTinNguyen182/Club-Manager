@@ -4,7 +4,8 @@ require("phandau.php");
 // 1. Kiểm tra ID hoạt động
 if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     $id = intval($_GET['id']);
-    $sql = "SELECT * FROM tblhoatdong WHERE hoatdong_id = $id";
+    // CẬP NHẬT: hoatdong_id -> ma_hoat_dong
+    $sql = "SELECT * FROM tblhoatdong WHERE ma_hoat_dong = $id";
     $result = $conn->query($sql);
 
     if ($result && $result->num_rows > 0) {
@@ -23,7 +24,8 @@ $da_dang_ky = false;
 $thong_tin_dk = null; // Biến chứa row trong bảng tbldangkyhoatdong
 
 if (isset($_SESSION['username'])) {
-    $check_stmt = $conn->prepare("SELECT * FROM tbldangkyhoatdong WHERE hoatdong_id = ? AND username = ?");
+    // CẬP NHẬT: hoatdong_id -> ma_hoat_dong
+    $check_stmt = $conn->prepare("SELECT * FROM tbldangkyhoatdong WHERE ma_hoat_dong = ? AND username = ?");
     $check_stmt->bind_param("is", $id, $_SESSION['username']);
     $check_stmt->execute();
     $check_result = $check_stmt->get_result();
@@ -44,7 +46,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['dangky_submit'])) {
         exit();
     }
     $username = $_SESSION['username'];
-    $stmt = $conn->prepare("INSERT INTO tbldangkyhoatdong (hoatdong_id, username) VALUES (?, ?)");
+    // CẬP NHẬT: hoatdong_id -> ma_hoat_dong
+    $stmt = $conn->prepare("INSERT INTO tbldangkyhoatdong (ma_hoat_dong, username) VALUES (?, ?)");
     $stmt->bind_param("is", $id, $username);
     if ($stmt->execute()) {
         echo "<script>alert('Đăng ký thành công! Bạn hãy nộp minh chứng.'); window.location.href='chitiethoatdong.php?id=" . $id . "';</script>";
@@ -59,7 +62,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['huy_dangky_submit']))
         exit();
     }
     $username = $_SESSION['username'];
-    $stmt = $conn->prepare("DELETE FROM tbldangkyhoatdong WHERE hoatdong_id = ? AND username = ?");
+    // CẬP NHẬT: hoatdong_id -> ma_hoat_dong
+    $stmt = $conn->prepare("DELETE FROM tbldangkyhoatdong WHERE ma_hoat_dong = ? AND username = ?");
     $stmt->bind_param("is", $id, $username);
     if ($stmt->execute()) {
         echo "<script>alert('Đã hủy đăng ký.'); window.location.href='chitiethoatdong.php?id=" . $id . "';</script>";
@@ -87,7 +91,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_minhchung'])) 
 
                 if (move_uploaded_file($_FILES['file_minhchung']['tmp_name'], $upload_dir . $new_filename)) {
                     // Update database
-                    $stmt_up = $conn->prepare("UPDATE tbldangkyhoatdong SET minh_chung = ? WHERE hoatdong_id = ? AND username = ?");
+                    // CẬP NHẬT: hoatdong_id -> ma_hoat_dong
+                    $stmt_up = $conn->prepare("UPDATE tbldangkyhoatdong SET minh_chung = ? WHERE ma_hoat_dong = ? AND username = ?");
                     $stmt_up->bind_param("sis", $new_filename, $id, $_SESSION['username']);
 
                     if ($stmt_up->execute()) {

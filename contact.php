@@ -12,12 +12,13 @@ if (isset($_POST['btnGuiLienHe'])) {
 
     // Kiểm tra dữ liệu rỗng
     if (!empty($ten) && !empty($email) && !empty($noidung)) {
-        // Escape để tránh lỗi SQL (dùng $conn từ config.php đã được include ở phandau.php)
+        // Escape để tránh lỗi SQL
         $ten = mysqli_real_escape_string($conn, $ten);
         $email = mysqli_real_escape_string($conn, $email);
         $noidung = mysqli_real_escape_string($conn, $noidung);
 
-        $sql = "INSERT INTO tblcontact (Tennguoigui, Noidung, Email, Ngaygui, Trangthai) 
+        // CẬP NHẬT CÂU LỆNH INSERT VỚI TÊN CỘT MỚI
+        $sql = "INSERT INTO tblcontact (ten_nguoi_gui, noi_dung, email, ngay_gui, trang_thai) 
                 VALUES ('$ten', '$noidung', '$email', '$ngaygui', '$trangthai')";
 
         if ($conn->query($sql) === TRUE) {
@@ -34,6 +35,7 @@ if (isset($_POST['btnGuiLienHe'])) {
 $u_fullname = "";
 $u_email = "";
 if (isset($_SESSION['username'])) {
+    // Sửa fullname -> ho_va_ten
     $u_fullname = isset($_SESSION['fullname']) ? $_SESSION['fullname'] : "";
     $u_email = isset($_SESSION['emailUser']) ? $_SESSION['emailUser'] : "";
 }
@@ -162,7 +164,8 @@ if (isset($_SESSION['username'])) {
         <div class="contact-info">
             <h3 class="section-title">Thông Tin Liên Hệ</h3>
             <p style="margin-bottom: 30px; color: #64748b;">
-                Hãy liên hệ với chúng tôi nếu bạn có bất kỳ thắc mắc nào về hoạt động của CLB hoặc muốn tham gia cùng chúng tôi.
+                Hãy liên hệ với chúng tôi nếu bạn có bất kỳ thắc mắc nào về hoạt động của CLB hoặc muốn tham gia cùng
+                chúng tôi.
             </p>
 
             <div class="info-item">
@@ -210,25 +213,24 @@ if (isset($_SESSION['username'])) {
             <form action="" method="POST">
                 <div class="form-group">
                     <label class="form-label">Họ và tên <span class="text-danger">*</span></label>
-                    <input type="text" name="fullname" class="form-control"
-                        placeholder="Nhập họ tên của bạn..."
+                    <input type="text" name="fullname" class="form-control" placeholder="Nhập họ tên của bạn..."
                         value="<?php echo htmlspecialchars($u_fullname); ?>" required>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Email <span class="text-danger">*</span></label>
-                    <input type="email" name="email" class="form-control"
-                        placeholder="Nhập địa chỉ email..."
+                    <input type="email" name="email" class="form-control" placeholder="Nhập địa chỉ email..."
                         value="<?php echo htmlspecialchars($u_email); ?>" required>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Nội dung <span class="text-danger">*</span></label>
-                    <textarea name="content" class="form-control" rows="6"
-                        placeholder="Bạn cần hỗ trợ vấn đề gì?" required></textarea>
+                    <textarea name="content" class="form-control" rows="6" placeholder="Bạn cần hỗ trợ vấn đề gì?"
+                        required></textarea>
                 </div>
 
-                <button type="submit" name="btnGuiLienHe" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 1rem; cursor: pointer;">
+                <button type="submit" name="btnGuiLienHe" class="btn btn-primary"
+                    style="width: 100%; padding: 12px; font-size: 1rem; cursor: pointer;">
                     <i class="fa-solid fa-paper-plane"></i> Gửi ngay
                 </button>
             </form>

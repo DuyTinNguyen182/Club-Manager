@@ -1,42 +1,32 @@
 <?php
 require("phandau.php");
 
-// 1. Kiểm tra đăng nhập
 if (!isset($_SESSION['username'])) {
     echo "<script>alert('Vui lòng đăng nhập!'); window.location='login.php';</script>";
     exit();
 }
 
 $username = $_SESSION['username'];
-$msg = ""; // Biến lưu thông báo
+$msg = "";
 
-// 2. Xử lý khi bấm nút "Đổi mật khẩu"
 if (isset($_POST['btn_change_pass'])) {
     $old_pass = $_POST['old_pass'];
     $new_pass = $_POST['new_pass'];
     $confirm_pass = $_POST['confirm_pass'];
 
-    // Kiểm tra dữ liệu rỗng
     if (empty($old_pass) || empty($new_pass) || empty($confirm_pass)) {
         $msg = "<div class='alert-error'>Vui lòng nhập đầy đủ thông tin!</div>";
-    }
-    // Kiểm tra mật khẩu mới có khớp với nhập lại không
-    elseif ($new_pass != $confirm_pass) {
+    } elseif ($new_pass != $confirm_pass) {
         $msg = "<div class='alert-error'>Mật khẩu mới và nhập lại không khớp!</div>";
-    }
-    // Kiểm tra độ dài mật khẩu (Tùy chọn: ví dụ tối thiểu 6 ký tự)
-    elseif (strlen($new_pass) < 6) {
+    } elseif (strlen($new_pass) < 6) {
         $msg = "<div class='alert-error'>Mật khẩu mới phải có ít nhất 6 ký tự!</div>";
     } else {
-        // 3. Kiểm tra Mật khẩu cũ có đúng không
-        // Lưu ý: Do DB của bạn đang dùng MD5, nên ta phải mã hóa MD5 cái user nhập vào để so sánh
         $old_pass_hash = md5($old_pass);
 
         $sql_check = "SELECT password FROM tbluser WHERE username = '$username' AND password = '$old_pass_hash'";
         $result = $conn->query($sql_check);
 
         if ($result->num_rows > 0) {
-            // Mật khẩu cũ đúng -> Tiến hành cập nhật mật khẩu mới
             $new_pass_hash = md5($new_pass);
 
             $sql_update = "UPDATE tbluser SET password = '$new_pass_hash' WHERE username = '$username'";
@@ -47,7 +37,6 @@ if (isset($_POST['btn_change_pass'])) {
                 $msg = "<div class='alert-error'>Lỗi hệ thống, vui lòng thử lại sau.</div>";
             }
         } else {
-            // Mật khẩu cũ sai
             $msg = "<div class='alert-error'>Mật khẩu cũ không chính xác!</div>";
         }
     }
@@ -55,10 +44,8 @@ if (isset($_POST['btn_change_pass'])) {
 ?>
 
 <style>
-    /* CSS Giao diện (Đồng bộ với trang Profile) */
     .password-container {
         max-width: 600px;
-        /* Nhỏ gọn hơn trang profile */
         margin: 40px auto;
         background: #fff;
         padding: 30px;
@@ -104,7 +91,6 @@ if (isset($_POST['btn_change_pass'])) {
     .form-control {
         width: 100%;
         padding: 12px 45px 12px 15px;
-        /* Chừa chỗ cho icon con mắt */
         border-radius: 8px;
         border: 1px solid #cbd5e1;
         font-size: 1rem;
@@ -117,7 +103,6 @@ if (isset($_POST['btn_change_pass'])) {
         box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
     }
 
-    /* Nút con mắt hiện/ẩn pass */
     .toggle-password {
         position: absolute;
         right: 15px;
@@ -150,7 +135,6 @@ if (isset($_POST['btn_change_pass'])) {
         background: #0b5ed7;
     }
 
-    /* Thông báo */
     .alert-success {
         padding: 15px;
         background: #dcfce7;
@@ -229,7 +213,6 @@ if (isset($_POST['btn_change_pass'])) {
 </div>
 
 <script>
-    // Hàm Javascript để hiện/ẩn mật khẩu khi bấm vào con mắt
     function togglePass(inputId, icon) {
         const input = document.getElementById(inputId);
         if (input.type === "password") {

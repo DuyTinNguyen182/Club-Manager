@@ -3,17 +3,19 @@ require("phandau.php");
 
 // --- XỬ LÝ GỬI BÌNH LUẬN (CHA HOẶC CON) ---
 if (isset($_POST['btn_gui_binhluan']) && isset($_SESSION['emailUser'])) {
+    // Sửa Mabaiviet -> ma_bai_viet
     $mabaiviet = $_POST['mabaiviet_post'];
+    // Sửa Noidung -> noi_dung
     $noidung_bl = $_POST['noidung_bl'];
-    // Lấy parent_id (nếu = 0 là cha, > 0 là trả lời cho bình luận khác)
+    // Sửa parent_id -> ma_binh_luan_cha
     $parent_id = isset($_POST['parent_id']) ? intval($_POST['parent_id']) : 0;
     $username = $_SESSION['username'];
 
     $noidung_bl = str_replace("'", "\'", $noidung_bl);
 
     if (!empty($noidung_bl)) {
-        // Câu lệnh INSERT có thêm cột parent_id
-        $sql_them = "INSERT INTO tblbinhluan(Noidung, Mabaiviet, Ngaytao, Username, Trangthai, parent_id) 
+        // CẬP NHẬT CÂU INSERT VỚI TÊN CỘT MỚI
+        $sql_them = "INSERT INTO tblbinhluan(noi_dung, ma_bai_viet, ngay_tao, username, trang_thai, ma_binh_luan_cha) 
                      VALUES('$noidung_bl', '$mabaiviet', NOW(), '$username', 1, $parent_id)";
 
         if ($conn->query($sql_them)) {
@@ -26,7 +28,9 @@ if (isset($_POST['btn_gui_binhluan']) && isset($_SESSION['emailUser'])) {
 
 // --- XỬ LÝ ĐĂNG BÀI VIẾT MỚI ---
 if (isset($_POST['btn_dang_bai']) && isset($_SESSION['username'])) {
+    // Sửa Machude -> ma_chu_de
     $machude_post = intval($_POST['machude_post']);
+    // Sửa Noidung -> noi_dung
     $noidung_bai = $_POST['noidung_bai'];
     $username = $_SESSION['username'];
 
@@ -44,7 +48,8 @@ if (isset($_POST['btn_dang_bai']) && isset($_SESSION['username'])) {
     }
 
     if (!empty($noidung_bai)) {
-        $sql_dangbai = "INSERT INTO tblbaiviet(Noidung, Machude, Ngaytao, Username, Trangthai, Teptin) 
+        // CẬP NHẬT CÂU INSERT VỚI TÊN CỘT MỚI
+        $sql_dangbai = "INSERT INTO tblbaiviet(noi_dung, ma_chu_de, ngay_tao, username, trang_thai, tep_tin) 
                         VALUES('$noidung_bai', '$machude_post', NOW(), '$username', 1, '$ten_teptin')";
 
         if ($conn->query($sql_dangbai)) {
@@ -58,40 +63,34 @@ if (isset($_POST['btn_dang_bai']) && isset($_SESSION['username'])) {
     }
 }
 
-// Xử lý ẩn bình luận (Admin)
-// if (isset($_GET['mbl']) && $_GET['act'] == 'hide' && isset($_SESSION['role']) && $_SESSION['role'] == 1) {
-//     $mbl = $_GET['mbl'];
-//     $conn->query("UPDATE tblbinhluan SET Trangthai = 1 WHERE Mabinhluan = '$mbl'");
-//     $cur_id = $_GET['id'];
-//     echo "<script>window.location.href='danhmuc_baiviet.php?id=$cur_id';</script>";
-// }
-// --- XỬ LÝ XÓA BÌNH LUẬN (Cập nhật mới) ---
-// Kiểm tra: Nếu là Admin (role=1) HOẶC là Chính chủ thì cho xóa
+// --- XỬ LÝ XÓA BÌNH LUẬN ---
+// Kiểm tra: Nếu là Admin (quyen=1) HOẶC là Chính chủ thì cho xóa
 if (isset($_GET['mbl']) && $_GET['act'] == 'del' && isset($_SESSION['username'])) {
     $mbl = intval($_GET['mbl']);
     $currentUser = $_SESSION['username'];
+    // Sửa role -> quyen
     $userRole = $_SESSION['role'] ?? 0;
 
     // 1. Kiểm tra xem bình luận này của ai?
-    $checkSql = "SELECT Username FROM tblbinhluan WHERE Mabinhluan = '$mbl'";
+    // Sửa Mabinhluan -> ma_binh_luan
+    $checkSql = "SELECT username FROM tblbinhluan WHERE ma_binh_luan = '$mbl'";
     $checkRs = $conn->query($checkSql);
 
     if ($checkRs->num_rows > 0) {
-        $commentOwner = $checkRs->fetch_assoc()['Username'];
+        // Sửa Username -> username
+        $commentOwner = $checkRs->fetch_assoc()['username'];
 
-        // 2. Nếu là Admin hoặc là Chính chủ thì xóa
         // 2. Nếu là Admin hoặc là Chính chủ thì xóa
         if ($userRole == 1 || $currentUser == $commentOwner) {
 
-            // SỬA: Xóa bình luận hiện tại VÀ tất cả các bình luận con có parent_id là bình luận này
-            $sql = "DELETE FROM tblbinhluan WHERE Mabinhluan = '$mbl' OR parent_id = '$mbl'";
+            // Sửa Mabinhluan -> ma_binh_luan, parent_id -> ma_binh_luan_cha
+            $sql = "DELETE FROM tblbinhluan WHERE ma_binh_luan = '$mbl' OR ma_binh_luan_cha = '$mbl'";
 
             if ($conn->query($sql)) {
                 // Xóa thành công thì mới reload
                 $cur_id = $_GET['id'];
                 echo "<script>window.location.href='danhmuc_baiviet.php?id=$cur_id';</script>";
             } else {
-                // Xử lý lỗi nếu query thất bại (tùy chọn)
                 echo "<script>alert('Lỗi khi xóa dữ liệu!');</script>";
             }
 
@@ -104,9 +103,10 @@ if (isset($_GET['mbl']) && $_GET['act'] == 'del' && isset($_SESSION['username'])
 // Lấy thông tin chủ đề
 if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     $machude = intval($_GET['id']);
-    $rs_chude = $conn->query("SELECT Tenchude FROM tblchude WHERE Machude = $machude");
+    // Sửa Machude -> ma_chu_de, Tenchude -> ten_chu_de
+    $rs_chude = $conn->query("SELECT ten_chu_de FROM tblchude WHERE ma_chu_de = $machude");
     if ($rs_chude->num_rows > 0)
-        $ten_chu_de = $rs_chude->fetch_assoc()['Tenchude'];
+        $ten_chu_de = $rs_chude->fetch_assoc()['ten_chu_de'];
     else {
         header("Location: index.php");
         exit();
@@ -383,35 +383,39 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
         </div>
 
         <?php
-        $sql_bv = "SELECT bv.*, u.avatar, u.fullname FROM tblbaiviet bv JOIN tbluser u ON bv.Username = u.Username 
-                   WHERE bv.Machude = $machude AND bv.Trangthai = 1 ORDER BY bv.Ngaytao DESC";
+        // CẬP NHẬT TRUY VẤN VỚI TÊN CỘT MỚI
+        $sql_bv = "SELECT bv.*, u.anh_dai_dien, u.ho_va_ten FROM tblbaiviet bv JOIN tbluser u ON bv.username = u.username 
+                   WHERE bv.ma_chu_de = $machude AND bv.trang_thai = 1 ORDER BY bv.ngay_tao DESC";
         $rs_bv = $conn->query($sql_bv);
 
         if ($rs_bv->num_rows > 0) {
             while ($bv = $rs_bv->fetch_assoc()) {
-                $id_baiviet = $bv['Mabaiviet'];
+                // Sửa Mabaiviet -> ma_bai_viet
+                $id_baiviet = $bv['ma_bai_viet'];
 
                 // Đếm tổng bình luận (cả cha và con)
-                $sql_count = "SELECT COUNT(*) as total FROM tblbinhluan WHERE Mabaiviet = $id_baiviet AND Trangthai = 1";
+                // Sửa Mabaiviet -> ma_bai_viet, Trangthai -> trang_thai
+                $sql_count = "SELECT COUNT(*) as total FROM tblbinhluan WHERE ma_bai_viet = $id_baiviet AND trang_thai = 1";
                 $total_cmt = $conn->query($sql_count)->fetch_assoc()['total'];
                 ?>
                 <div class="feed-item" id="post-<?php echo $id_baiviet; ?>">
 
                     <div class="feed-header">
-                        <img src="uploads/<?php echo $bv['avatar']; ?>" class="feed-avatar"
-                            onerror="this.src='https://ui-avatars.com/api/?name=<?php echo $bv['Username']; ?>'">
+                        <img src="uploads/<?php echo $bv['anh_dai_dien']; ?>" class="feed-avatar"
+                            onerror="this.src='https://ui-avatars.com/api/?name=<?php echo $bv['username']; ?>'">
                         <div>
-                            <h4 style="margin:0; font-size:1rem;"><?php echo !empty($bv['fullname']) ? $bv['fullname'] : $bv['Username']; ?></h4>
+                            <h4 style="margin:0; font-size:1rem;">
+                                <?php echo !empty($bv['ho_va_ten']) ? $bv['ho_va_ten'] : $bv['username']; ?></h4>
                             <span
-                                style="font-size:0.8rem; color:#64748b"><?php echo date('H:i d/m/Y', strtotime($bv['Ngaytao'])); ?></span>
+                                style="font-size:0.8rem; color:#64748b"><?php echo date('H:i d/m/Y', strtotime($bv['ngay_tao'])); ?></span>
                         </div>
                     </div>
 
-                    <div class="feed-content"><?php echo nl2br($bv['Noidung']); ?></div>
-                    <?php if (!empty($bv['Teptin'])): ?>
+                    <div class="feed-content"><?php echo nl2br($bv['noi_dung']); ?></div>
+                    <?php if (!empty($bv['tep_tin'])): ?>
                         <div class="feed-image-container">
-                            <a href="uploads/<?php echo $bv['Teptin']; ?>" data-fancybox="gallery-<?php echo $id_baiviet; ?>">
-                                <img src="uploads/<?php echo $bv['Teptin']; ?>" class="feed-image">
+                            <a href="uploads/<?php echo $bv['tep_tin']; ?>" data-fancybox="gallery-<?php echo $id_baiviet; ?>">
+                                <img src="uploads/<?php echo $bv['tep_tin']; ?>" class="feed-image">
                             </a>
                         </div>
                     <?php endif; ?>
@@ -440,54 +444,58 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
                         <?php
                         // 1. Lấy tất cả bình luận của bài viết ra mảng trước để dễ xử lý
                         $all_comments = [];
-                        $sql_bl = "SELECT bl.*, u.avatar, u.fullname FROM tblbinhluan bl JOIN tbluser u ON bl.Username = u.Username 
-                                   WHERE bl.Mabaiviet = $id_baiviet AND bl.Trangthai = 1 ORDER BY bl.Ngaytao ASC";
+                        // CẬP NHẬT TRUY VẤN VỚI TÊN CỘT MỚI (JOIN tbluser)
+                        $sql_bl = "SELECT bl.*, u.anh_dai_dien, u.ho_va_ten FROM tblbinhluan bl JOIN tbluser u ON bl.username = u.username 
+                                   WHERE bl.ma_bai_viet = $id_baiviet AND bl.trang_thai = 1 ORDER BY bl.ngay_tao ASC";
                         $rs_bl = $conn->query($sql_bl);
                         while ($row_bl = $rs_bl->fetch_assoc()) {
                             $all_comments[] = $row_bl;
                         }
 
-                        // 2. Lọc ra các bình luận Cha (parent_id = 0)
+                        // 2. Lọc ra các bình luận Cha (parent_id = 0 -> ma_binh_luan_cha = 0)
                         foreach ($all_comments as $cmt):
-                            if ($cmt['parent_id'] == 0):
+                            // Sửa parent_id -> ma_binh_luan_cha
+                            if ($cmt['ma_binh_luan_cha'] == 0):
                                 ?>
                                 <div class="comment-item">
-                                    <img src="uploads/<?php echo $cmt['avatar']; ?>" class="cmt-avatar-main"
-                                        onerror="this.src='https://ui-avatars.com/api/?name=<?php echo $cmt['Username']; ?>'">
+                                    <img src="uploads/<?php echo $cmt['anh_dai_dien']; ?>" class="cmt-avatar-main"
+                                        onerror="this.src='https://ui-avatars.com/api/?name=<?php echo $cmt['username']; ?>'">
                                     <div style="flex-grow:1;">
                                         <div class="cmt-bubble">
                                             <span class="cmt-author">
-                                                <?php echo !empty($cmt['fullname']) ? $cmt['fullname'] : $cmt['Username']; ?>
-                                                <span class="cmt-time"><?php echo date('d/m H:i', strtotime($cmt['Ngaytao'])); ?></span>
+                                                <?php echo !empty($cmt['ho_va_ten']) ? $cmt['ho_va_ten'] : $cmt['username']; ?>
+                                                <span
+                                                    class="cmt-time"><?php echo date('d/m H:i', strtotime($cmt['ngay_tao'])); ?></span>
                                             </span>
-                                            <p style="margin:4px 0 0;"><?php echo $cmt['Noidung']; ?></p>
+                                            <p style="margin:4px 0 0;"><?php echo $cmt['noi_dung']; ?></p>
                                         </div>
 
                                         <div style="margin-top:2px;">
                                             <?php if (isset($_SESSION['emailUser'])): ?>
                                                 <span class="btn-reply-text"
-                                                    onclick="toggleReplyForm(<?php echo $cmt['Mabinhluan']; ?>)">Trả lời</span>
+                                                    onclick="toggleReplyForm(<?php echo $cmt['ma_binh_luan']; ?>)">Trả lời</span>
                                             <?php endif; ?>
 
                                             <?php
                                             // Kiểm tra: Nếu là Admin HOẶC là chủ bình luận thì hiện nút Xóa
-                                            if (isset($_SESSION['username']) && ($_SESSION['role'] == 1 || $_SESSION['username'] == $cmt['Username'])):
+                                            // Sửa role -> quyen
+                                            if (isset($_SESSION['username']) && ($_SESSION['role'] == 1 || $_SESSION['username'] == $cmt['username'])):
                                                 ?>
-                                                <a href="danhmuc_baiviet.php?id=<?php echo $machude; ?>&mbl=<?php echo $cmt['Mabinhluan']; ?>&act=del"
+                                                <a href="danhmuc_baiviet.php?id=<?php echo $machude; ?>&mbl=<?php echo $cmt['ma_binh_luan']; ?>&act=del"
                                                     class="btn-text-action btn-delete"
                                                     onclick="return confirm('Bạn có chắc chắn muốn xóa?')">Xóa</a>
                                             <?php endif; ?>
                                         </div>
 
                                         <?php if (isset($_SESSION['emailUser'])): ?>
-                                            <div class="reply-form-container" id="reply-form-<?php echo $cmt['Mabinhluan']; ?>">
+                                            <div class="reply-form-container" id="reply-form-<?php echo $cmt['ma_binh_luan']; ?>">
                                                 <form action="" method="POST" class="comment-form" style="margin-top:5px;">
                                                     <input type="hidden" name="mabaiviet_post" value="<?php echo $id_baiviet; ?>">
-                                                    <input type="hidden" name="parent_id" value="<?php echo $cmt['Mabinhluan']; ?>"> <img
+                                                    <input type="hidden" name="parent_id" value="<?php echo $cmt['ma_binh_luan']; ?>"> <img
                                                         src="uploads/<?php echo $_SESSION['avatar'] ?? ''; ?>" class="cmt-avatar-sub"
                                                         onerror="this.src='https://ui-avatars.com/api/?name=User'">
                                                     <input type="text" name="noidung_bl" class="comment-input"
-                                                        placeholder="Phản hồi <?php echo $cmt['Username']; ?>..." required
+                                                        placeholder="Phản hồi <?php echo $cmt['username']; ?>..." required
                                                         autocomplete="off" style="font-size:0.85rem; padding:6px 10px;">
                                                     <button type="submit" name="btn_gui_binhluan" class="btn-send"
                                                         style="width:28px; height:28px;"><i class="fa-solid fa-paper-plane"
@@ -500,40 +508,36 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
                                             <?php
                                             // Lặp lại mảng để tìm các bình luận con của bình luận Cha ($cmt)
                                             foreach ($all_comments as $reply):
-                                                if ($reply['parent_id'] == $cmt['Mabinhluan']):
+                                                // Sửa parent_id -> ma_binh_luan_cha, Mabinhluan -> ma_binh_luan
+                                                if ($reply['ma_binh_luan_cha'] == $cmt['ma_binh_luan']):
                                                     ?>
                                                     <div class="reply-item">
-                                                        <img src="uploads/<?php echo $reply['avatar']; ?>" class="cmt-avatar-sub"
-                                                            onerror="this.src='https://ui-avatars.com/api/?name=<?php echo $reply['Username']; ?>'">
+                                                        <img src="uploads/<?php echo $reply['anh_dai_dien']; ?>" class="cmt-avatar-sub"
+                                                            onerror="this.src='https://ui-avatars.com/api/?name=<?php echo $reply['username']; ?>'">
 
                                                         <div style="flex-grow:1;">
                                                             <div class="cmt-bubble" style="background:#f1f5f9;">
                                                                 <span class="cmt-author">
-                                                                    <?php echo !empty($reply['fullname']) ? $reply['fullname'] : $reply['Username']; ?>
+                                                                    <?php echo !empty($reply['ho_va_ten']) ? $reply['ho_va_ten'] : $reply['username']; ?>
                                                                     <span
-                                                                        class="cmt-time"><?php echo date('d/m H:i', strtotime($reply['Ngaytao'])); ?></span>
+                                                                        class="cmt-time"><?php echo date('d/m H:i', strtotime($reply['ngay_tao'])); ?></span>
                                                                 </span>
-                                                                <p style="margin:4px 0 0;"><?php echo $reply['Noidung']; ?></p>
+                                                                <p style="margin:4px 0 0;"><?php echo $reply['noi_dung']; ?></p>
                                                             </div>
 
                                                             <div style="margin-top:2px;">
                                                                 <?php if (isset($_SESSION['emailUser'])): ?>
                                                                     <span class="btn-reply-text" onclick="
-                                                                        // 1. Mở form của BÌNH LUẬN CHA
-                                                                        toggleReplyForm(<?php echo $cmt['Mabinhluan']; ?>); 
+                                                                        toggleReplyForm(<?php echo $cmt['ma_binh_luan']; ?>); 
                                                                         
-                                                                        // 2. Tìm ô input trong form đó
-                                                                        var formInput = document.querySelector('#reply-form-<?php echo $cmt['Mabinhluan']; ?> input[name=\'noidung_bl\']');
+                                                                        var formInput = document.querySelector('#reply-form-<?php echo $cmt['ma_binh_luan']; ?> input[name=\'noidung_bl\']');
                                                                         
-                                                                        // 3. Xóa @Cu nếu có và thêm @Mới
                                                                         var currentVal = formInput.value;
-                                                                        // Regex đơn giản để xóa tag cũ nếu người dùng đổi ý click reply người khác
                                                                         if(currentVal.startsWith('@')) {
                                                                             currentVal = currentVal.substring(currentVal.indexOf(' ') + 1);
                                                                         }
                                                                         
-                                                                        // 4. Điền @TênNgườiĐượcTrảLời
-                                                                        formInput.value = '@<?php echo $reply['Username']; ?> ' + currentVal;
+                                                                        formInput.value = '@<?php echo $reply['username']; ?> ' + currentVal;
                                                                         formInput.focus();
                                                                     ">
                                                                         Trả lời
@@ -542,9 +546,9 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
 
                                                                 <?php
                                                                 // Kiểm tra quyền xóa: Admin HOẶC Chính chủ bình luận con này
-                                                                if (isset($_SESSION['username']) && ($_SESSION['role'] == 1 || $_SESSION['username'] == $reply['Username'])):
+                                                                if (isset($_SESSION['username']) && ($_SESSION['role'] == 1 || $_SESSION['username'] == $reply['username'])):
                                                                     ?>
-                                                                    <a href="danhmuc_baiviet.php?id=<?php echo $machude; ?>&mbl=<?php echo $reply['Mabinhluan']; ?>&act=del"
+                                                                    <a href="danhmuc_baiviet.php?id=<?php echo $machude; ?>&mbl=<?php echo $reply['ma_binh_luan']; ?>&act=del"
                                                                         class="btn-text-action btn-delete"
                                                                         onclick="return confirm('Bạn có chắc chắn muốn xóa bình luận này?')">Xóa</a>
                                                                 <?php endif; ?>
