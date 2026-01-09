@@ -32,7 +32,11 @@ if (!isset($_SESSION['username']) || $_SESSION['role'] != 1) {
             max-width: 250px;
             background: #2c3e50;
             color: #fff;
-            min-height: 100vh;
+
+            height: 100vh;
+            position: sticky;
+            top: 0;
+            overflow-y: auto;
         }
 
         .sidebar a {
@@ -88,7 +92,7 @@ if (!isset($_SESSION['username']) || $_SESSION['role'] != 1) {
                     class="<?= (strpos($_SERVER['PHP_SELF'], 'postManager') !== false) ? 'active' : '' ?>">
                     <i class='bx bxs-edit'></i> Quản lý Bài viết
                 </a>
-            </li>            
+            </li>
             <li>
                 <a href="<?= $base_path ?>activityManager/activities.php"
                     class="<?= (strpos($_SERVER['PHP_SELF'], 'activityManager') !== false) ? 'active' : '' ?>">
@@ -133,3 +137,5 @@ if (!isset($_SESSION['username']) || $_SESSION['role'] != 1) {
                 </a>
             </div>
         </nav>
+
+        

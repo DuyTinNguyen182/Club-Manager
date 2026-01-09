@@ -30,7 +30,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle' && isset($_GET['id']))
             <thead class="table-light">
                 <tr>
                     <th class="text-center" style="width: 50px;">STT</th>
-                    <th class="text-center" style="width: 80px;">ID</th>
+                    
                     <th>Tên chủ đề</th>
                     <th class="text-center">Trạng thái</th>
                     <th class="text-center" style="width: 150px;">Hành động</th>
@@ -48,7 +48,6 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle' && isset($_GET['id']))
                         ?>
                         <tr>
                             <td class="text-center fw-bold"><?= $stt++; ?></td>
-                            <td class="text-center text-muted">#<?= $row['Machude'] ?></td>
                             <td class="fw-bold text-primary"><?= $row['Tenchude'] ?></td>
                             <td class="text-center">
                                 <a href="?action=toggle&id=<?= $row['Machude'] ?>" style="text-decoration: none;">

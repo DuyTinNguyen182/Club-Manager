@@ -15,7 +15,7 @@ include('../includes/header.php');
             <thead class="table-light">
                 <tr>
                     <th class="text-center" style="width: 50px;">STT</th>
-                    <th style="width: 80px;">Hình ảnh</th>
+                    <th style="width: 100px;">Hình ảnh</th>
                     <th>Nội dung tóm tắt</th>
                     <th>Chủ đề</th>
                     <th>Tác giả</th>
@@ -35,33 +35,66 @@ include('../includes/header.php');
                 $stt = 1;
                 if ($result->num_rows > 0) {
                     while ($row = $result->fetch_assoc()) {
-                        // Xử lý ảnh
-                        $img_path = "../../uploads/" . $row['Teptin'];
-                        $img_display = file_exists($img_path) && !empty($row['Teptin']) ? $img_path : "../../images/no-image.png";
+                        $uploadDir = "../../uploads/";
+                        $defaultImg = "../../uploads/no-image.jpg"; 
+                        $img_display = $defaultImg; 
+                
+                        if (!empty($row['Teptin'])) {
+                            $checkPath = $uploadDir . $row['Teptin'];
+                            if (file_exists($checkPath)) {
+                                $img_display = $checkPath;
+                            }
+                        }
                         ?>
                         <tr>
-                            <td class="text-center fw-bold"><?= $stt++; ?></td>
-                            <td>
-                                <img src="<?= $img_display ?>" class="rounded border" width="60" height="60" style="object-fit: cover;">
+                            <td class="text-center fw-bold align-middle"><?= $stt++; ?></td>
+
+                            <td class="align-middle text-center">
+                                <img src="<?= $img_display ?>" class="rounded border shadow-sm" width="60" height="60"
+                                    alt="Ảnh bài viết" style="object-fit: cover;">
                             </td>
-                            <td>
-                                <div class="text-truncate" style="max-width: 250px;">
+
+                            <td class="align-middle">
+                                <div class="text-truncate fw-bold text-primary" style="max-width: 250px; cursor: help;"
+                                    title="<?= htmlspecialchars($row['Noidung']) ?>">
                                     <?= htmlspecialchars($row['Noidung']) ?>
                                 </div>
-                                <small class="text-muted"><i class='bx bx-time'></i> <?= date('d/m/Y', strtotime($row['Ngaytao'])) ?></small>
+                                <small class="text-muted d-block mt-1">
+                                    <i class='bx bx-time-five'></i> <?= date('H:i d/m/Y', strtotime($row['Ngaytao'])) ?>
+                                </small>
                             </td>
-                            <td><span class="badge bg-info text-dark"><?= $row['Tenchude'] ?? 'Không xác định' ?></span></td>
-                            <td><small class="fw-bold">@<?= $row['Username'] ?></small></td>
-                            <td class="text-center">
+
+                            <td class="align-middle">
+                                <span class="badge bg-info text-dark">
+                                    <?= !empty($row['Tenchude']) ? $row['Tenchude'] : 'Chưa phân loại' ?>
+                                </span>
+                            </td>
+
+                            <td class="align-middle">
+                                <small class="fw-bold text-secondary">
+                                    <i class='bx bx-user'></i> <?= $row['Username'] ?>
+                                </small>
+                            </td>
+
+                            <td class="text-center align-middle">
                                 <?php if ($row['Trangthai'] == 1): ?>
-                                    <span class="badge bg-success">Đã duyệt</span>
+                                    <span class="badge bg-success"><i class='bx bx-check-circle'></i> Đã duyệt</span>
                                 <?php else: ?>
-                                    <span class="badge bg-warning text-dark">Chờ duyệt</span>
+                                    <span class="badge bg-warning text-dark"><i class='bx bx-hourglass'></i> Chờ duyệt</span>
                                 <?php endif; ?>
                             </td>
-                            <td class="text-center">
-                                <a href="edit.php?id=<?= $row['Mabaiviet'] ?>" class="btn btn-warning btn-sm" title="Sửa"><i class='bx bx-edit-alt'></i></a>
-                                <a href="delete.php?id=<?= $row['Mabaiviet'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('Xóa bài viết này?')" title="Xóa"><i class='bx bx-trash'></i></a>
+
+                            <td class="text-center align-middle">
+                                <div class="btn-group" role="group">
+                                    <a href="edit.php?id=<?= $row['Mabaiviet'] ?>" class="btn btn-outline-warning btn-sm"
+                                        title="Sửa">
+                                        <i class='bx bx-edit-alt'></i>
+                                    </a>
+                                    <a href="delete.php?id=<?= $row['Mabaiviet'] ?>" class="btn btn-outline-danger btn-sm"
+                                        onclick="return confirm('Bạn có chắc chắn muốn xóa bài viết này không?')" title="Xóa">
+                                        <i class='bx bx-trash'></i>
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                         <?php

@@ -1,46 +1,50 @@
 <?php
-// Bắt đầu session
 session_start();
 
-require_once 'config.php'; // File kết nối CSDL ($conn)
+require_once 'config.php';
 
-// 2. CHUYỂN HƯỚNG NẾU ĐÃ ĐĂNG NHẬP
 if (isset($_SESSION['emailUser'])) {
 	header('Location: index.php');
 	exit();
 }
 
-// --- Biến thông báo ---
 $error_msg = '';
 $success_msg = '';
 
-
-
-// 4. XỬ LÝ ĐĂNG KÝ FORM THƯỜNG
 if (isset($_POST['sbDangky'])) {
 	$tendangnhap = $_POST['txtTendangnhap'];
 	$matkhau_raw = $_POST['txtMatkhau'];
 	$re_matkhau = $_POST['txtreMatkhau'];
 	$tendaydu = $_POST['txtTendaydu'];
+	$malop = $_POST['txtMalop'];
+	$mssv = $_POST['txtMSSV'];
 	$email = $_POST['txtEmail'];
 	$gioitinh = $_POST['rdGt'];
 
-	// Validate cơ bản
 	if ($matkhau_raw !== $re_matkhau) {
 		$error_msg = "Mật khẩu nhập lại không khớp.";
 	} else {
-		// Kiểm tra user/email tồn tại
-		$sqlcheck = "SELECT * FROM tbluser WHERE username = ? OR email = ?";
+		$sqlcheck = "SELECT * FROM tbluser WHERE username = ? OR email = ? OR student_code = ?";
 		$stmt_check = $conn->prepare($sqlcheck);
-		$stmt_check->bind_param("ss", $tendangnhap, $email);
+		$stmt_check->bind_param("sss", $tendangnhap, $email, $mssv);
 		$stmt_check->execute();
 		$result_check = $stmt_check->get_result();
 
 		if ($result_check->num_rows > 0) {
-			$error_msg = "Tên đăng nhập hoặc Email đã tồn tại.";
+			while ($row = $result_check->fetch_assoc()) {
+				if ($row['username'] == $tendangnhap) {
+					$error_msg = "Tên đăng nhập này đã có người sử dụng.";
+					break;
+				} elseif ($row['email'] == $email) {
+					$error_msg = "Email này đã được đăng ký.";
+					break;
+				} elseif ($row['student_code'] == $mssv) {
+					$error_msg = "Mã số sinh viên này đã tồn tại trong hệ thống.";
+					break;
+				}
+			}
 		} else {
-			// Xử lý Upload Ảnh
-			$avatar_path = 'uploads/avatar-default.png'; // Mặc định
+			$avatar_path = 'uploads/avatar-default.png';
 			$allowTypes = array('jpg', 'png', 'jpeg', 'gif');
 			$upload_ok = true;
 
@@ -50,7 +54,6 @@ if (isset($_POST['sbDangky'])) {
 
 				if (in_array($fileType, $allowTypes)) {
 					$tm = "uploads/";
-					// Tạo tên file mới để tránh trùng: IMG_username_time.jpg
 					$newFileName = "IMG_" . $tendangnhap . "_" . time() . "." . $fileType;
 					$targetFilePath = $tm . $newFileName;
 
@@ -66,20 +69,25 @@ if (isset($_POST['sbDangky'])) {
 				}
 			}
 
-			// Nếu không có lỗi upload thì Insert vào DB
 			if ($upload_ok && empty($error_msg)) {
-				$matkhau_hash = md5($matkhau_raw); // Giữ nguyên cách mã hóa cũ của bạn
+				$matkhau_hash = md5($matkhau_raw);
 				$role = 0;
-				$status = 0; // Đăng ký xong có thể cần duyệt hoặc active ngay tùy bạn
+				$status = 1;
 
-				$sql_insert = "INSERT INTO tbluser (username, password, fullname, gender, email, avatar, role, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+				$sql_insert = "INSERT INTO tbluser (username, password, fullname, class_code, student_code, gender, email, avatar, role, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 				$stmt_insert = $conn->prepare($sql_insert);
-				$stmt_insert->bind_param("sssisisi", $tendangnhap, $matkhau_hash, $tendaydu, $gioitinh, $email, $avatar_path, $role, $status);
+				$stmt_insert->bind_param("sssssisisi", $tendangnhap, $matkhau_hash, $tendaydu, $malop, $mssv, $gioitinh, $email, $avatar_path, $role, $status);
 
 				if ($stmt_insert->execute()) {
+					$_SESSION['username'] = $tendangnhap;
+					$_SESSION['emailUser'] = $email;
+					$_SESSION['role'] = $role;
+					$_SESSION['fullname'] = $tendaydu;
+					$_SESSION['student_code'] = $mssv;
+					$_SESSION['avatar'] = basename($avatar_path);
+
 					$success_msg = "Đăng ký thành công! Đang chuyển hướng...";
-					// Tự động chuyển trang sau 2 giây
-					header("refresh:2;url=login.php");
+					header("refresh:2;url=index.php");
 				} else {
 					$error_msg = "Lỗi hệ thống: " . $conn->error;
 				}
@@ -97,20 +105,19 @@ if (isset($_POST['sbDangky'])) {
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Đăng ký | Club Manager</title>
-	<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-
+	<title>Đăng ký thành viên</title>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 	<style>
-		/* --- COPY CSS TỪ LOGIN.PHP --- */
 		:root {
-			--primary-color: #007bff;
-			--danger-color: #dc3545;
-			--success-color: #28a745;
-			--light-gray: #f0f2f5;
-			--text-color: #333;
-			--border-color: #ddd;
-			--white: #ffffff;
-			--shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+			--primary: #2563eb;
+			--primary-hover: #1d4ed8;
+			--bg-body: #f1f5f9;
+			--bg-card: #ffffff;
+			--text-main: #1e293b;
+			--text-light: #64748b;
+			--border: #e2e8f0;
+			--radius: 8px;
+			--shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 		}
 
 		* {
@@ -120,271 +127,258 @@ if (isset($_POST['sbDangky'])) {
 		}
 
 		body {
-			font-family: 'Roboto', sans-serif;
-			background-color: var(--light-gray);
+			font-family: 'Inter', sans-serif;
+			background-color: var(--bg-body);
+			color: var(--text-main);
 			display: flex;
 			justify-content: center;
 			align-items: center;
 			min-height: 100vh;
-			color: var(--text-color);
-			padding: 20px 0;
-			/* Thêm padding để tránh sát lề khi form dài */
+			padding: 20px;
 		}
 
-		.login-container {
-			max-width: 500px;
-			/* Rộng hơn login xíu vì nhiều trường hơn */
+		.register-container {
+			background: var(--bg-card);
 			width: 100%;
-			padding: 2.5rem;
-			background-color: var(--white);
-			border-radius: 10px;
+			max-width: 650px;
+			padding: 30px;
+			border-radius: var(--radius);
 			box-shadow: var(--shadow);
-			border: 1px solid var(--border-color);
-			margin: 1rem;
 		}
 
-		.login-container h3 {
+		.header {
 			text-align: center;
+			margin-bottom: 25px;
+		}
+
+		.header h2 {
+			font-size: 1.5rem;
 			font-weight: 700;
-			font-size: 1.75rem;
-			color: var(--text-color);
-			margin-bottom: 1.5rem;
+			color: var(--primary);
+			margin-bottom: 5px;
 		}
 
-		/* Form Controls */
+		.header p {
+			color: var(--text-light);
+			font-size: 0.9rem;
+		}
+
+		.form-grid {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 15px;
+		}
+
 		.form-group {
-			margin-bottom: 1.25rem;
+			margin-bottom: 15px;
 		}
 
-		.form-group label {
+		.full-width {
+			grid-column: 1 / -1;
+		}
+
+		label {
 			display: block;
+			margin-bottom: 6px;
 			font-weight: 500;
-			margin-bottom: 0.5rem;
-			font-size: 0.95rem;
+			font-size: 0.9rem;
+			color: var(--text-main);
 		}
 
-		.form-control {
+		label span {
+			color: #ef4444;
+		}
+
+		input[type="text"],
+		input[type="email"],
+		input[type="password"],
+		input[type="file"] {
 			width: 100%;
-			padding: 10px 15px;
-			font-size: 1rem;
-			border-radius: 6px;
-			border: 1px solid var(--border-color);
-			transition: border-color 0.2s ease, box-shadow 0.2s ease;
-		}
-
-		.form-control:focus {
+			padding: 10px 12px;
+			border: 1px solid var(--border);
+			border-radius: var(--radius);
+			font-size: 0.95rem;
+			transition: 0.2s;
 			outline: none;
-			border-color: var(--primary-color);
-			box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
 		}
 
-		.form-control[type="file"] {
-			padding: 8px;
-			/* Chỉnh lại padding cho input file */
-			background: #fafafa;
+		input[type="file"] {
+			background: #f8fafc;
+			padding: 7px;
 		}
 
-		/* Radio buttons styling */
+		input:focus {
+			border-color: var(--primary);
+			box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+		}
+
 		.radio-group {
 			display: flex;
 			gap: 20px;
-			margin-top: 5px;
+			padding-top: 5px;
 		}
 
-		.radio-label {
+		.radio-item {
 			display: flex;
 			align-items: center;
+			gap: 6px;
 			cursor: pointer;
-			font-weight: normal;
+			font-size: 0.95rem;
 		}
 
-		.radio-label input {
-			margin-right: 8px;
+		.radio-item input {
+			accent-color: var(--primary);
+			width: 16px;
+			height: 16px;
 		}
 
-		/* Buttons */
 		.btn-submit {
 			width: 100%;
-			padding: 14px 15px;
-			font-size: 1rem;
-			font-weight: 700;
-			color: var(--white);
-			background-color: var(--primary-color);
+			padding: 12px;
+			background: var(--primary);
+			color: white;
 			border: none;
-			border-radius: 6px;
+			border-radius: var(--radius);
+			font-weight: 600;
+			font-size: 1rem;
 			cursor: pointer;
-			transition: background-color 0.3s ease;
+			transition: 0.2s;
 			margin-top: 10px;
 		}
 
 		.btn-submit:hover {
-			background-color: #0056b3;
+			background: var(--primary-hover);
 		}
 
-		/* Google Button */
-		.btn-google {
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			width: 100%;
-			padding: 12px 15px;
-			font-size: 1rem;
-			font-weight: 500;
-			color: #444;
-			background-color: var(--white);
-			border: 1px solid #cdd1d4;
-			border-radius: 6px;
-			text-decoration: none;
-			transition: all 0.3s ease;
-			margin-bottom: 1.5rem;
-		}
-
-		.btn-google:hover {
-			background-color: #f8f9fa;
-			border-color: #b2b6b9;
-		}
-
-		.btn-google svg {
-			width: 20px;
-			height: 20px;
-			margin-right: 12px;
-		}
-
-		.divider {
-			display: flex;
-			align-items: center;
+		.footer-link {
 			text-align: center;
-			color: #888;
-			margin-bottom: 1.5rem;
+			margin-top: 20px;
 			font-size: 0.9rem;
-			font-weight: 500;
+			color: var(--text-light);
 		}
 
-		.divider::before,
-		.divider::after {
-			content: '';
-			flex: 1;
-			border-bottom: 1px solid #e0e0e0;
-		}
-
-		.divider::before {
-			margin-right: 0.75em;
-		}
-
-		.divider::after {
-			margin-left: 0.75em;
-		}
-
-		/* Alerts */
-		.alert {
-			padding: 1rem;
-			margin-bottom: 1rem;
-			border-radius: 6px;
-			font-size: 0.95rem;
-			border: 1px solid transparent;
-		}
-
-		.alert-danger {
-			color: #721c24;
-			background-color: #f8d7da;
-			border-color: #f5c6cb;
-		}
-
-		.alert-success {
-			color: #155724;
-			background-color: #d4edda;
-			border-color: #c3e6cb;
-		}
-
-		.login-link {
-			text-align: center;
-			margin-top: 1.5rem;
-			font-size: 0.95rem;
-		}
-
-		.login-link a {
-			color: var(--primary-color);
-			font-weight: 500;
+		.footer-link a {
+			color: var(--primary);
 			text-decoration: none;
+			font-weight: 600;
 		}
 
-		.login-link a:hover {
+		.footer-link a:hover {
 			text-decoration: underline;
 		}
 
+		.alert {
+			padding: 12px;
+			border-radius: var(--radius);
+			margin-bottom: 20px;
+			font-size: 0.9rem;
+		}
+
+		.alert-error {
+			background: #fef2f2;
+			color: #b91c1c;
+			border: 1px solid #fecaca;
+		}
+
+		.alert-success {
+			background: #f0fdf4;
+			color: #15803d;
+			border: 1px solid #bbf7d0;
+		}
+
+		@media (max-width: 600px) {
+			.form-grid {
+				grid-template-columns: 1fr;
+			}
+		}
 	</style>
 </head>
 
 <body>
 
-	<div class="login-container">
-		<h3>Đăng ký tài khoản</h3>
+	<div class="register-container">
+		<div class="header">
+			<h2>Đăng Ký Thành Viên</h2>
+			<p>Nhập thông tin đầy đủ để tham gia CLB</p>
+		</div>
 
-		<?php
-		// Hiển thị thông báo lỗi hoặc thành công
-		if (!empty($error_msg)) {
-			echo '<div class="alert alert-danger">' . $error_msg . '</div>';
-		}
-		if (!empty($success_msg)) {
-			echo '<div class="alert alert-success">' . $success_msg . '</div>';
-		}
-		?>
+		<?php if (!empty($error_msg)): ?>
+			<div class="alert alert-error"><?= $error_msg ?></div>
+		<?php endif; ?>
+
+		<?php if (!empty($success_msg)): ?>
+			<div class="alert alert-success"><?= $success_msg ?></div>
+		<?php endif; ?>
 
 		<form action="" method="post" enctype="multipart/form-data">
-			<div class="form-group">
-				<label for="txtTendangnhap">Tên đăng nhập (*):</label>
-				<input type="text" class="form-control" id="txtTendangnhap" name="txtTendangnhap"
-					value="<?php echo isset($_POST['txtTendangnhap']) ? htmlspecialchars($_POST['txtTendangnhap']) : ''; ?>"
-					required>
-			</div>
+			<div class="form-grid">
 
-			<div class="form-group">
-				<label for="txtEmail">Email (*):</label>
-				<input type="email" class="form-control" id="txtEmail" name="txtEmail"
-					value="<?php echo isset($_POST['txtEmail']) ? htmlspecialchars($_POST['txtEmail']) : ''; ?>"
-					required>
-			</div>
+				<div class="form-group">
+					<label>Tên đăng nhập <span>*</span></label>
+					<input type="text" name="txtTendangnhap"
+						value="<?= isset($_POST['txtTendangnhap']) ? htmlspecialchars($_POST['txtTendangnhap']) : '' ?>">
+				</div>
 
-			<div class="form-group">
-				<label for="txtTendaydu">Họ và tên:</label>
-				<input type="text" class="form-control" id="txtTendaydu" name="txtTendaydu"
-					value="<?php echo isset($_POST['txtTendaydu']) ? htmlspecialchars($_POST['txtTendaydu']) : ''; ?>">
-			</div>
+				<div class="form-group">
+					<label>Mã số sinh viên <span>*</span></label>
+					<input type="text" name="txtMSSV"
+						value="<?= isset($_POST['txtMSSV']) ? htmlspecialchars($_POST['txtMSSV']) : '' ?>">
+				</div>
 
-			<div class="form-group">
-				<label for="txtMatkhau">Mật khẩu (*):</label>
-				<input type="password" class="form-control" id="txtMatkhau" name="txtMatkhau" required>
-			</div>
+				<div class="form-group">
+					<label>Họ và tên <span>*</span></label>
+					<input type="text" name="txtTendaydu"
+						value="<?= isset($_POST['txtTendaydu']) ? htmlspecialchars($_POST['txtTendaydu']) : '' ?>">
+				</div>
 
-			<div class="form-group">
-				<label for="txtreMatkhau">Nhập lại mật khẩu (*):</label>
-				<input type="password" class="form-control" id="txtreMatkhau" name="txtreMatkhau" required>
-			</div>
+				<div class="form-group">
+					<label>Mã lớp <span>*</span></label>
+					<input type="text" name="txtMalop"
+						value="<?= isset($_POST['txtMalop']) ? htmlspecialchars($_POST['txtMalop']) : '' ?>">
+				</div>
 
-			<div class="form-group">
-				<label>Giới tính:</label>
-				<div class="radio-group">
-					<label class="radio-label">
-						<input type="radio" name="rdGt" value="0" checked> Nam
-					</label>
-					<label class="radio-label">
-						<input type="radio" name="rdGt" value="1" <?php if (isset($_POST['rdGt']) && $_POST['rdGt'] == 1)
-							echo 'checked'; ?>> Nữ
-					</label>
+				<div class="form-group full-width">
+					<label>Email liên hệ <span>*</span></label>
+					<input type="email" name="txtEmail"
+						value="<?= isset($_POST['txtEmail']) ? htmlspecialchars($_POST['txtEmail']) : '' ?>">
+				</div>
+
+				<div class="form-group">
+					<label>Mật khẩu <span>*</span></label>
+					<input type="password" name="txtMatkhau" required placeholder="••••••••">
+				</div>
+
+				<div class="form-group">
+					<label>Nhập lại mật khẩu <span>*</span></label>
+					<input type="password" name="txtreMatkhau" required placeholder="••••••••">
+				</div>
+
+				<div class="form-group">
+					<label>Giới tính</label>
+					<div class="radio-group">
+						<label class="radio-item">
+							<input type="radio" name="rdGt" value="0" checked> Nam
+						</label>
+						<label class="radio-item">
+							<input type="radio" name="rdGt" value="1" <?= (isset($_POST['rdGt']) && $_POST['rdGt'] == 1) ? 'checked' : '' ?>> Nữ
+						</label>
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label>Ảnh đại diện</label>
+					<input type="file" name="fileAnh">
+				</div>
+
+				<div class="form-group full-width">
+					<button type="submit" name="sbDangky" class="btn-submit">Đăng ký</button>
 				</div>
 			</div>
-
-			<div class="form-group">
-				<label for="fileAnh">Ảnh đại diện:</label>
-				<input type="file" class="form-control" id="fileAnh" name="fileAnh">
-			</div>
-
-			<button type="submit" class="btn-submit" name="sbDangky">Đăng ký tài khoản</button>
-			<div class="login-link">
-				Đã có tài khoản? <a href="login.php">Đăng nhập ngay</a>
-				<br><br>
-			</div>
 		</form>
+
+		<div class="footer-link">
+			Đã có tài khoản? <a href="login.php">Đăng nhập ngay</a>
+		</div>
 	</div>
 
 </body>
