@@ -19,6 +19,11 @@ if (isset($_GET['user'])) {
 
 if (isset($_POST['btnUpdate'])) {
     $fullname = $_POST['fullname'];
+
+    // --- LẤY DỮ LIỆU TỪ FORM ---
+    $student_code = $_POST['student_code'];
+    $class_code   = $_POST['class_code'];
+
     $email = $_POST['email'];
     $role = $_POST['role'];
     $status = $_POST['status'];
@@ -29,8 +34,11 @@ if (isset($_POST['btnUpdate'])) {
         $sql_pass = ", password = '$pass_new'";
     }
 
+    // --- CẬP NHẬT CÂU LỆNH UPDATE ---
     $sql_update = "UPDATE tbluser SET 
                    fullname = '$fullname', 
+                   student_code = '$student_code',
+                   class_code = '$class_code',
                    email = '$email', 
                    role = '$role',
                    status = '$status' 
@@ -70,6 +78,17 @@ if (isset($_POST['btnUpdate'])) {
                         <div class="mb-3">
                             <label class="form-label fw-bold">Họ và tên</label>
                             <input type="text" name="fullname" class="form-control" value="<?= $row['fullname'] ?>" required>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Mã số sinh viên</label>
+                                <input type="text" name="student_code" class="form-control" value="<?= $row['student_code'] ?>">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Mã lớp</label>
+                                <input type="text" name="class_code" class="form-control" value="<?= $row['class_code'] ?>">
+                            </div>
                         </div>
 
                         <div class="mb-3">

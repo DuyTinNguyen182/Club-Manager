@@ -13,6 +13,10 @@ $msg = ""; // Biến lưu thông báo lỗi/thành công
 // --- XỬ LÝ KHI BẤM NÚT LƯU ---
 if (isset($_POST['btn_save'])) {
     $fullname = $_POST['fullname'];
+    // --- THÊM MỚI: Lấy mã lớp và MSSV ---
+    $student_code = $_POST['student_code'];
+    $class_code = $_POST['class_code'];
+
     $gender = $_POST['gender']; // 0: Nam, 1: Nữ
 
     // Xử lý Upload Avatar
@@ -46,16 +50,27 @@ if (isset($_POST['btn_save'])) {
         }
     }
 
-    // Cập nhật Database (Chỉ update Fullname, Gender và Avatar nếu có)
-    // Username và Email không được đưa vào câu lệnh UPDATE để đảm bảo an toàn
-    $fullname = str_replace("'", "\'", $fullname); // Chống lỗi SQL đơn giản
-    $sql_update = "UPDATE tbluser SET fullname = '$fullname', gender = '$gender' $avatar_sql WHERE username = '$username'";
+    // Cập nhật Database
+    // Chống lỗi SQL đơn giản
+    $fullname = str_replace("'", "\'", $fullname);
+    $student_code = str_replace("'", "\'", $student_code);
+    $class_code = str_replace("'", "\'", $class_code);
+
+    // --- CẬP NHẬT CÂU LỆNH SQL ĐỂ LƯU THÊM CLASS_CODE VÀ STUDENT_CODE ---
+    $sql_update = "UPDATE tbluser SET 
+                    fullname = '$fullname', 
+                    student_code = '$student_code',
+                    class_code = '$class_code',
+                    gender = '$gender' 
+                    $avatar_sql 
+                    WHERE username = '$username'";
 
     if ($conn->query($sql_update)) {
         $msg = "<div class='alert-success'>Cập nhật thông tin thành công!</div>";
         // Cập nhật lại Session fullname
         $_SESSION['fullname'] = $fullname;
-        header("Location: thongtincanhan.php");
+        // Refresh lại trang để hiển thị dữ liệu mới nhất
+        // header("Location: thongtincanhan.php"); // Có thể bỏ comment nếu muốn reload sạch trang
     } else {
         $msg = "<div class='alert-error'>Lỗi: " . $conn->error . "</div>";
     }
@@ -213,9 +228,24 @@ if ($result->num_rows > 0) {
         margin-bottom: 20px;
     }
 
+    /* Row layout cho 2 cột trên 1 dòng */
+    .form-row {
+        display: flex;
+        gap: 20px;
+    }
+
+    .form-row .form-group {
+        flex: 1;
+    }
+
     @media (max-width: 768px) {
         .profile-container {
             grid-template-columns: 1fr;
+        }
+
+        .form-row {
+            flex-direction: column;
+            gap: 0;
         }
     }
 </style>
@@ -267,6 +297,18 @@ if ($result->num_rows > 0) {
                     <input type="text" name="fullname" class="form-control" value="<?= $u['fullname'] ?>" required>
                 </div>
 
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Mã số sinh viên</label>
+                        <input type="text" name="student_code" class="form-control" value="<?= $u['student_code'] ?>" maxlength="10" placeholder="Nhập MSSV">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Mã lớp</label>
+                        <input type="text" name="class_code" class="form-control" value="<?= $u['class_code'] ?>" maxlength="11" placeholder="Nhập mã lớp">
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label class="form-label">Giới tính</label>
                     <div class="radio-group">
@@ -295,7 +337,7 @@ if ($result->num_rows > 0) {
     function previewImage(input) {
         if (input.files && input.files[0]) {
             var reader = new FileReader();
-            reader.onload = function (e) {
+            reader.onload = function(e) {
                 document.getElementById('preview-img').src = e.target.result;
             }
             reader.readAsDataURL(input.files[0]);

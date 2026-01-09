@@ -3,8 +3,8 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th1 08, 2026 lúc 04:54 PM
--- Phiên bản máy phục vụ: 8.0.43
+-- Thời gian đã tạo: Th1 09, 2026 lúc 01:43 AM
+-- Phiên bản máy phục vụ: 10.4.32-MariaDB
 -- Phiên bản PHP: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
@@ -28,13 +28,13 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `tblbaiviet` (
-  `Mabaiviet` int NOT NULL,
-  `Noidung` text COLLATE utf8mb4_general_ci NOT NULL,
-  `Machude` int NOT NULL,
+  `Mabaiviet` int(11) NOT NULL,
+  `Noidung` text NOT NULL,
+  `Machude` int(11) NOT NULL,
   `Ngaytao` date NOT NULL,
-  `Teptin` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `Username` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
-  `Trangthai` int NOT NULL
+  `Teptin` varchar(255) DEFAULT NULL,
+  `Username` varchar(50) NOT NULL,
+  `Trangthai` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -52,13 +52,13 @@ INSERT INTO `tblbaiviet` (`Mabaiviet`, `Noidung`, `Machude`, `Ngaytao`, `Teptin`
 --
 
 CREATE TABLE `tblbinhluan` (
-  `Mabinhluan` int NOT NULL,
-  `Noidung` text COLLATE utf8mb4_general_ci NOT NULL,
-  `Mabaiviet` int NOT NULL,
-  `Username` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `Mabinhluan` int(11) NOT NULL,
+  `Noidung` text NOT NULL,
+  `Mabaiviet` int(11) NOT NULL,
+  `Username` varchar(50) NOT NULL,
   `Ngaytao` date NOT NULL,
-  `Trangthai` int NOT NULL,
-  `parent_id` int DEFAULT '0'
+  `Trangthai` int(11) NOT NULL,
+  `parent_id` int(11) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -81,9 +81,9 @@ INSERT INTO `tblbinhluan` (`Mabinhluan`, `Noidung`, `Mabaiviet`, `Username`, `Ng
 --
 
 CREATE TABLE `tblchude` (
-  `Machude` int NOT NULL,
-  `Tenchude` text COLLATE utf8mb4_general_ci NOT NULL,
-  `Trangthai` int NOT NULL
+  `Machude` int(11) NOT NULL,
+  `Tenchude` text NOT NULL,
+  `Trangthai` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -106,12 +106,12 @@ INSERT INTO `tblchude` (`Machude`, `Tenchude`, `Trangthai`) VALUES
 --
 
 CREATE TABLE `tblcontact` (
-  `id` int NOT NULL,
-  `Tennguoigui` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
-  `Noidung` text COLLATE utf8mb4_general_ci NOT NULL,
-  `Email` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `id` int(11) NOT NULL,
+  `Tennguoigui` varchar(100) NOT NULL,
+  `Noidung` text NOT NULL,
+  `Email` varchar(50) NOT NULL,
   `Ngaygui` datetime NOT NULL,
-  `Trangthai` int NOT NULL
+  `Trangthai` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -130,12 +130,12 @@ INSERT INTO `tblcontact` (`id`, `Tennguoigui`, `Noidung`, `Email`, `Ngaygui`, `T
 --
 
 CREATE TABLE `tbldangkyhoatdong` (
-  `dangky_id` int NOT NULL,
-  `hoatdong_id` int NOT NULL,
-  `username` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
-  `ngay_dangky` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `minh_chung` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `trang_thai` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0: Đã đăng ký, 1: Đã tham gia, 2: Vắng'
+  `dangky_id` int(11) NOT NULL,
+  `hoatdong_id` int(11) NOT NULL,
+  `username` varchar(50) NOT NULL,
+  `ngay_dangky` datetime NOT NULL DEFAULT current_timestamp(),
+  `minh_chung` varchar(50) DEFAULT NULL,
+  `trang_thai` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0: Đã đăng ký, 1: Đã tham gia, 2: Vắng'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -163,13 +163,13 @@ INSERT INTO `tbldangkyhoatdong` (`dangky_id`, `hoatdong_id`, `username`, `ngay_d
 --
 
 CREATE TABLE `tblhoatdong` (
-  `hoatdong_id` int NOT NULL,
-  `ten_hoat_dong` varchar(200) COLLATE utf8mb4_general_ci NOT NULL,
-  `mo_ta_hoat_dong` text COLLATE utf8mb4_general_ci NOT NULL,
+  `hoatdong_id` int(11) NOT NULL,
+  `ten_hoat_dong` varchar(200) NOT NULL,
+  `mo_ta_hoat_dong` text NOT NULL,
   `ngay_bat_dau` datetime NOT NULL,
-  `ngay_ket_thuc` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `dia_diem` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `trang_thai` int NOT NULL DEFAULT '0' COMMENT '0: Sắp diễn ra, 1: Đã kết thúc'
+  `ngay_ket_thuc` datetime NOT NULL DEFAULT current_timestamp(),
+  `dia_diem` varchar(255) DEFAULT NULL,
+  `trang_thai` int(11) NOT NULL DEFAULT 0 COMMENT '0: Sắp diễn ra, 1: Đã kết thúc'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -188,11 +188,11 @@ INSERT INTO `tblhoatdong` (`hoatdong_id`, `ten_hoat_dong`, `mo_ta_hoat_dong`, `n
 --
 
 CREATE TABLE `tblslideshow` (
-  `Id` int NOT NULL,
-  `Title` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
-  `Description` text COLLATE utf8mb4_general_ci NOT NULL,
-  `ImageUrl` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
-  `Status` int NOT NULL
+  `Id` int(11) NOT NULL,
+  `Title` varchar(255) NOT NULL,
+  `Description` text NOT NULL,
+  `ImageUrl` varchar(255) NOT NULL,
+  `Status` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -210,30 +210,32 @@ INSERT INTO `tblslideshow` (`Id`, `Title`, `Description`, `ImageUrl`, `Status`) 
 --
 
 CREATE TABLE `tbluser` (
-  `username` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
-  `password` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
-  `fullname` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
-  `gender` int NOT NULL,
-  `email` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
-  `avatar` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
-  `role` int NOT NULL,
-  `status` int NOT NULL
+  `username` varchar(50) NOT NULL,
+  `password` varchar(50) NOT NULL,
+  `fullname` varchar(50) NOT NULL,
+  `class_code` varchar(11) NOT NULL,
+  `student_code` varchar(10) NOT NULL,
+  `gender` int(11) NOT NULL,
+  `email` varchar(50) NOT NULL,
+  `avatar` varchar(255) NOT NULL,
+  `role` int(11) NOT NULL,
+  `status` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `tbluser`
 --
 
-INSERT INTO `tbluser` (`username`, `password`, `fullname`, `gender`, `email`, `avatar`, `role`, `status`) VALUES
-('admin1', 'e10adc3949ba59abbe56e057f20f883e', 'Nguyễn Duy Tín', 0, 'duytin.admin@tvu.edu.vn', '', 1, 1),
-('admin2', 'e10adc3949ba59abbe56e057f20f883e', 'Nguyễn Phước Hiệp', 0, 'phuochiep.admin@tvu.edu.vn', 'avatar_admin2_1767885338.jpg', 1, 1),
-('admin3', 'e10adc3949ba59abbe56e057f20f883e', 'Gia Thịnh', 0, 'giathinh.admin@tvu.edu.vn', '', 1, 1),
-('camtu', 'e10adc3949ba59abbe56e057f20f883e', 'Phạm Thị Cẩm Tú', 0, 'camtu.pham@tvu.edu.vn', '', 0, 1),
-('duytin', '6afd9643f3e1a07bb92faa4bb403ba32', 'Nguyen Duy Tin', 0, 'duytin@gmail.com', 'z4242815564484_63596ac735d7ce4d2fe59c3739962378.jpg', 0, 0),
-('giathinh', 'e10adc3949ba59abbe56e057f20f883e', 'Gia Thịnh', 0, 'giathinh@gmail.com', 'avatar_giathinh_1765264719.png', 0, 1),
-('minhanh', 'e10adc3949ba59abbe56e057f20f883e', 'Lê Minh Anh', 1, 'minhanh.le@tvu.edu.vn', 'avatar_minhanh_1766281524.jpg', 0, 1),
-('quocviet', 'e10adc3949ba59abbe56e057f20f883e', 'Hoàng Quốc Việt', 0, 'quocviet.hoang@tvu.edu.vn', '', 0, 1),
-('vanbao', 'e10adc3949ba59abbe56e057f20f883e', 'Trần Văn Bảo', 0, 'vanbao.tran@tvu.edu.vn', '', 0, 1);
+INSERT INTO `tbluser` (`username`, `password`, `fullname`, `class_code`, `student_code`, `gender`, `email`, `avatar`, `role`, `status`) VALUES
+('admin1', 'e10adc3949ba59abbe56e057f20f883e', 'Nguyễn Duy Tín', 'DA22TTA', '110122182', 0, 'duytin.admin@tvu.edu.vn', '', 1, 1),
+('admin2', 'e10adc3949ba59abbe56e057f20f883e', 'Nguyễn Phước Hiệp', 'DA22TTA', '110122005', 0, 'phuochiep.admin@tvu.edu.vn', 'avatar_admin2_1767885338.jpg', 1, 1),
+('admin3', 'e10adc3949ba59abbe56e057f20f883e', 'Gia Thịnh', '', '', 0, 'giathinh.admin@tvu.edu.vn', '', 1, 1),
+('camtu', 'e10adc3949ba59abbe56e057f20f883e', 'Phạm Thị Cẩm Tú', '', '', 0, 'camtu.pham@tvu.edu.vn', '', 0, 1),
+('duytin', '6afd9643f3e1a07bb92faa4bb403ba32', 'Nguyen Duy Tin', '', '', 0, 'duytin@gmail.com', 'z4242815564484_63596ac735d7ce4d2fe59c3739962378.jpg', 0, 0),
+('giathinh', 'e10adc3949ba59abbe56e057f20f883e', 'Gia Thịnh', '', '', 0, 'giathinh@gmail.com', 'avatar_giathinh_1765264719.png', 0, 1),
+('minhanh', 'e10adc3949ba59abbe56e057f20f883e', 'Lê Minh Anh', 'DA22TTA', '110122111', 1, 'minhanh.le@tvu.edu.vn', 'avatar_minhanh_1766281524.jpg', 0, 1),
+('quocviet', 'e10adc3949ba59abbe56e057f20f883e', 'Hoàng Quốc Việt', '', '', 0, 'quocviet.hoang@tvu.edu.vn', '', 0, 1),
+('vanbao', 'e10adc3949ba59abbe56e057f20f883e', 'Trần Văn Bảo', '', '', 0, 'vanbao.tran@tvu.edu.vn', '', 0, 1);
 
 --
 -- Chỉ mục cho các bảng đã đổ
@@ -301,43 +303,43 @@ ALTER TABLE `tbluser`
 -- AUTO_INCREMENT cho bảng `tblbaiviet`
 --
 ALTER TABLE `tblbaiviet`
-  MODIFY `Mabaiviet` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `Mabaiviet` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT cho bảng `tblbinhluan`
 --
 ALTER TABLE `tblbinhluan`
-  MODIFY `Mabinhluan` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `Mabinhluan` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT cho bảng `tblchude`
 --
 ALTER TABLE `tblchude`
-  MODIFY `Machude` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `Machude` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT cho bảng `tblcontact`
 --
 ALTER TABLE `tblcontact`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT cho bảng `tbldangkyhoatdong`
 --
 ALTER TABLE `tbldangkyhoatdong`
-  MODIFY `dangky_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `dangky_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT cho bảng `tblhoatdong`
 --
 ALTER TABLE `tblhoatdong`
-  MODIFY `hoatdong_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `hoatdong_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT cho bảng `tblslideshow`
 --
 ALTER TABLE `tblslideshow`
-  MODIFY `Id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- Các ràng buộc cho các bảng đã đổ

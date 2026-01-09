@@ -1,11 +1,16 @@
 <?php
 $path_to_admin = '../';
-include('../includes/header.php'); 
+include('../includes/header.php');
 require_once('../config.php');
 
 if (isset($_POST['btnAdd'])) {
     $username = $_POST['username'];
     $fullname = $_POST['fullname'];
+
+    // --- LẤY DỮ LIỆU MỚI ---
+    $student_code = $_POST['student_code'];
+    $class_code   = $_POST['class_code'];
+
     $email    = $_POST['email'];
     $password = $_POST['password'];
     $role     = $_POST['role'];
@@ -15,14 +20,14 @@ if (isset($_POST['btnAdd'])) {
     $checkResult = $conn->query($checkSQL);
 
     if ($checkResult->num_rows > 0) {
-        $error_msg = "Tên đăng nhập hoặc Email này đã tồn tại trên hệ thống!";
+        $error_msg = "Tên đăng nhập hoặc Email này đã tồn tại!";
     } else {
         $pass_hash = md5($password);
+        $avatar_default = '0';
 
-        $avatar_default = '0'; 
-
-        $sql_insert = "INSERT INTO tbluser (username, password, fullname, email, gender, role, status, avatar) 
-                       VALUES ('$username', '$pass_hash', '$fullname', '$email', 0, '$role', '$status', '$avatar_default')";
+        // --- CẬP NHẬT CÂU LỆNH INSERT ---
+        $sql_insert = "INSERT INTO tbluser (username, password, fullname, student_code, class_code, email, gender, role, status, avatar) 
+                       VALUES ('$username', '$pass_hash', '$fullname', '$student_code', '$class_code', '$email', 0, '$role', '$status', '$avatar_default')";
 
         if ($conn->query($sql_insert) === TRUE) {
             echo "<script>
@@ -44,7 +49,7 @@ if (isset($_POST['btnAdd'])) {
                     <h5 class="mb-0 fw-bold"><i class='bx bx-user-plus'></i> Thêm thành viên mới</h5>
                 </div>
                 <div class="card-body">
-                    
+
                     <?php if (isset($error_msg)) {
                         echo "<div class='alert alert-danger'>$error_msg</div>";
                     } ?>
@@ -52,12 +57,23 @@ if (isset($_POST['btnAdd'])) {
                     <form action="" method="POST">
                         <div class="mb-3">
                             <label class="form-label fw-bold">Username <span class="text-danger">*</span></label>
-                            <input type="text" name="username" class="form-control" placeholder="Viết liền không dấu (VD: admin123)" required>
+                            <input type="text" name="username" class="form-control" placeholder="Viết liền không dấu" required>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label fw-bold">Họ và tên <span class="text-danger">*</span></label>
                             <input type="text" name="fullname" class="form-control" required>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Mã số sinh viên</label>
+                                <input type="text" name="student_code" class="form-control" placeholder="Nhập MSSV">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Mã lớp</label>
+                                <input type="text" name="class_code" class="form-control" placeholder="Nhập mã lớp">
+                            </div>
                         </div>
 
                         <div class="mb-3">
@@ -99,7 +115,4 @@ if (isset($_POST['btnAdd'])) {
     </div>
 </div>
 
-<?php 
-// Kiểm tra đường dẫn footer tương tự header
-include('../includes/footer.php'); 
-?>
+<?php include('../includes/footer.php'); ?>
