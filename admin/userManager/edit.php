@@ -30,8 +30,8 @@ if (isset($_POST['btnUpdate'])) {
         $error_msg = "Vui lòng không để trống Họ tên và Email!";
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error_msg = "Địa chỉ Email không hợp lệ!";
-    } elseif (!empty($student_code) && !ctype_digit($student_code)) {
-        $error_msg = "Mã số sinh viên chỉ được chứa ký tự số!";
+    } elseif (!empty($student_code) && (strlen($student_code) !== 9 || !ctype_digit($student_code))) {
+        $error_msg = "Mã số sinh viên phải bao gồm đúng 9 chữ số!";
     } elseif (!empty($password_raw) && strlen($password_raw) < 6) {
         $error_msg = "Mật khẩu mới phải có ít nhất 6 ký tự!";
     } else {

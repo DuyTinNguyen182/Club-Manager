@@ -28,8 +28,8 @@ if (isset($_POST['sbDangky'])) {
         $error_msg = "Họ và tên chỉ được chứa chữ cái, không được chứa số hoặc ký tự đặc biệt.";
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error_msg = "Địa chỉ Email không hợp lệ.";
-    } elseif (!ctype_digit($mssv)) {
-        $error_msg = "Mã số sinh viên chỉ được chứa các ký tự số.";
+    } elseif (strlen($mssv) !== 9 || !ctype_digit($mssv)) {
+        $error_msg = "Mã số sinh viên phải bao gồm đúng 9 chữ số.";
     } elseif (strlen($matkhau_raw) < 6) {
         $error_msg = "Mật khẩu phải có ít nhất 6 ký tự.";
     } elseif ($matkhau_raw !== $re_matkhau) {

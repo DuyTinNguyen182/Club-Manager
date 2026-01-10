@@ -21,8 +21,8 @@ if (isset($_POST['btnAdd'])) {
         $error_msg = "Địa chỉ Email không hợp lệ!";
     } elseif (strlen($password) < 6) {
         $error_msg = "Mật khẩu phải có ít nhất 6 ký tự!";
-    } elseif (!empty($student_code) && !ctype_digit($student_code)) {
-        $error_msg = "Mã số sinh viên chỉ được chứa ký tự số!";
+    } elseif (!empty($student_code) && (strlen($student_code) !== 9 || !ctype_digit($student_code))) {
+        $error_msg = "Mã số sinh viên phải bao gồm đúng 9 chữ số!";
     } else {
         $username = mysqli_real_escape_string($conn, $username);
         $email = mysqli_real_escape_string($conn, $email);
