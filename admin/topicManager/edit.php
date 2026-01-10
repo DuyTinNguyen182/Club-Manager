@@ -1,39 +1,57 @@
 <?php
 $path_to_admin = '../';
 include('../includes/header.php');
+require_once('../config.php');
 
-// Kiểm tra ID có tồn tại trên URL không
 if (isset($_GET['id'])) {
-    $id = $_GET['id'];
-    // CẬP NHẬT: Machude -> ma_chu_de
-    $sql = "SELECT * FROM tblchude WHERE ma_chu_de = '$id'";
-    $result = $conn->query($sql);
+    $id = (int) $_GET['id'];
+    $sql = "SELECT * FROM tblchude WHERE ma_chu_de = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
     $row = $result->fetch_assoc();
 
     if (!$row) {
         echo "<script>alert('Chủ đề không tồn tại!'); window.location.href='topics.php';</script>";
         exit();
     }
+    $stmt->close();
 } else {
     header("Location: index.php");
     exit();
 }
 
-// Xử lý cập nhật
 if (isset($_POST['btnUpdate'])) {
-    $tenchude = $_POST['tenchude'];
-    $trangthai = $_POST['trangthai'];
+    $tenchude = trim($_POST['tenchude']);
+    $trangthai = (int) $_POST['trangthai'];
 
-    // CẬP NHẬT: Tenchude -> ten_chu_de, Trangthai -> trang_thai, Machude -> ma_chu_de
-    $sql_update = "UPDATE tblchude SET 
-                   ten_chu_de = '$tenchude', 
-                   trang_thai = '$trangthai' 
-                   WHERE ma_chu_de = '$id'";
-
-    if ($conn->query($sql_update) === TRUE) {
-        echo "<script>alert('Cập nhật thành công!'); window.location.href='topics.php';</script>";
+    if (empty($tenchude)) {
+        $error_msg = "Vui lòng nhập tên chủ đề!";
+    } elseif (strlen($tenchude) < 3) {
+        $error_msg = "Tên chủ đề phải có ít nhất 3 ký tự!";
     } else {
-        $error_msg = "Lỗi: " . $conn->error;
+        $sql_check = "SELECT ma_chu_de FROM tblchude WHERE ten_chu_de = ? AND ma_chu_de != ?";
+        $stmt_check = $conn->prepare($sql_check);
+        $stmt_check->bind_param("si", $tenchude, $id);
+        $stmt_check->execute();
+        $stmt_check->store_result();
+
+        if ($stmt_check->num_rows > 0) {
+            $error_msg = "Tên chủ đề này đã tồn tại!";
+        } else {
+            $sql_update = "UPDATE tblchude SET ten_chu_de = ?, trang_thai = ? WHERE ma_chu_de = ?";
+            $stmt_update = $conn->prepare($sql_update);
+            $stmt_update->bind_param("sii", $tenchude, $trangthai, $id);
+
+            if ($stmt_update->execute()) {
+                echo "<script>alert('Cập nhật thành công!'); window.location.href='topics.php';</script>";
+            } else {
+                $error_msg = "Lỗi hệ thống: " . $stmt_update->error;
+            }
+            $stmt_update->close();
+        }
+        $stmt_check->close();
     }
 }
 ?>
@@ -53,7 +71,8 @@ if (isset($_POST['btnUpdate'])) {
                     <form action="" method="POST">
                         <div class="mb-3">
                             <label class="form-label fw-bold">Tên chủ đề</label>
-                            <input type="text" name="tenchude" class="form-control" value="<?= $row['ten_chu_de'] ?>"
+                            <input type="text" name="tenchude" class="form-control"
+                                value="<?= isset($tenchude) ? htmlspecialchars($tenchude) : htmlspecialchars($row['ten_chu_de']) ?>"
                                 required>
                         </div>
 

@@ -1,23 +1,38 @@
 <?php
 $path_to_admin = '../';
 include('../includes/header.php');
+require_once('../config.php');
 
 if (isset($_POST['btnAdd'])) {
-    $tenchude = $_POST['tenchude'];
-    $trangthai = $_POST['trangthai'];
+    $tenchude = trim($_POST['tenchude']);
+    $trangthai = (int) $_POST['trangthai'];
 
-    // Kiểm tra rỗng
-    if (!empty($tenchude)) {
-        // CẬP NHẬT: Tenchude -> ten_chu_de, Trangthai -> trang_thai
-        $sql = "INSERT INTO tblchude (ten_chu_de, trang_thai) VALUES ('$tenchude', '$trangthai')";
-
-        if ($conn->query($sql) === TRUE) {
-            echo "<script>alert('Thêm chủ đề thành công!'); window.location.href='topics.php';</script>";
-        } else {
-            $error_msg = "Lỗi: " . $conn->error;
-        }
-    } else {
+    if (empty($tenchude)) {
         $error_msg = "Vui lòng nhập tên chủ đề!";
+    } elseif (strlen($tenchude) < 3) {
+        $error_msg = "Tên chủ đề phải có ít nhất 3 ký tự!";
+    } else {
+        $sql_check = "SELECT ma_chu_de FROM tblchude WHERE ten_chu_de = ?";
+        $stmt_check = $conn->prepare($sql_check);
+        $stmt_check->bind_param("s", $tenchude);
+        $stmt_check->execute();
+        $stmt_check->store_result();
+
+        if ($stmt_check->num_rows > 0) {
+            $error_msg = "Tên chủ đề này đã tồn tại!";
+        } else {
+            $sql_insert = "INSERT INTO tblchude (ten_chu_de, trang_thai) VALUES (?, ?)";
+            $stmt_insert = $conn->prepare($sql_insert);
+            $stmt_insert->bind_param("si", $tenchude, $trangthai);
+
+            if ($stmt_insert->execute()) {
+                echo "<script>alert('Thêm chủ đề thành công!'); window.location.href='topics.php';</script>";
+            } else {
+                $error_msg = "Lỗi hệ thống: " . $stmt_insert->error;
+            }
+            $stmt_insert->close();
+        }
+        $stmt_check->close();
     }
 }
 ?>
@@ -38,7 +53,7 @@ if (isset($_POST['btnAdd'])) {
                         <div class="mb-3">
                             <label class="form-label fw-bold">Tên chủ đề <span class="text-danger">*</span></label>
                             <input type="text" name="tenchude" class="form-control" placeholder="Nhập tên chủ đề..."
-                                required>
+                                value="<?= isset($tenchude) ? htmlspecialchars($tenchude) : '' ?>" required>
                         </div>
 
                         <div class="mb-3">
