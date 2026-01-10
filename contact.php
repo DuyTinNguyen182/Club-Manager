@@ -1,41 +1,40 @@
 <?php
-// Nhúng header (đã có session, config, và thẻ mở <main>)
 include('phandau.php');
 
-// Xử lý logic khi người dùng bấm nút Gửi
 if (isset($_POST['btnGuiLienHe'])) {
-    $ten = $_POST['fullname'];
-    $email = $_POST['email'];
-    $noidung = $_POST['content'];
+    $ten = trim($_POST['fullname']);
+    $email = trim($_POST['email']);
+    $noidung = trim($_POST['content']);
     $ngaygui = date('Y-m-d H:i:s');
-    $trangthai = 0; // 0: Chưa xem
+    $trangthai = 0;
 
-    // Kiểm tra dữ liệu rỗng
-    if (!empty($ten) && !empty($email) && !empty($noidung)) {
-        // Escape để tránh lỗi SQL
-        $ten = mysqli_real_escape_string($conn, $ten);
-        $email = mysqli_real_escape_string($conn, $email);
-        $noidung = mysqli_real_escape_string($conn, $noidung);
-
-        // CẬP NHẬT CÂU LỆNH INSERT VỚI TÊN CỘT MỚI
-        $sql = "INSERT INTO tblcontact (ten_nguoi_gui, noi_dung, email, ngay_gui, trang_thai) 
-                VALUES ('$ten', '$noidung', '$email', '$ngaygui', '$trangthai')";
-
-        if ($conn->query($sql) === TRUE) {
-            echo "<script>alert('Gửi liên hệ thành công! Ban chủ nhiệm sẽ phản hồi sớm nhất.'); window.location.href='contact.php';</script>";
-        } else {
-            echo "<script>alert('Có lỗi xảy ra: " . $conn->error . "');</script>";
-        }
+    if (empty($ten) || empty($email) || empty($noidung)) {
+        $_SESSION['msg_error'] = "Vui lòng nhập đầy đủ thông tin!";
+    } elseif (!preg_match('/^[\p{L}\s]+$/u', $ten)) {
+        $_SESSION['msg_error'] = "Họ tên chỉ được chứa chữ cái và khoảng trắng!";
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $_SESSION['msg_error'] = "Địa chỉ Email không hợp lệ!";
     } else {
-        echo "<script>alert('Vui lòng nhập đầy đủ thông tin!');</script>";
+        $sql = "INSERT INTO tblcontact (ten_nguoi_gui, noi_dung, email, ngay_gui, trang_thai) VALUES (?, ?, ?, ?, ?)";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("ssssi", $ten, $noidung, $email, $ngaygui, $trangthai);
+
+        if ($stmt->execute()) {
+            $_SESSION['msg_success'] = "Gửi liên hệ thành công! Ban chủ nhiệm sẽ phản hồi sớm nhất.";
+        } else {
+            $_SESSION['msg_error'] = "Có lỗi xảy ra: " . $stmt->error;
+        }
+        $stmt->close();
     }
+
+    // Chuyển hướng ngay lập tức để tránh lỗi F5 (Resubmission)
+    header("Location: contact.php");
+    exit();
 }
 
-// Tự động điền thông tin nếu user đã đăng nhập
 $u_fullname = "";
 $u_email = "";
 if (isset($_SESSION['username'])) {
-    // Sửa fullname -> ho_va_ten
     $u_fullname = isset($_SESSION['fullname']) ? $_SESSION['fullname'] : "";
     $u_email = isset($_SESSION['emailUser']) ? $_SESSION['emailUser'] : "";
 }
@@ -75,7 +74,6 @@ if (isset($_SESSION['username'])) {
         border-radius: 2px;
     }
 
-    /* Info Column */
     .info-item {
         display: flex;
         gap: 15px;
@@ -114,7 +112,6 @@ if (isset($_SESSION['username'])) {
         margin: 0;
     }
 
-    /* Map */
     .map-container {
         width: 100%;
         height: 250px;
@@ -124,7 +121,6 @@ if (isset($_SESSION['username'])) {
         border: 1px solid #e2e8f0;
     }
 
-    /* Form Column */
     .form-group {
         margin-bottom: 20px;
     }
@@ -160,14 +156,12 @@ if (isset($_SESSION['username'])) {
 
 <div class="contact-wrapper">
     <div class="contact-grid">
-
         <div class="contact-info">
             <h3 class="section-title">Thông Tin Liên Hệ</h3>
             <p style="margin-bottom: 30px; color: #64748b;">
                 Hãy liên hệ với chúng tôi nếu bạn có bất kỳ thắc mắc nào về hoạt động của CLB hoặc muốn tham gia cùng
                 chúng tôi.
             </p>
-
             <div class="info-item">
                 <div class="info-icon"><i class="fa-solid fa-location-dot"></i></div>
                 <div class="info-content">
@@ -175,7 +169,6 @@ if (isset($_SESSION['username'])) {
                     <p>Số 126 Nguyễn Thiện Thành, Phường Hòa Thuận, Tỉnh Vĩnh Long</p>
                 </div>
             </div>
-
             <div class="info-item">
                 <div class="info-icon"><i class="fa-solid fa-phone"></i></div>
                 <div class="info-content">
@@ -183,7 +176,6 @@ if (isset($_SESSION['username'])) {
                     <p>0123456789</p>
                 </div>
             </div>
-
             <div class="info-item">
                 <div class="info-icon"><i class="fa-solid fa-envelope"></i></div>
                 <div class="info-content">
@@ -191,7 +183,6 @@ if (isset($_SESSION['username'])) {
                     <p>clbtinhoc@tvu.edu.vn</p>
                 </div>
             </div>
-
             <div class="info-item">
                 <div class="info-icon"><i class="fa-solid fa-globe"></i></div>
                 <div class="info-content">
@@ -199,12 +190,10 @@ if (isset($_SESSION['username'])) {
                     <p>www.clbtinhoctvu.vn</p>
                 </div>
             </div>
-
             <div class="map-container">
                 <iframe
                     src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3930.126071850772!2d106.3439493747926!3d9.923456890177708!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31a0175ea296facb%3A0x55ded92e29068221!2zVHLGsOG7nW5nIMSQ4bqhaSBI4buNYyBUcsOgIFZpbmg!5e0!3m2!1svi!2s!4v1703088000000!5m2!1svi!2s"
-                    width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy">
-                </iframe>
+                    width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
             </div>
         </div>
 
@@ -216,29 +205,38 @@ if (isset($_SESSION['username'])) {
                     <input type="text" name="fullname" class="form-control" placeholder="Nhập họ tên của bạn..."
                         value="<?php echo htmlspecialchars($u_fullname); ?>" required>
                 </div>
-
                 <div class="form-group">
                     <label class="form-label">Email <span class="text-danger">*</span></label>
                     <input type="email" name="email" class="form-control" placeholder="Nhập địa chỉ email..."
                         value="<?php echo htmlspecialchars($u_email); ?>" required>
                 </div>
-
                 <div class="form-group">
                     <label class="form-label">Nội dung <span class="text-danger">*</span></label>
                     <textarea name="content" class="form-control" rows="6" placeholder="Bạn cần hỗ trợ vấn đề gì?"
                         required></textarea>
                 </div>
-
                 <button type="submit" name="btnGuiLienHe" class="btn btn-primary"
                     style="width: 100%; padding: 12px; font-size: 1rem; cursor: pointer;">
                     <i class="fa-solid fa-paper-plane"></i> Gửi ngay
                 </button>
             </form>
         </div>
-
     </div>
 </div>
 
+<?php
+// Hiển thị thông báo từ Session và sau đó xóa nó đi
+if (isset($_SESSION['msg_success'])) {
+    echo "<script>alert('" . $_SESSION['msg_success'] . "');</script>";
+    unset($_SESSION['msg_success']);
+}
+if (isset($_SESSION['msg_error'])) {
+    echo "<script>alert('" . $_SESSION['msg_error'] . "');</script>";
+    unset($_SESSION['msg_error']);
+}
+?>
+
 </main>
 </div>
-</div> <?php include('phancuoi.php'); ?>
+</div>
+<?php include('phancuoi.php'); ?>

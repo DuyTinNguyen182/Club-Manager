@@ -8,7 +8,11 @@ require_once 'config.php'; // Đảm bảo file này chứa biến $conn
 
 // 2. CHUYỂN HƯỚNG NẾU ĐÃ ĐĂNG NHẬP
 if (isset($_SESSION['emailUser'])) {
-    header('Location: index.php');
+    if (isset($_SESSION['role']) && $_SESSION['role'] == 1) {
+        header('Location: admin/index.php');
+    } else {
+        header('Location: index.php');
+    }
     exit();
 }
 
@@ -45,7 +49,8 @@ if ($client->getAccessToken()) {
         $google_service = new Google_Service_Oauth2($client);
         $googleUserInfo = $google_service->userinfo->get();
 
-        $email_google = $googleUserInfo['email'];
+        // VALIDATION: Sanitize email nhận được từ Google
+        $email_google = filter_var($googleUserInfo['email'], FILTER_SANITIZE_EMAIL);
 
         // Kiểm tra xem email đã tồn tại chưa
         $sql_check_google = "SELECT * FROM tbluser WHERE email = ?";
@@ -56,37 +61,44 @@ if ($client->getAccessToken()) {
 
         if ($result_google->num_rows > 0) {
             // **TRƯỜNG HỢP 1: ĐÃ CÓ TÀI KHOẢN**
-            // Email đã tồn tại -> Tiến hành đăng nhập
             $user_data = $result_google->fetch_assoc();
 
-            $_SESSION['username'] = $user_data['username'];
-            $_SESSION['emailUser'] = $user_data['email'];
-            // Sửa role -> quyen
-            $_SESSION['role'] = $user_data['quyen'];
-            // Sửa fullname -> ho_va_ten
-            $_SESSION['fullname'] = $user_data['ho_va_ten'];
-            // Thêm avatar -> anh_dai_dien cho đầy đủ
-            $_SESSION['avatar'] = $user_data['anh_dai_dien'];
+            // Kiểm tra trạng thái tài khoản trước khi cho đăng nhập
+            if ($user_data['trang_thai'] == 0) {
+                $google_login_error = "Tài khoản của bạn đang bị khóa hoặc chưa kích hoạt.";
+                // Xóa session google để tránh lặp
+                unset($_SESSION['access_token']);
+                $client->revokeToken();
+            } else {
+                $_SESSION['username'] = $user_data['username'];
+                $_SESSION['emailUser'] = $user_data['email'];
+                $_SESSION['role'] = $user_data['quyen'];
+                $_SESSION['fullname'] = $user_data['ho_va_ten'];
+                $_SESSION['avatar'] = $user_data['anh_dai_dien'];
 
-            header('Location: index.php');
-            exit();
+                // --- ĐIỀU HƯỚNG THEO QUYỀN (ADMIN/USER) ---
+                if ($user_data['quyen'] == 1) {
+                    header('Location: admin/index.php');
+                } else {
+                    header('Location: index.php');
+                }
+                exit();
+            }
         } else {
             // **TRƯỜNG HỢP 2: CHƯA CÓ TÀI KHOẢN**
-            // Email chưa tồn tại -> Tự động tạo tài khoản mới
+            $fullname = htmlspecialchars($googleUserInfo['name']);
+            $avatar = $googleUserInfo['picture'];
 
-            $fullname = $googleUserInfo['name'];
-            $avatar = $googleUserInfo['picture']; // Link ảnh đại diện từ Google
-
-            // Tạo username từ email (phần trước @)
+            // Tạo username từ email
             $username_base = preg_replace("/[^a-zA-Z0-9]/", "", explode('@', $email_google)[0]);
             if (empty($username_base)) {
-                $username_base = 'user';
+                $username_base = 'user' . rand(1000, 9999);
             }
 
             $new_username = $username_base;
             $counter = 0;
 
-            // Vòng lặp để đảm bảo username là duy nhất
+            // Vòng lặp username duy nhất
             $sql_check_username = "SELECT username FROM tbluser WHERE username = ?";
             $stmt_check_username = $conn->prepare($sql_check_username);
 
@@ -103,13 +115,11 @@ if ($client->getAccessToken()) {
             }
             $stmt_check_username->close();
 
-            // Tạo mật khẩu ngẫu nhiên
             $random_pass = md5(rand() . time());
-            $default_gender = 0; // 0 = Nam
-            $default_role = 0;   // 0 = User
-            $default_status = 1; // 1 = Active
+            $default_gender = 0;
+            $default_role = 0;   // Mặc định tạo mới là User
+            $default_status = 1;
 
-            // Sửa câu lệnh INSERT với tên cột mới
             $sql_insert = "INSERT INTO tbluser 
                            (username, password, ho_va_ten, gioi_tinh, email, anh_dai_dien, quyen, trang_thai) 
                            VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
@@ -128,13 +138,13 @@ if ($client->getAccessToken()) {
             );
 
             if ($stmt_insert->execute()) {
-                // Đăng ký thành công, giờ thì đăng nhập
                 $_SESSION['username'] = $new_username;
                 $_SESSION['emailUser'] = $email_google;
                 $_SESSION['role'] = $default_role;
                 $_SESSION['fullname'] = $fullname;
                 $_SESSION['avatar'] = $avatar;
 
+                // Mới tạo tk thì chắc chắn là user thường
                 header('Location: index.php');
                 exit();
             } else {
@@ -159,42 +169,52 @@ if (!$client->getAccessToken()) {
 
 
 // 7. XỬ LÝ ĐĂNG NHẬP THƯỜNG
-if (isset($_REQUEST['sbSubmit'])) {
-    $tendangnhap = $_REQUEST['txtUsername'];
-    $matkhau_raw = $_REQUEST['txtPassword'];
+if (isset($_POST['sbSubmit'])) {
+    // VALIDATION: Trim khoảng trắng và kiểm tra rỗng
+    $tendangnhap = isset($_POST['txtUsername']) ? trim($_POST['txtUsername']) : '';
+    $matkhau_raw = isset($_POST['txtPassword']) ? $_POST['txtPassword'] : '';
 
-    $sql = "SELECT * FROM tbluser WHERE username = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $tendangnhap);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    if (empty($tendangnhap) || empty($matkhau_raw)) {
+        $local_login_error = 'Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu';
+    } else {
+        $sql = "SELECT * FROM tbluser WHERE username = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("s", $tendangnhap);
+        $stmt->execute();
+        $result = $stmt->get_result();
 
-    if ($result->num_rows > 0) {
-        $row = $result->fetch_assoc();
-        $matkhau_hashed_db = $row['password'];
-        $matkhau_input_md5 = md5($matkhau_raw);
+        if ($result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            $matkhau_hashed_db = $row['password'];
+            $matkhau_input_md5 = md5($matkhau_raw);
 
-        // Sửa status -> trang_thai
-        if ($matkhau_input_md5 === $matkhau_hashed_db && $row['trang_thai']) {
-            $_SESSION['username'] = $row['username'];
-            $_SESSION['emailUser'] = $row['email'];
-            // Sửa role -> quyen
-            $_SESSION['role'] = $row['quyen'];
-            // Thêm các biến session khác để đồng bộ với index.php
-            $_SESSION['fullname'] = $row['ho_va_ten'];
-            $_SESSION['avatar'] = $row['anh_dai_dien'];
+            // Sửa status -> trang_thai
+            if ($matkhau_input_md5 === $matkhau_hashed_db) {
+                if ($row['trang_thai'] == 1) {
+                    $_SESSION['username'] = $row['username'];
+                    $_SESSION['emailUser'] = $row['email'];
+                    $_SESSION['role'] = $row['quyen'];
+                    $_SESSION['fullname'] = $row['ho_va_ten'];
+                    $_SESSION['avatar'] = $row['anh_dai_dien'];
 
-            header("Location: index.php");
-            exit();
-        } else if ($matkhau_input_md5 === $matkhau_hashed_db && !$row['trang_thai']) {
-            $local_login_error = 'Tài khoản chưa được kích hoạt vui lòng liên hệ admin để được kích hoạt';
+                    // --- ĐIỀU HƯỚNG THEO QUYỀN (ADMIN/USER) ---
+                    if ($row['quyen'] == 1) {
+                        header("Location: admin/index.php");
+                    } else {
+                        header("Location: index.php");
+                    }
+                    exit();
+                } else {
+                    $local_login_error = 'Tài khoản chưa được kích hoạt vui lòng liên hệ admin để được kích hoạt';
+                }
+            } else {
+                $local_login_error = 'Tên đăng nhập hoặc mật khẩu không đúng';
+            }
         } else {
             $local_login_error = 'Tên đăng nhập hoặc mật khẩu không đúng';
         }
-    } else {
-        $local_login_error = 'Tên đăng nhập hoặc mật khẩu không đúng';
+        $stmt->close();
     }
-    $stmt->close();
 }
 ?>
 
@@ -397,7 +417,8 @@ if (isset($_REQUEST['sbSubmit'])) {
         <form action="" method="post" name="f1">
             <div class="form-group">
                 <label for="txtUsername">Tên đăng nhập:</label>
-                <input type="text" class="form-control" id="txtUsername" name="txtUsername" required value="<?php echo @htmlspecialchars($_REQUEST['txtUsername']); ?>">
+                <input type="text" class="form-control" id="txtUsername" name="txtUsername" required
+                    value="<?php echo @htmlspecialchars(isset($_POST['txtUsername']) ? $_POST['txtUsername'] : ''); ?>">
             </div>
 
             <div class="form-group">

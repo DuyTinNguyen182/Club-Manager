@@ -10,36 +10,68 @@ $username = $_SESSION['username'];
 $msg = "";
 
 if (isset($_POST['btn_change_pass'])) {
-    $old_pass = $_POST['old_pass'];
-    $new_pass = $_POST['new_pass'];
-    $confirm_pass = $_POST['confirm_pass'];
+    $old_pass = trim($_POST['old_pass']);
+    $new_pass = trim($_POST['new_pass']);
+    $confirm_pass = trim($_POST['confirm_pass']);
+
+    $sess_msg = "";
+    $sess_type = "";
 
     if (empty($old_pass) || empty($new_pass) || empty($confirm_pass)) {
-        $msg = "<div class='alert-error'>Vui lòng nhập đầy đủ thông tin!</div>";
-    } elseif ($new_pass != $confirm_pass) {
-        $msg = "<div class='alert-error'>Mật khẩu mới và nhập lại không khớp!</div>";
+        $sess_msg = "Vui lòng nhập đầy đủ thông tin!";
+        $sess_type = "error";
     } elseif (strlen($new_pass) < 6) {
-        $msg = "<div class='alert-error'>Mật khẩu mới phải có ít nhất 6 ký tự!</div>";
+        $sess_msg = "Mật khẩu mới phải có ít nhất 6 ký tự!";
+        $sess_type = "error";
+    } elseif ($new_pass !== $confirm_pass) {
+        $sess_msg = "Mật khẩu mới và nhập lại không khớp!";
+        $sess_type = "error";
+    } elseif ($old_pass === $new_pass) {
+        $sess_msg = "Mật khẩu mới không được trùng với mật khẩu hiện tại!";
+        $sess_type = "error";
     } else {
         $old_pass_hash = md5($old_pass);
 
-        $sql_check = "SELECT password FROM tbluser WHERE username = '$username' AND password = '$old_pass_hash'";
-        $result = $conn->query($sql_check);
+        $sql_check = "SELECT password FROM tbluser WHERE username = ? AND password = ?";
+        $stmt = $conn->prepare($sql_check);
+        $stmt->bind_param("ss", $username, $old_pass_hash);
+        $stmt->execute();
+        $result = $stmt->get_result();
 
         if ($result->num_rows > 0) {
             $new_pass_hash = md5($new_pass);
 
-            $sql_update = "UPDATE tbluser SET password = '$new_pass_hash' WHERE username = '$username'";
+            $sql_update = "UPDATE tbluser SET password = ? WHERE username = ?";
+            $stmt_update = $conn->prepare($sql_update);
+            $stmt_update->bind_param("ss", $new_pass_hash, $username);
 
-            if ($conn->query($sql_update)) {
-                $msg = "<div class='alert-success'>Đổi mật khẩu thành công!</div>";
+            if ($stmt_update->execute()) {
+                $sess_msg = "Đổi mật khẩu thành công!";
+                $sess_type = "success";
             } else {
-                $msg = "<div class='alert-error'>Lỗi hệ thống, vui lòng thử lại sau.</div>";
+                $sess_msg = "Lỗi hệ thống: " . $stmt_update->error;
+                $sess_type = "error";
             }
+            $stmt_update->close();
         } else {
-            $msg = "<div class='alert-error'>Mật khẩu cũ không chính xác!</div>";
+            $sess_msg = "Mật khẩu cũ không chính xác!";
+            $sess_type = "error";
         }
+        $stmt->close();
     }
+
+    $_SESSION['flash_msg'] = $sess_msg;
+    $_SESSION['flash_type'] = $sess_type;
+
+    header("Location: doimatkhau.php");
+    exit();
+}
+
+if (isset($_SESSION['flash_msg'])) {
+    $class = ($_SESSION['flash_type'] == 'success') ? 'alert-success' : 'alert-error';
+    $msg = "<div class='$class'>" . $_SESSION['flash_msg'] . "</div>";
+    unset($_SESSION['flash_msg']);
+    unset($_SESSION['flash_type']);
 }
 ?>
 

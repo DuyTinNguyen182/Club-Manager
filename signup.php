@@ -1,6 +1,5 @@
 <?php
 session_start();
-
 require_once 'config.php';
 
 if (isset($_SESSION['emailUser'])) {
@@ -12,20 +11,31 @@ $error_msg = '';
 $success_msg = '';
 
 if (isset($_POST['sbDangky'])) {
-    $tendangnhap = $_POST['txtTendangnhap'];
+    $tendangnhap = trim($_POST['txtTendangnhap']);
     $matkhau_raw = $_POST['txtMatkhau'];
     $re_matkhau = $_POST['txtreMatkhau'];
-    $tendaydu = $_POST['txtTendaydu'];
-    $malop = $_POST['txtMalop'];
-    $mssv = $_POST['txtMSSV'];
-    $email = $_POST['txtEmail'];
-    $gioitinh = $_POST['rdGt']; // 0 hoặc 1
+    $tendaydu = trim($_POST['txtTendaydu']);
+    $malop = trim($_POST['txtMalop']);
+    $mssv = trim($_POST['txtMSSV']);
+    $email = trim($_POST['txtEmail']);
+    $gioitinh = isset($_POST['rdGt']) ? (int) $_POST['rdGt'] : 0;
 
-    if ($matkhau_raw !== $re_matkhau) {
+    if (empty($tendangnhap) || empty($matkhau_raw) || empty($re_matkhau) || empty($tendaydu) || empty($malop) || empty($mssv) || empty($email)) {
+        $error_msg = "Vui lòng điền đầy đủ tất cả các trường bắt buộc.";
+    } elseif (strlen($tendangnhap) < 4 || !preg_match('/^[a-zA-Z0-9_]+$/', $tendangnhap)) {
+        $error_msg = "Tên đăng nhập tối thiểu 4 ký tự, không chứa ký tự đặc biệt hoặc khoảng trắng.";
+    } elseif (!preg_match('/^[\p{L}\s]+$/u', $tendaydu)) {
+        $error_msg = "Họ và tên chỉ được chứa chữ cái, không được chứa số hoặc ký tự đặc biệt.";
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error_msg = "Địa chỉ Email không hợp lệ.";
+    } elseif (!ctype_digit($mssv)) {
+        $error_msg = "Mã số sinh viên chỉ được chứa các ký tự số.";
+    } elseif (strlen($matkhau_raw) < 6) {
+        $error_msg = "Mật khẩu phải có ít nhất 6 ký tự.";
+    } elseif ($matkhau_raw !== $re_matkhau) {
         $error_msg = "Mật khẩu nhập lại không khớp.";
     } else {
-        // CẬP NHẬT 1: Sửa student_code -> ma_sinh_vien trong câu query kiểm tra
-        $sqlcheck = "SELECT * FROM tbluser WHERE username = ? OR email = ? OR ma_sinh_vien = ?";
+        $sqlcheck = "SELECT username, email, ma_sinh_vien FROM tbluser WHERE username = ? OR email = ? OR ma_sinh_vien = ?";
         $stmt_check = $conn->prepare($sqlcheck);
         $stmt_check->bind_param("sss", $tendangnhap, $email, $mssv);
         $stmt_check->execute();
@@ -33,14 +43,13 @@ if (isset($_POST['sbDangky'])) {
 
         if ($result_check->num_rows > 0) {
             while ($row = $result_check->fetch_assoc()) {
-                if ($row['username'] == $tendangnhap) {
+                if ($row['username'] === $tendangnhap) {
                     $error_msg = "Tên đăng nhập này đã có người sử dụng.";
                     break;
-                } elseif ($row['email'] == $email) {
+                } elseif ($row['email'] === $email) {
                     $error_msg = "Email này đã được đăng ký.";
                     break;
-                // CẬP NHẬT 2: Sửa key student_code -> ma_sinh_vien
-                } elseif ($row['ma_sinh_vien'] == $mssv) {
+                } elseif ($row['ma_sinh_vien'] === $mssv) {
                     $error_msg = "Mã số sinh viên này đã tồn tại trong hệ thống.";
                     break;
                 }
@@ -53,49 +62,58 @@ if (isset($_POST['sbDangky'])) {
             if (!empty($_FILES["fileAnh"]["name"])) {
                 $fileName = basename($_FILES["fileAnh"]["name"]);
                 $fileType = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+                $fileSize = $_FILES["fileAnh"]["size"];
 
-                if (in_array($fileType, $allowTypes)) {
-                    $tm = "uploads/";
-                    // Tạo tên file ngẫu nhiên để tránh trùng
-                    $newFileName = "IMG_" . $tendangnhap . "_" . time() . "." . $fileType;
-                    $targetFilePath = $tm . $newFileName;
-
-                    if (move_uploaded_file($_FILES["fileAnh"]["tmp_name"], $targetFilePath)) {
-                        $avatar_path = $newFileName; // Chỉ lưu tên file, không lưu full path (tùy logic hiển thị của bạn)
-                    } else {
-                        $error_msg = "Lỗi khi upload ảnh.";
-                        $upload_ok = false;
-                    }
-                } else {
+                if (!in_array($fileType, $allowTypes)) {
                     $error_msg = "Chỉ chấp nhận file ảnh (JPG, JPEG, PNG, GIF).";
                     $upload_ok = false;
+                } elseif ($fileSize > 5000000) {
+                    $error_msg = "File ảnh quá lớn (Tối đa 5MB).";
+                    $upload_ok = false;
+                } else {
+                    $checkImage = getimagesize($_FILES["fileAnh"]["tmp_name"]);
+                    if ($checkImage === false) {
+                        $error_msg = "File tải lên không phải là ảnh hợp lệ.";
+                        $upload_ok = false;
+                    } else {
+                        $tm = "uploads/";
+                        if (!file_exists($tm))
+                            mkdir($tm, 0777, true);
+
+                        $newFileName = "IMG_" . $tendangnhap . "_" . time() . "." . $fileType;
+                        $targetFilePath = $tm . $newFileName;
+
+                        if (move_uploaded_file($_FILES["fileAnh"]["tmp_name"], $targetFilePath)) {
+                            $avatar_path = $newFileName;
+                        } else {
+                            $error_msg = "Lỗi khi upload ảnh lên server.";
+                            $upload_ok = false;
+                        }
+                    }
                 }
             }
 
             if ($upload_ok && empty($error_msg)) {
                 $matkhau_hash = md5($matkhau_raw);
-                $role = 0;   // Mặc định là Member
-                $status = 1; // Mặc định là Active
+                $role = 0;
+                $status = 1;
 
-                // CẬP NHẬT 3: Sửa câu lệnh INSERT với tên cột mới
                 $sql_insert = "INSERT INTO tbluser (username, password, ho_va_ten, ma_lop, ma_sinh_vien, gioi_tinh, email, anh_dai_dien, quyen, trang_thai) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                
+
                 $stmt_insert = $conn->prepare($sql_insert);
-                // Các tham số vẫn giữ nguyên thứ tự và kiểu dữ liệu
                 $stmt_insert->bind_param("sssssisisi", $tendangnhap, $matkhau_hash, $tendaydu, $malop, $mssv, $gioitinh, $email, $avatar_path, $role, $status);
 
                 if ($stmt_insert->execute()) {
-                    // Đăng ký thành công -> Tự động đăng nhập
                     $_SESSION['username'] = $tendangnhap;
                     $_SESSION['emailUser'] = $email;
-                    $_SESSION['role'] = $role;      // Lưu ý: Session key giữ nguyên để code cũ chạy được
-                    $_SESSION['fullname'] = $tendaydu; 
+                    $_SESSION['role'] = $role;
+                    $_SESSION['fullname'] = $tendaydu;
                     $_SESSION['avatar'] = basename($avatar_path);
 
                     $success_msg = "Đăng ký thành công! Đang chuyển hướng...";
                     header("refresh:2;url=index.php");
                 } else {
-                    $error_msg = "Lỗi hệ thống: " . $conn->error;
+                    $error_msg = "Lỗi hệ thống: " . $stmt_insert->error;
                 }
                 $stmt_insert->close();
             }
@@ -301,7 +319,6 @@ if (isset($_POST['sbDangky'])) {
 </head>
 
 <body>
-
     <div class="register-container">
         <div class="header">
             <h2>Đăng Ký Thành Viên</h2>
@@ -318,39 +335,38 @@ if (isset($_POST['sbDangky'])) {
 
         <form action="" method="post" enctype="multipart/form-data">
             <div class="form-grid">
-
                 <div class="form-group">
                     <label>Tên đăng nhập <span>*</span></label>
-                    <input type="text" name="txtTendangnhap"
+                    <input type="text" name="txtTendangnhap" required
                         value="<?= isset($_POST['txtTendangnhap']) ? htmlspecialchars($_POST['txtTendangnhap']) : '' ?>">
                 </div>
 
                 <div class="form-group">
                     <label>Mã số sinh viên <span>*</span></label>
-                    <input type="text" name="txtMSSV"
+                    <input type="text" name="txtMSSV" required
                         value="<?= isset($_POST['txtMSSV']) ? htmlspecialchars($_POST['txtMSSV']) : '' ?>">
                 </div>
 
                 <div class="form-group">
                     <label>Họ và tên <span>*</span></label>
-                    <input type="text" name="txtTendaydu"
+                    <input type="text" name="txtTendaydu" required
                         value="<?= isset($_POST['txtTendaydu']) ? htmlspecialchars($_POST['txtTendaydu']) : '' ?>">
                 </div>
 
                 <div class="form-group">
                     <label>Mã lớp <span>*</span></label>
-                    <input type="text" name="txtMalop"
+                    <input type="text" name="txtMalop" required
                         value="<?= isset($_POST['txtMalop']) ? htmlspecialchars($_POST['txtMalop']) : '' ?>">
                 </div>
 
                 <div class="form-group full-width">
                     <label>Email liên hệ <span>*</span></label>
-                    <input type="email" name="txtEmail"
+                    <input type="email" name="txtEmail" required
                         value="<?= isset($_POST['txtEmail']) ? htmlspecialchars($_POST['txtEmail']) : '' ?>">
                 </div>
 
                 <div class="form-group">
-                    <label>Mật khẩu <span>*</span></label>
+                    <label>Mật khẩu (Tối thiểu 6 ký tự) <span>*</span></label>
                     <input type="password" name="txtMatkhau" required placeholder="••••••••">
                 </div>
 
@@ -373,7 +389,7 @@ if (isset($_POST['sbDangky'])) {
 
                 <div class="form-group">
                     <label>Ảnh đại diện</label>
-                    <input type="file" name="fileAnh">
+                    <input type="file" name="fileAnh" accept="image/*">
                 </div>
 
                 <div class="form-group full-width">
@@ -386,7 +402,6 @@ if (isset($_POST['sbDangky'])) {
             Đã có tài khoản? <a href="login.php">Đăng nhập ngay</a>
         </div>
     </div>
-
 </body>
 
 </html>

@@ -1,7 +1,6 @@
 <?php
 require("phandau.php");
 
-// 1. Kiểm tra đăng nhập
 if (!isset($_SESSION['username'])) {
     echo "<script>alert('Vui lòng đăng nhập để xem danh sách hoạt động.'); window.location.href='login.php';</script>";
     exit();
@@ -9,8 +8,6 @@ if (!isset($_SESSION['username'])) {
 
 $username = $_SESSION['username'];
 
-// 2. Truy vấn danh sách hoạt động user đã đăng ký
-// CẬP NHẬT: Sửa hoatdong_id -> ma_hoat_dong
 $sql = "SELECT dk.trang_thai, dk.minh_chung, hd.ma_hoat_dong, hd.ten_hoat_dong, hd.ngay_bat_dau, hd.ngay_ket_thuc 
         FROM tbldangkyhoatdong dk
         JOIN tblhoatdong hd ON dk.ma_hoat_dong = hd.ma_hoat_dong
@@ -24,7 +21,6 @@ $result = $stmt->get_result();
 ?>
 
 <style>
-    /* CSS Base */
     .list-container {
         max-width: 1000px;
         margin: 30px auto;
@@ -43,7 +39,6 @@ $result = $stmt->get_result();
         border-bottom: 2px solid #f1f5f9;
     }
 
-    /* Table Styles */
     .custom-table {
         width: 100%;
         border-collapse: separate;
@@ -89,7 +84,6 @@ $result = $stmt->get_result();
         color: #0d6efd;
     }
 
-    /* Style cho phần hiển thị ngày giờ */
     .activity-time-block {
         font-size: 0.9rem;
         color: #64748b;
@@ -97,18 +91,19 @@ $result = $stmt->get_result();
         flex-direction: column;
         gap: 4px;
     }
+
     .time-row {
         display: flex;
         align-items: center;
         gap: 8px;
     }
+
     .time-label {
         font-size: 0.8rem;
         color: #94a3b8;
-        width: 30px; /* Cố định chiều rộng để thẳng hàng */
+        width: 30px;
     }
 
-    /* Badge trạng thái */
     .status-badge {
         padding: 6px 12px;
         border-radius: 20px;
@@ -117,11 +112,22 @@ $result = $stmt->get_result();
         white-space: nowrap;
         display: inline-block;
     }
-    .st-registered { background: #e0f2fe; color: #0284c7; }
-    .st-attended { background: #dcfce7; color: #16a34a; }
-    .st-absent { background: #fee2e2; color: #dc2626; }
 
-    /* Badge minh chứng */
+    .st-registered {
+        background: #e0f2fe;
+        color: #0284c7;
+    }
+
+    .st-attended {
+        background: #dcfce7;
+        color: #16a34a;
+    }
+
+    .st-absent {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
     .proof-badge {
         font-size: 0.85rem;
         font-weight: 500;
@@ -129,8 +135,14 @@ $result = $stmt->get_result();
         align-items: center;
         gap: 6px;
     }
-    .proof-done { color: #10b981; }
-    .proof-pending { color: #f59e0b; }
+
+    .proof-done {
+        color: #10b981;
+    }
+
+    .proof-pending {
+        color: #f59e0b;
+    }
 </style>
 
 <div class="content-section" style="background-color: #f1f5f9; min-height: 80vh; padding-top: 20px;">
@@ -153,8 +165,6 @@ $result = $stmt->get_result();
                     </thead>
                     <tbody>
                         <?php while ($row = $result->fetch_assoc()):
-
-                            // 1. Xử lý trạng thái điểm danh
                             $status_code = isset($row['trang_thai']) ? $row['trang_thai'] : 0;
                             $status_html = '';
                             switch ($status_code) {
@@ -169,22 +179,17 @@ $result = $stmt->get_result();
                                     break;
                             }
 
-                            // 2. Xử lý thời gian & Minh chứng
                             $has_proof = !empty($row['minh_chung']);
-                            
                             $t_start = strtotime($row['ngay_bat_dau']);
-                            // Nếu không có ngày kết thúc thì lấy ngày bắt đầu
                             $t_end = !empty($row['ngay_ket_thuc']) ? strtotime($row['ngay_ket_thuc']) : $t_start;
-                            
-                            // Logic Hết hạn: Bây giờ > Ngày kết thúc
                             $is_expired = time() > $t_end;
-                        ?>
+                            ?>
                             <tr>
                                 <td>
                                     <a href="chitiethoatdong.php?id=<?php echo $row['ma_hoat_dong']; ?>" class="activity-name">
                                         <?php echo htmlspecialchars($row['ten_hoat_dong']); ?>
                                     </a>
-                                    
+
                                     <div class="activity-time-block">
                                         <div class="time-row">
                                             <span class="time-label">Từ:</span>
@@ -209,7 +214,6 @@ $result = $stmt->get_result();
                                             <a href="chitiethoatdong.php?id=<?php echo $row['ma_hoat_dong']; ?>"
                                                 style="text-decoration:none; color:inherit;">(Xem lại)</a>
                                         </small>
-
                                     <?php else: ?>
                                         <div class="proof-badge proof-pending">
                                             <i class="fa-solid fa-circle-exclamation"></i>
