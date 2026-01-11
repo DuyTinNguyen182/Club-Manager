@@ -2,6 +2,9 @@
 $path_to_admin = '../';
 include('../includes/header.php');
 
+// ... (Giữ nguyên logic PHP lấy dữ liệu và update của bạn) ...
+// Để tiết kiệm không gian, tôi chỉ hiển thị phần HTML đã sửa, logic PHP phía trên giữ nguyên như file cũ của bạn.
+// Bạn nhớ copy đoạn PHP xử lý form vào đây nhé!
 if (isset($_GET['user'])) {
     $username = mysqli_real_escape_string($conn, $_GET['user']);
     $sql = "SELECT * FROM tbluser WHERE username = '$username'";
@@ -18,6 +21,7 @@ if (isset($_GET['user'])) {
 }
 
 if (isset($_POST['btnUpdate'])) {
+    // Copy lại logic update từ file cũ của bạn vào đây
     $fullname = trim($_POST['fullname']);
     $student_code = trim($_POST['student_code']);
     $class_code = trim($_POST['class_code']);
@@ -26,6 +30,7 @@ if (isset($_POST['btnUpdate'])) {
     $status = $_POST['status'];
     $password_raw = $_POST['password'];
 
+    // ... (Phần validate và SQL Update giữ nguyên) ...
     if (empty($fullname) || empty($email)) {
         $error_msg = "Vui lòng không để trống Họ tên và Email!";
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -78,24 +83,27 @@ if (isset($_POST['btnUpdate'])) {
 }
 ?>
 
-<div class="container-fluid mt-4">
+<div class="container-fluid mt-4 mb-5">
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow">
+        <div class="col-12 col-md-8 col-lg-6">
+            <div class="card shadow-sm border-0">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0 fw-bold"><i class='bx bx-edit'></i> Chỉnh sửa thành viên:
-                        <?= htmlspecialchars($username) ?></h5>
+                    <h5 class="mb-0 fw-bold"><i class='bx bx-edit'></i> Chỉnh sửa: <?= htmlspecialchars($username) ?>
+                    </h5>
                 </div>
                 <div class="card-body">
 
                     <?php if (isset($error_msg)) {
-                        echo "<div class='alert alert-danger'>$error_msg</div>";
+                        echo "<div class='alert alert-danger alert-dismissible fade show'>
+                                <i class='bx bx-error-circle'></i> $error_msg
+                                <button type='button' class='btn-close' data-bs-dismiss='alert'></button>
+                              </div>";
                     } ?>
 
                     <form action="" method="POST">
                         <div class="mb-3">
                             <label class="form-label fw-bold">Username</label>
-                            <input type="text" class="form-control bg-light"
+                            <input type="text" class="form-control bg-light text-muted"
                                 value="<?= htmlspecialchars($row['username']) ?>" readonly>
                         </div>
 
@@ -106,12 +114,12 @@ if (isset($_POST['btnUpdate'])) {
                         </div>
 
                         <div class="row">
-                            <div class="col-md-6 mb-3">
+                            <div class="col-12 col-md-6 mb-3">
                                 <label class="form-label fw-bold">Mã số sinh viên</label>
                                 <input type="text" name="student_code" class="form-control"
                                     value="<?= htmlspecialchars($row['ma_sinh_vien']) ?>">
                             </div>
-                            <div class="col-md-6 mb-3">
+                            <div class="col-12 col-md-6 mb-3">
                                 <label class="form-label fw-bold">Mã lớp</label>
                                 <input type="text" name="class_code" class="form-control"
                                     value="<?= htmlspecialchars($row['ma_lop']) ?>">
@@ -125,13 +133,14 @@ if (isset($_POST['btnUpdate'])) {
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label fw-bold text-danger">Đổi mật khẩu (Để trống nếu không đổi)</label>
+                            <label class="form-label fw-bold text-danger">Đổi mật khẩu <small
+                                    class="text-muted fw-normal">(Để trống nếu không đổi)</small></label>
                             <input type="password" name="password" class="form-control"
                                 placeholder="Nhập mật khẩu mới...">
                         </div>
 
                         <div class="row">
-                            <div class="col-md-6 mb-3">
+                            <div class="col-12 col-md-6 mb-3">
                                 <label class="form-label fw-bold">Vai trò</label>
                                 <select name="role" class="form-select">
                                     <option value="0" <?= ($row['quyen'] == 0) ? 'selected' : '' ?>>Thành viên</option>
@@ -139,7 +148,7 @@ if (isset($_POST['btnUpdate'])) {
                                 </select>
                             </div>
 
-                            <div class="col-md-6 mb-3">
+                            <div class="col-12 col-md-6 mb-3">
                                 <label class="form-label fw-bold">Trạng thái</label>
                                 <select name="status" class="form-select">
                                     <option value="1" <?= ($row['trang_thai'] == 1) ? 'selected' : '' ?>>Hoạt động</option>
@@ -148,9 +157,11 @@ if (isset($_POST['btnUpdate'])) {
                             </div>
                         </div>
 
-                        <div class="d-flex justify-content-end gap-2 mt-3">
-                            <a href="members.php" class="btn btn-secondary">Quay lại</a>
-                            <button type="submit" name="btnUpdate" class="btn btn-primary">Lưu thay đổi</button>
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <a href="members.php" class="btn btn-secondary"><i class='bx bx-arrow-back'></i> Quay
+                                lại</a>
+                            <button type="submit" name="btnUpdate" class="btn btn-primary"><i class='bx bx-save'></i>
+                                Lưu thay đổi</button>
                         </div>
                     </form>
                 </div>

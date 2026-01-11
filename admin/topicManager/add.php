@@ -4,6 +4,7 @@ include('../includes/header.php');
 require_once('../config.php');
 
 if (isset($_POST['btnAdd'])) {
+    // ... Logic PHP giữ nguyên ...
     $tenchude = trim($_POST['tenchude']);
     $trangthai = (int) $_POST['trangthai'];
 
@@ -39,14 +40,17 @@ if (isset($_POST['btnAdd'])) {
 
 <div class="container-fluid mt-4">
     <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow">
+        <div class="col-12 col-md-6">
+            <div class="card shadow-sm border-0">
                 <div class="card-header bg-success text-white">
                     <h5 class="mb-0 fw-bold"><i class='bx bx-folder-plus'></i> Thêm Chủ đề mới</h5>
                 </div>
                 <div class="card-body">
                     <?php if (isset($error_msg)) {
-                        echo "<div class='alert alert-danger'>$error_msg</div>";
+                        echo "<div class='alert alert-danger alert-dismissible fade show'>
+                                <i class='bx bx-error-circle'></i> $error_msg
+                                <button type='button' class='btn-close' data-bs-dismiss='alert'></button>
+                              </div>";
                     } ?>
 
                     <form action="" method="POST">
@@ -65,8 +69,9 @@ if (isset($_POST['btnAdd'])) {
                         </div>
 
                         <div class="d-flex justify-content-end gap-2 mt-4">
-                            <a href="topics.php" class="btn btn-secondary">Quay lại</a>
-                            <button type="submit" name="btnAdd" class="btn btn-success">Thêm mới</button>
+                            <a href="topics.php" class="btn btn-secondary"><i class='bx bx-arrow-back'></i> Quay lại</a>
+                            <button type="submit" name="btnAdd" class="btn btn-success"><i class='bx bx-save'></i> Thêm
+                                mới</button>
                         </div>
                     </form>
                 </div>

@@ -4,6 +4,7 @@ include('../includes/header.php');
 require_once('../config.php');
 
 if (isset($_GET['id'])) {
+    // ... Logic PHP giữ nguyên ...
     $id = (int) $_GET['id'];
     $sql = "SELECT * FROM tblchude WHERE ma_chu_de = ?";
     $stmt = $conn->prepare($sql);
@@ -18,11 +19,12 @@ if (isset($_GET['id'])) {
     }
     $stmt->close();
 } else {
-    header("Location: index.php");
+    header("Location: topics.php"); // Sửa index.php thành topics.php cho đúng luồng
     exit();
 }
 
 if (isset($_POST['btnUpdate'])) {
+    // ... Logic PHP giữ nguyên ...
     $tenchude = trim($_POST['tenchude']);
     $trangthai = (int) $_POST['trangthai'];
 
@@ -58,14 +60,17 @@ if (isset($_POST['btnUpdate'])) {
 
 <div class="container-fluid mt-4">
     <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow">
+        <div class="col-12 col-md-6">
+            <div class="card shadow-sm border-0">
                 <div class="card-header bg-primary text-white">
                     <h5 class="mb-0 fw-bold"><i class='bx bx-edit'></i> Sửa chủ đề: #<?= $row['ma_chu_de'] ?></h5>
                 </div>
                 <div class="card-body">
                     <?php if (isset($error_msg)) {
-                        echo "<div class='alert alert-danger'>$error_msg</div>";
+                        echo "<div class='alert alert-danger alert-dismissible fade show'>
+                                <i class='bx bx-error-circle'></i> $error_msg
+                                <button type='button' class='btn-close' data-bs-dismiss='alert'></button>
+                              </div>";
                     } ?>
 
                     <form action="" method="POST">
@@ -85,8 +90,9 @@ if (isset($_POST['btnUpdate'])) {
                         </div>
 
                         <div class="d-flex justify-content-end gap-2 mt-4">
-                            <a href="topics.php" class="btn btn-secondary">Quay lại</a>
-                            <button type="submit" name="btnUpdate" class="btn btn-primary">Lưu thay đổi</button>
+                            <a href="topics.php" class="btn btn-secondary"><i class='bx bx-arrow-back'></i> Quay lại</a>
+                            <button type="submit" name="btnUpdate" class="btn btn-primary"><i class='bx bx-save'></i>
+                                Lưu thay đổi</button>
                         </div>
                     </form>
                 </div>

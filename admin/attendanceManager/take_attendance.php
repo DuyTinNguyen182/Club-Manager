@@ -17,70 +17,84 @@ if (!$row_hd) {
     exit();
 }
 
+// Xử lý lưu điểm danh
 if (isset($_POST['btnSaveAttendance'])) {
     $users_list = isset($_POST['users']) ? $_POST['users'] : [];
     $present_list = isset($_POST['present']) ? $_POST['present'] : [];
 
+    // Sử dụng Prepare Statement để tối ưu hiệu năng và bảo mật khi loop nhiều lần
+    $stmt = $conn->prepare("UPDATE tbldangkyhoatdong SET trang_thai = ? WHERE ma_hoat_dong = ? AND username = ?");
+    
     foreach ($users_list as $username) {
+        // Logic: Nếu username nằm trong mảng present -> status = 1 (Tham gia), ngược lại = 2 (Vắng)
         $status = in_array($username, $present_list) ? 1 : 2;
-        $stmt = $conn->prepare("UPDATE tbldangkyhoatdong SET trang_thai = ? WHERE ma_hoat_dong = ? AND username = ?");
         $stmt->bind_param("iis", $status, $hoatdong_id, $username);
         $stmt->execute();
     }
+    $stmt->close();
+    
     echo "<script>alert('Cập nhật điểm danh thành công!'); window.location.href='take_attendance.php?id=$hoatdong_id';</script>";
 }
 
+// Xử lý tìm kiếm
 $search_query = "";
 $search_sql = "";
 if (isset($_GET['search']) && !empty($_GET['search'])) {
-    $search_query = $_GET['search'];
-    $search_sql = " AND u.ho_va_ten LIKE '%$search_query%' ";
+    $search_query = mysqli_real_escape_string($conn, $_GET['search']);
+    $search_sql = " AND (u.ho_va_ten LIKE '%$search_query%' OR u.ma_sinh_vien LIKE '%$search_query%') ";
 }
 
-$sql_dk = "SELECT dk.*, u.ho_va_ten, u.email, u.username 
+$sql_dk = "SELECT dk.*, u.ho_va_ten, u.email, u.ma_sinh_vien, u.username 
            FROM tbldangkyhoatdong dk 
            JOIN tbluser u ON dk.username = u.username 
            WHERE dk.ma_hoat_dong = $hoatdong_id $search_sql
-           ORDER BY dk.ngay_dang_ky ASC";
+           ORDER BY u.ho_va_ten ASC"; // Sắp xếp theo tên cho dễ gọi
 $result_dk = $conn->query($sql_dk);
 ?>
 
-<div class="container-fluid mt-3">
-    <a href="attendance.php" class="text-decoration-none text-secondary mb-3 d-inline-block">
-        <i class='bx bx-arrow-back'></i> Quay lại danh sách
-    </a>
+<div class="container-fluid mt-4 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <a href="attendance.php" class="btn btn-secondary btn-sm">
+            <i class='bx bx-arrow-back'></i> Quay lại
+        </a>
+    </div>
 
-    <div class="card shadow">
+    <div class="card shadow border-0">
         <div class="card-header bg-primary text-white p-3">
-            <h5 class="mb-0">
-                <i class='bx bx-user-check'></i> Điểm danh: <?= htmlspecialchars($row_hd['ten_hoat_dong']) ?>
-            </h5>
-            <small><i class='bx bx-time'></i> <?= date('d/m/Y H:i', strtotime($row_hd['ngay_bat_dau'])) ?> | <i class='bx bx-map'></i> <?= $row_hd['dia_diem'] ?></small>
+            <h5 class="mb-1 fw-bold"><i class='bx bx-check-shield'></i> Điểm danh thành viên</h5>
+            <div class="small opacity-75">
+                Hoạt động: <b><?= htmlspecialchars($row_hd['ten_hoat_dong']) ?></b>
+            </div>
         </div>
 
         <div class="card-body">
             <form action="" method="GET" class="mb-4">
                 <input type="hidden" name="id" value="<?= $hoatdong_id ?>">
-                <div class="input-group">
-                    <input type="text" name="search" class="form-control" placeholder="Tìm kiếm theo tên thành viên..." value="<?= htmlspecialchars($search_query) ?>">
-                    <button class="btn btn-outline-primary" type="submit"><i class='bx bx-search'></i> Tìm kiếm</button>
+                <div class="input-group shadow-sm">
+                    <input type="text" name="search" class="form-control" 
+                           placeholder="Nhập tên hoặc MSSV..." value="<?= htmlspecialchars($search_query) ?>">
+                    <button class="btn btn-primary" type="submit"><i class='bx bx-search'></i> Tìm</button>
                     <?php if (!empty($search_query)): ?>
-                        <a href="take_attendance.php?id=<?= $hoatdong_id ?>" class="btn btn-outline-secondary">Xóa lọc</a>
+                        <a href="take_attendance.php?id=<?= $hoatdong_id ?>" class="btn btn-danger">Xóa lọc</a>
                     <?php endif; ?>
                 </div>
             </form>
 
             <form action="" method="POST">
-                <div class="table-responsive">
-                    <table class="table table-bordered table-hover align-middle">
-                        <thead class="table-light text-center">
+                <div class="table-responsive" style="max-height: 600px; overflow-y: auto;">
+                    <table class="table table-bordered table-hover align-middle mb-0">
+                        <thead class="table-light text-center sticky-top" style="z-index: 1;">
                             <tr>
                                 <th width="50">STT</th>
-                                <th>Tên thành viên</th>
-                                <th>Email</th>
-                                <th width="120">Minh chứng</th> 
-                                <th width="150">Trạng thái</th>
-                                <th width="120" class="bg-warning bg-opacity-10">Tham gia</th>
+                                <th class="text-start">Thành viên</th>
+                                <th width="100">Minh chứng</th> 
+                                <th width="120">Trạng thái cũ</th>
+                                <th width="100" class="bg-warning bg-opacity-25 text-dark clickable-header" style="cursor: pointer;" onclick="toggleAll()">
+                                    <div class="form-check d-flex justify-content-center align-items-center gap-1">
+                                        <input class="form-check-input" type="checkbox" id="checkAll" style="transform: scale(1.2);">
+                                        <label class="form-check-label small fw-bold" for="checkAll" style="cursor: pointer;">Tất cả</label>
+                                    </div>
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -91,33 +105,35 @@ $result_dk = $conn->query($sql_dk);
                             ?>
                                     <tr>
                                         <td class="text-center"><?= $stt++ ?></td>
-                                        <td class="fw-bold"><?= $row['ho_va_ten'] ?></td>
-                                        <td><?= $row['email'] ?></td>
+                                        <td>
+                                            <div class="fw-bold text-primary"><?= htmlspecialchars($row['ho_va_ten']) ?></div>
+                                            <div class="small text-muted">
+                                                MSSV: <?= htmlspecialchars($row['ma_sinh_vien']) ?>
+                                            </div>
+                                        </td>
 
                                         <td class="text-center">
                                             <?php if (!empty($row['minh_chung'])): 
                                                 $file_path = "../../uploads/proofs/" . $row['minh_chung'];
                                                 $ext = strtolower(pathinfo($row['minh_chung'], PATHINFO_EXTENSION));
-                                                
-                                                if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif'])): 
                                             ?>
-                                                <a href="<?= $file_path ?>" target="_blank" title="Xem ảnh lớn">
-                                                    <img src="<?= $file_path ?>" alt="Proof" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;">
-                                                </a>
-                                            <?php else: 
-                                            ?>
-                                                <a href="<?= $file_path ?>" target="_blank" class="btn btn-sm btn-outline-info">
-                                                    <i class='bx bx-file'></i> File
-                                                </a>
-                                            <?php endif; ?>
-
+                                                <?php if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif'])): ?>
+                                                    <a href="<?= $file_path ?>" target="_blank">
+                                                        <img src="<?= $file_path ?>" class="rounded border" style="width: 40px; height: 40px; object-fit: cover;">
+                                                    </a>
+                                                <?php else: ?>
+                                                    <a href="<?= $file_path ?>" target="_blank" class="btn btn-sm btn-outline-info">
+                                                        <i class='bx bx-file'></i>
+                                                    </a>
+                                                <?php endif; ?>
                                             <?php else: ?>
-                                                <span class="text-muted small"><em>--</em></span>
+                                                <span class="text-muted small">-</span>
                                             <?php endif; ?>
                                         </td>
+                                        
                                         <td class="text-center">
                                             <?php
-                                            if ($row['trang_thai'] == 0) echo '<span class="badge bg-info text-dark">Chưa điểm danh</span>';
+                                            if ($row['trang_thai'] == 0) echo '<span class="badge bg-light text-secondary border">Chưa xét</span>';
                                             elseif ($row['trang_thai'] == 1) echo '<span class="badge bg-success">Đã tham gia</span>';
                                             elseif ($row['trang_thai'] == 2) echo '<span class="badge bg-danger">Vắng</span>';
                                             ?>
@@ -125,8 +141,9 @@ $result_dk = $conn->query($sql_dk);
 
                                         <td class="text-center bg-warning bg-opacity-10">
                                             <input type="hidden" name="users[]" value="<?= $row['username'] ?>">
+                                            
                                             <div class="form-check d-flex justify-content-center">
-                                                <input class="form-check-input" type="checkbox"
+                                                <input class="form-check-input user-checkbox" type="checkbox"
                                                     name="present[]"
                                                     value="<?= $row['username'] ?>"
                                                     style="transform: scale(1.5); cursor: pointer;"
@@ -137,24 +154,31 @@ $result_dk = $conn->query($sql_dk);
                             <?php
                                 }
                             } else {
-                                echo "<tr><td colspan='6' class='text-center text-muted py-4'>Không tìm thấy thành viên đăng ký nào.</td></tr>";
+                                echo "<tr><td colspan='5' class='text-center text-muted py-4'>Không tìm thấy thành viên nào.</td></tr>";
                             }
                             ?>
                         </tbody>
                     </table>
                 </div>
 
-                <div class="d-flex justify-content-between align-items-center mt-3 p-3 bg-light rounded border">
-                    <div class="text-muted">
-                        <small>* Xem minh chứng trước khi tick <b>Tham gia</b>.</small>
-                    </div>
-                    <button type="submit" name="btnSaveAttendance" class="btn btn-primary px-4 fw-bold">
-                        <i class='bx bx-save'></i> Xác nhận điểm danh
+                <div class="d-grid gap-2 mt-4 sticky-bottom bg-white pt-2 pb-2 border-top">
+                    <button type="submit" name="btnSaveAttendance" class="btn btn-primary fw-bold shadow-sm">
+                        <i class='bx bx-save'></i> LƯU ĐIỂM DANH
                     </button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+<script>
+    // Script xử lý chọn tất cả
+    document.getElementById('checkAll').addEventListener('change', function() {
+        var checkboxes = document.querySelectorAll('.user-checkbox');
+        for (var checkbox of checkboxes) {
+            checkbox.checked = this.checked;
+        }
+    });
+</script>
 
 <?php include('../includes/footer.php'); ?>

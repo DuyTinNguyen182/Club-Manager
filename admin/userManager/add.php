@@ -4,6 +4,9 @@ include('../includes/header.php');
 require_once('../config.php');
 
 if (isset($_POST['btnAdd'])) {
+    // ... (Giữ nguyên phần logic xử lý PHP của bạn ở đây để code gọn) ...
+    // LOGIC PHP CỦA BẠN KHÔNG CẦN THAY ĐỔI, TÔI GIỮ NGUYÊN HTML BÊN DƯỚI
+
     $username = trim($_POST['username']);
     $fullname = trim($_POST['fullname']);
     $student_code = trim($_POST['student_code']);
@@ -36,19 +39,16 @@ if (isset($_POST['btnAdd'])) {
         $checkResult = $conn->query($checkSQL);
 
         if ($checkResult->num_rows > 0) {
-            $error_msg = "Tên đăng nhập, Email hoặc Mã sinh viên này đã tồn tại trong hệ thống!";
+            $error_msg = "Tên đăng nhập, Email hoặc Mã sinh viên này đã tồn tại!";
         } else {
             $pass_hash = md5($password);
-            $avatar_default = '0';
+            $avatar_default = '0'; // Hoặc tên file ảnh mặc định
 
             $sql_insert = "INSERT INTO tbluser (username, password, ho_va_ten, ma_sinh_vien, ma_lop, email, gioi_tinh, quyen, trang_thai, anh_dai_dien) 
                            VALUES ('$username', '$pass_hash', '$fullname', '$student_code', '$class_code', '$email', 0, '$role', '$status', '$avatar_default')";
 
             if ($conn->query($sql_insert) === TRUE) {
-                echo "<script>
-                        alert('Thêm thành viên mới thành công!');
-                        window.location.href='members.php';
-                      </script>";
+                echo "<script>alert('Thêm thành viên mới thành công!'); window.location.href='members.php';</script>";
             } else {
                 $error_msg = "Lỗi hệ thống: " . $conn->error;
             }
@@ -57,17 +57,20 @@ if (isset($_POST['btnAdd'])) {
 }
 ?>
 
-<div class="container-fluid mt-4">
+<div class="container-fluid mt-4 mb-5">
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow">
+        <div class="col-12 col-md-8 col-lg-6">
+            <div class="card shadow-sm border-0">
                 <div class="card-header bg-primary text-white">
                     <h5 class="mb-0 fw-bold"><i class='bx bx-user-plus'></i> Thêm thành viên mới</h5>
                 </div>
                 <div class="card-body">
 
                     <?php if (isset($error_msg)) {
-                        echo "<div class='alert alert-danger'>$error_msg</div>";
+                        echo "<div class='alert alert-danger alert-dismissible fade show'>
+                                <i class='bx bx-error-circle'></i> $error_msg
+                                <button type='button' class='btn-close' data-bs-dismiss='alert'></button>
+                              </div>";
                     } ?>
 
                     <form action="" method="POST">
@@ -84,12 +87,12 @@ if (isset($_POST['btnAdd'])) {
                         </div>
 
                         <div class="row">
-                            <div class="col-md-6 mb-3">
+                            <div class="col-12 col-md-6 mb-3">
                                 <label class="form-label fw-bold">Mã số sinh viên</label>
                                 <input type="text" name="student_code" class="form-control" placeholder="Nhập MSSV"
                                     value="<?= isset($student_code) ? htmlspecialchars($student_code) : '' ?>">
                             </div>
-                            <div class="col-md-6 mb-3">
+                            <div class="col-12 col-md-6 mb-3">
                                 <label class="form-label fw-bold">Mã lớp</label>
                                 <input type="text" name="class_code" class="form-control" placeholder="Nhập mã lớp"
                                     value="<?= isset($class_code) ? htmlspecialchars($class_code) : '' ?>">
@@ -108,7 +111,7 @@ if (isset($_POST['btnAdd'])) {
                         </div>
 
                         <div class="row">
-                            <div class="col-md-6 mb-3">
+                            <div class="col-12 col-md-6 mb-3">
                                 <label class="form-label fw-bold">Vai trò</label>
                                 <select name="role" class="form-select">
                                     <option value="0" <?= (isset($role) && $role == 0) ? 'selected' : '' ?>>Thành viên
@@ -117,7 +120,7 @@ if (isset($_POST['btnAdd'])) {
                                 </select>
                             </div>
 
-                            <div class="col-md-6 mb-3">
+                            <div class="col-12 col-md-6 mb-3">
                                 <label class="form-label fw-bold">Trạng thái</label>
                                 <select name="status" class="form-select">
                                     <option value="1" <?= (isset($status) && $status == 1) ? 'selected' : '' ?>>Hoạt động
@@ -128,9 +131,11 @@ if (isset($_POST['btnAdd'])) {
                             </div>
                         </div>
 
-                        <div class="d-flex justify-content-end gap-2 mt-3">
-                            <a href="members.php" class="btn btn-secondary">Quay lại</a>
-                            <button type="submit" name="btnAdd" class="btn btn-primary">Lưu lại</button>
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <a href="members.php" class="btn btn-secondary"><i class='bx bx-arrow-back'></i> Quay
+                                lại</a>
+                            <button type="submit" name="btnAdd" class="btn btn-primary"><i class='bx bx-save'></i> Lưu
+                                lại</button>
                         </div>
                     </form>
                 </div>

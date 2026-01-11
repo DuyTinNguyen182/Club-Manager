@@ -24,26 +24,35 @@ if (!isset($_SESSION['username']) || $_SESSION['role'] != 1) {
     <style>
         body {
             min-height: 100vh;
-            display: flex;
+            background-color: #f8f9fa;
+            overflow-x: hidden;
+            /* Ngăn cuộn ngang */
         }
 
+        /* --- SIDEBAR --- */
         .sidebar {
-            min-width: 250px;
-            max-width: 250px;
+            width: 250px;
             background: #2c3e50;
             color: #fff;
-
             height: 100vh;
-            position: sticky;
+            position: fixed;
+            /* Cố định sidebar */
             top: 0;
+            left: 0;
             overflow-y: auto;
+            transition: all 0.3s;
+            z-index: 1000;
         }
 
         .sidebar a {
             color: #adb5bd;
             text-decoration: none;
             padding: 15px 20px;
-            display: block;
+            display: flex;
+            /* Canh icon và chữ thẳng hàng */
+            align-items: center;
+            gap: 10px;
+            transition: 0.2s;
         }
 
         .sidebar a:hover,
@@ -53,17 +62,62 @@ if (!isset($_SESSION['username']) || $_SESSION['role'] != 1) {
             border-left: 4px solid #3498db;
         }
 
+        /* --- CONTENT --- */
         .content {
-            flex: 1;
-            background: #f8f9fa;
+            margin-left: 250px;
+            /* Chừa chỗ cho sidebar */
             padding: 20px;
+            transition: all 0.3s;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- OVERLAY (Lớp phủ mờ khi mở menu mobile) --- */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+            /* Ẩn mặc định */
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .sidebar-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        /* --- RESPONSIVE CSS --- */
+        @media (max-width: 768px) {
+            .sidebar {
+                left: -250px;
+                /* Ẩn sidebar sang trái */
+            }
+
+            .sidebar.active {
+                left: 0;
+                /* Hiện lại khi có class active */
+            }
+
+            .content {
+                margin-left: 0;
+                /* Content tràn ra toàn màn hình */
+            }
         }
     </style>
 </head>
 
 <body>
 
-    <div class="sidebar d-flex flex-column p-3">
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="sidebar d-flex flex-column p-3" id="sidebar">
         <h4 class="text-center py-3 border-bottom">CLB ADMIN</h4>
         <ul class="list-unstyled mt-3">
             <li>
@@ -74,8 +128,8 @@ if (!isset($_SESSION['username']) || $_SESSION['role'] != 1) {
             </li>
 
             <li>
-                <a href="<?= $base_path ?>usermanager/members.php"
-                    class="<?= (strpos($_SERVER['PHP_SELF'], 'usermanager') !== false) ? 'active' : '' ?>">
+                <a href="<?= $base_path ?>userManager/members.php"
+                    class="<?= (strpos($_SERVER['PHP_SELF'], 'userManager') !== false) ? 'active' : '' ?>">
                     <i class='bx bxs-user-detail'></i> Quản lý Thành viên
                 </a>
             </li>
@@ -128,14 +182,18 @@ if (!isset($_SESSION['username']) || $_SESSION['role'] != 1) {
     </div>
 
     <div class="content">
-        <nav class="navbar navbar-light bg-white shadow-sm mb-0 rounded">
-            <div class="container-fluid">
-                <span class="navbar-brand mb-0 h1">Xin chào, Admin</span>
+        <nav class="navbar navbar-light bg-white shadow-sm mb-4 rounded px-3">
+            <div class="d-flex align-items-center w-100 justify-content-between">
+
+                <div class="d-flex align-items-center">
+                    <button class="btn btn-outline-secondary d-md-none me-2" id="sidebarToggle">
+                        <i class='bx bx-menu'></i>
+                    </button>
+                    <span class="navbar-brand mb-0 h1">Xin chào, Admin</span>
+                </div>
 
                 <a href="<?= $base_path ?>../index.php" target="_blank" class="btn btn-outline-primary btn-sm">
                     <i class='bx bx-home-alt'></i> Xem trang chủ
                 </a>
             </div>
         </nav>
-
-        
