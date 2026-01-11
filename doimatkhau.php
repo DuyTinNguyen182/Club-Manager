@@ -186,6 +186,18 @@ if (isset($_SESSION['flash_msg'])) {
         text-align: center;
         border: 1px solid #fecaca;
     }
+
+    /* Responsive CSS */
+    @media (max-width: 576px) {
+        .password-container {
+            margin: 20px 10px;
+            padding: 20px;
+        }
+
+        .page-header h2 {
+            font-size: 1.4rem;
+        }
+    }
 </style>
 
 <div class="content-section" style="background: #f8fafc; min-height: 100vh; padding-top: 20px;">

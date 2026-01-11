@@ -158,7 +158,8 @@ if (isset($_POST['sbDangky'])) {
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            padding: 20px;
+            padding: 20px 10px;
+            /* Padding nhỏ hơn trên mobile */
         }
 
         .register-container {
@@ -310,9 +311,25 @@ if (isset($_POST['sbDangky'])) {
             border: 1px solid #bbf7d0;
         }
 
-        @media (max-width: 600px) {
+        /* Responsive Mobile */
+        @media (max-width: 768px) {
+            .register-container {
+                padding: 20px;
+                max-width: 100%;
+            }
+
             .form-grid {
                 grid-template-columns: 1fr;
+                /* Chuyển về 1 cột trên mobile */
+            }
+
+            .header h2 {
+                font-size: 1.3rem;
+            }
+
+            /* Đảm bảo nút input file không bị tràn */
+            input[type="file"] {
+                font-size: 0.85rem;
             }
         }
     </style>

@@ -256,14 +256,28 @@ $stmt_get->close();
     flex: 1;
   }
 
+  /* Responsive Mobile */
   @media (max-width: 768px) {
     .profile-container {
       grid-template-columns: 1fr;
+      /* 1 cột trên mobile */
+      margin: 20px 10px;
+      gap: 20px;
     }
 
     .form-row {
       flex-direction: column;
+      /* Input xếp chồng */
       gap: 0;
+    }
+
+    .profile-sidebar,
+    .profile-content {
+      padding: 20px;
+    }
+
+    .btn-save {
+      width: 100%;
     }
   }
 </style>

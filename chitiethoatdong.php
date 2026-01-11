@@ -275,6 +275,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_minhchung'])) 
         border-radius: 6px;
         background: #fff;
         flex: 1;
+        min-width: 0;
     }
 
     .btn-upload {
@@ -284,6 +285,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_minhchung'])) 
 
     .btn-upload:hover {
         background: #059669;
+    }
+
+    /* Responsive Mobile */
+    @media (max-width: 768px) {
+        .detail-container {
+            margin: 15px;
+        }
+
+        .detail-header {
+            padding: 25px 20px;
+        }
+
+        .detail-title {
+            font-size: 1.5rem;
+            margin-top: 30px;
+            /* Để tránh đè lên status tag */
+        }
+
+        .detail-body {
+            padding: 20px;
+        }
+
+        .action-bar {
+            padding: 20px;
+            flex-direction: column;
+        }
+
+        .btn-custom {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .file-input-wrapper {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .file-custom {
+            width: 100%;
+        }
+
+        .status-tag {
+            top: 15px;
+            right: 15px;
+            font-size: 0.8rem;
+        }
     }
 </style>
 
@@ -308,9 +355,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_minhchung'])) 
                 <h1 class="detail-title"><?php echo $row['ten_hoat_dong']; ?></h1>
                 <div class="detail-meta">
                     <div class="meta-item"><i class="fa-regular fa-clock"></i>
-                        <span><?php echo date('H:i d/m/Y', $ngay_hd); ?></span></div>
+                        <span><?php echo date('H:i d/m/Y', $ngay_hd); ?></span>
+                    </div>
                     <div class="meta-item"><i class="fa-solid fa-location-dot"></i>
-                        <span><?php echo $row['dia_diem']; ?></span></div>
+                        <span><?php echo $row['dia_diem']; ?></span>
+                    </div>
                 </div>
             </div>
 

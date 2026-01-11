@@ -10,7 +10,6 @@ require("phandau.php");
     .activity-container {
         padding: 30px 0;
         background-color: #f8fafc;
-        /* Màu nền hiện đại hơn */
     }
 
     .page-title {
@@ -27,8 +26,8 @@ require("phandau.php");
 
     .activity-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-        /* Card rộng hơn chút */
+        /* Giảm min-width từ 380px xuống 300px để không bị vỡ trên điện thoại */
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
         gap: 25px;
     }
 
@@ -80,6 +79,8 @@ require("phandau.php");
         flex: 1;
         display: flex;
         flex-direction: column;
+        min-width: 0;
+        /* Ngăn text tràn flex container */
     }
 
     .item-title {
@@ -199,6 +200,28 @@ require("phandau.php");
         background: #e2e8f0;
         color: #64748b;
     }
+
+    /* Responsive Mobile */
+    @media (max-width: 576px) {
+        .activity-grid {
+            grid-template-columns: 1fr;
+            /* 1 cột duy nhất */
+        }
+
+        .item-card {
+            padding: 15px;
+            gap: 15px;
+        }
+
+        .date-badge {
+            width: 60px;
+            height: 60px;
+        }
+
+        .date-badge .day {
+            font-size: 1.3rem;
+        }
+    }
 </style>
 
 <div class="content-section activity-container">
@@ -210,11 +233,6 @@ require("phandau.php");
 
         <div class="activity-grid">
             <?php
-            // CẬP NHẬT: Không thay đổi tên cột trong SQL vì bạn muốn giữ nguyên
-            // Tuy nhiên, nếu bạn đã đổi tên trong DB thành ma_hoat_dong thì ở đây phải sửa lại.
-            // Dựa trên yêu cầu của bạn là "chuyen thuoc tinh csdl thanh tieng viet",
-            // nên tôi sẽ cập nhật các biến lấy ra từ $row.
-            
             // Câu truy vấn lấy dữ liệu
             $sql = "SELECT * FROM tblhoatdong ORDER BY ngay_bat_dau DESC";
             $result = $conn->query($sql);

@@ -111,10 +111,21 @@ $current_page = basename($_SERVER['PHP_SELF']);
       font-weight: 700;
       font-size: 1.2rem;
       color: var(--primary-color);
+      z-index: 1002;
+      /* Đảm bảo logo luôn nổi trên menu mobile */
     }
 
     .brand img {
       height: 36px;
+    }
+
+    /* Nút Menu Mobile (Hamburger) */
+    .menu-toggle {
+      display: none;
+      font-size: 1.5rem;
+      color: var(--text-main);
+      cursor: pointer;
+      z-index: 1002;
     }
 
     .nav-links {
@@ -541,22 +552,93 @@ $current_page = basename($_SERVER['PHP_SELF']);
       text-decoration: underline;
     }
 
+    /* --- RESPONSIVE CSS --- */
+    @media (max-width: 992px) {
+      .navbar {
+        padding: 0 20px;
+      }
+
+      .main-content-wrapper {
+        grid-template-columns: 240px 1fr;
+        gap: 20px;
+      }
+    }
+
     @media (max-width: 768px) {
       .main-content-wrapper {
         grid-template-columns: 1fr;
+        /* Sidebar và Content xếp chồng */
+      }
+
+      /* Mobile Menu */
+      .menu-toggle {
+        display: block;
       }
 
       .nav-links {
-        display: none;
+        position: fixed;
+        top: var(--nav-height);
+        left: -100%;
+        /* Ẩn menu bên trái */
+        width: 100%;
+        height: calc(100vh - var(--nav-height));
+        background: white;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 30px;
+        transition: 0.4s ease;
+        box-shadow: 0 10px 10px rgba(0, 0, 0, 0.1);
+        overflow-y: auto;
       }
 
-      .navbar {
-        padding: 0 20px;
+      .nav-links.active {
+        left: 0;
+        /* Hiện menu */
+      }
+
+      .nav-links a {
+        width: 100%;
+        padding: 10px 0;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 1.1rem;
+      }
+
+      /* Chỉnh lại User Menu trên Mobile */
+      .user-menu {
+        width: 100%;
+        margin-top: 20px;
+      }
+
+      .user-info {
+        justify-content: space-between;
+        width: 100%;
+      }
+
+      .dropdown-content {
+        position: static;
+        box-shadow: none;
+        border: none;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        padding-left: 15px;
+        background: #f8fafc;
+        margin-top: 10px;
       }
 
       .slider-container {
         height: 250px;
       }
+
+      .caption h3 {
+        font-size: 1.1rem;
+      }
+
+      .caption p {
+        display: none;
+      }
+
+      /* Ẩn mô tả slide trên mobile nếu dài */
     }
   </style>
 </head>
@@ -568,62 +650,66 @@ $current_page = basename($_SERVER['PHP_SELF']);
       <img src="images/images.png" alt="CLB Logo">
       <span>CLB TIN HỌC TVU</span>
     </a>
-    <div class="nav-links">
-        <a href="index.php" class="<?= ($current_page == 'index.php') ? 'active' : '' ?>">
-            <i class="fa-solid fa-house"></i> Trang chủ
+
+    <div class="menu-toggle" id="mobile-menu-btn">
+      <i class="fa-solid fa-bars"></i>
+    </div>
+
+    <div class="nav-links" id="nav-links">
+      <a href="index.php" class="<?= ($current_page == 'index.php') ? 'active' : '' ?>">
+        <i class="fa-solid fa-house"></i> Trang chủ
+      </a>
+
+      <a href="danhsachhoatdong.php" class="<?= ($current_page == 'danhsachhoatdong.php') ? 'active' : '' ?>">
+        <i class="fa-solid fa-calendar"></i> Hoạt động
+      </a>
+
+      <a href="contact.php" class="<?= ($current_page == 'contact.php') ? 'active' : '' ?>">
+        <i class="fa-solid fa-envelope"></i> Liên hệ
+      </a>
+
+      <a href="https://drive.google.com/drive/folders/1VL0nzaq-va33Wij3VJqsxlOYT3Pfmf8L" target="_blank">
+        <i class="fa-brands fa-google-drive"></i> Kho Minh Chứng
+      </a>
+
+      <?php if (isset($_SESSION["emailUser"])) { ?>
+
+        <a href="hoatdongdadangky.php" class="<?= ($current_page == 'hoatdongdadangky.php') ? 'active' : '' ?>">
+          <i class="fa-solid fa-calendar-check"></i> Đã đăng ký
         </a>
-        
-        <a href="danhsachhoatdong.php" class="<?= ($current_page == 'danhsachhoatdong.php') ? 'active' : '' ?>">
-            <i class="fa-solid fa-calendar"></i> Hoạt động
-        
-        <a href="contact.php" class="<?= ($current_page == 'contact.php') ? 'active' : '' ?>">
-            <i class="fa-solid fa-envelope"></i> Liên hệ
-        </a>
 
-        <!-- </a> <a href="https://drive.google.com/drive/folders/1VL0nzaq-va33Wij3VJqsxlOYT3Pfmf8L" target="_blank" style="color: #2563eb; font-weight: 600;">
-            <i class="fa-brands fa-google-drive"></i> Kho Minh Chứng
-        </a> -->
-
-        </a> <a href="https://drive.google.com/drive/folders/1VL0nzaq-va33Wij3VJqsxlOYT3Pfmf8L" target="_blank">
-            <i class="fa-brands fa-google-drive"></i> Kho Minh Chứng
-        </a>
-
-        <?php if (isset($_SESSION["emailUser"])) { ?>
-
-            <a href="hoatdongdadangky.php" class="<?= ($current_page == 'hoatdongdadangky.php') ? 'active' : '' ?>">
-                <i class="fa-solid fa-calendar-check"></i> Hoạt động đã đăng ký
-            </a>
-
-            <?php
-            $avatarPath = 'uploads/default.jpg';
-            if (isset($_SESSION['avatar']) && !empty($_SESSION['avatar'])) {
-                $avatarPath = 'uploads/' . $_SESSION['avatar'];
-            }
-            ?>
-            <div class="user-menu">
-                <div class="user-info">
-                    <img src="<?= $avatarPath ?>" alt="Avatar"
-                        style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid #ccc;">
-                    <span>Hi, <?php echo $_SESSION['fullname']; ?></span>
-                    <i class="fa-solid fa-chevron-down" style="font-size: 0.8em"></i>
-                </div>
-                <div class="dropdown-content">
-                    <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 1) { ?>
-                        <a href="admin/index.php" style="color: #2563eb; font-weight: bold;"><i class="fa-solid fa-gauge-high"></i>
-                            Trang quản trị</a>
-                        <div class="divider"></div>
-                    <?php } ?>
-                    <a href="thongtincanhan.php"><i class="fa-solid fa-user"></i> Thông tin cá nhân</a>
-                    <div class="divider"></div>
-                    <a href="doimatkhau.php"><i class="fa-solid fa-key"></i> Đổi mật khẩu</a>
-                    <div class="divider"></div>
-                    <a href="logout.php" style="color: #ef4444;"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a>
-                </div>
+        <?php
+        $avatarPath = 'uploads/default.jpg';
+        if (isset($_SESSION['avatar']) && !empty($_SESSION['avatar'])) {
+          $avatarPath = 'uploads/' . $_SESSION['avatar'];
+        }
+        ?>
+        <div class="user-menu">
+          <div class="user-info">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <img src="<?= $avatarPath ?>" alt="Avatar"
+                style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid #ccc;">
+              <span><?php echo $_SESSION['fullname']; ?></span>
             </div>
-        <?php } else { ?>
-            <a href="signup.php">Đăng ký</a>
-            <a href="login.php" class="btn btn-primary">Đăng nhập</a>
-        <?php } ?>
+            <i class="fa-solid fa-chevron-down" style="font-size: 0.8em"></i>
+          </div>
+          <div class="dropdown-content">
+            <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 1) { ?>
+              <a href="admin/index.php" style="color: #2563eb; font-weight: bold;"><i class="fa-solid fa-gauge-high"></i>
+                Trang quản trị</a>
+              <div class="divider"></div>
+            <?php } ?>
+            <a href="thongtincanhan.php"><i class="fa-solid fa-user"></i> Hồ sơ</a>
+            <div class="divider"></div>
+            <a href="doimatkhau.php"><i class="fa-solid fa-key"></i> Đổi mật khẩu</a>
+            <div class="divider"></div>
+            <a href="logout.php" style="color: #ef4444;"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a>
+          </div>
+        </div>
+      <?php } else { ?>
+        <a href="signup.php">Đăng ký</a>
+        <a href="login.php" class="btn btn-primary" style="margin-left: 0;">Đăng nhập</a>
+      <?php } ?>
     </div>
   </nav>
 
@@ -668,7 +754,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 <a href="danhmuc_baiviet.php?id=<?php echo $r['ma_chu_de']; ?>">
                   <?php echo $r['ten_chu_de']; ?>
                 </a>
-            <?php }
+              <?php }
             } else {
               echo "<p style='padding:10px; color:#999; font-size:0.9rem'>Chưa có chủ đề</p>";
             }

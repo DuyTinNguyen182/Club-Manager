@@ -23,6 +23,7 @@ $google_login_error = '';
 // 3. KHỞI TẠO GOOGLE CLIENT
 
 
+
 // 4. XỬ LÝ GOOGLE OAUTH CALLBACK
 if (isset($_GET['code'])) {
     try {
@@ -252,6 +253,8 @@ if (isset($_POST['sbSubmit'])) {
             align-items: center;
             min-height: 100vh;
             color: var(--text-color);
+            padding: 20px;
+            /* Padding body để tránh dính lề trên mobile */
         }
 
         .login-container {
@@ -262,7 +265,7 @@ if (isset($_POST['sbSubmit'])) {
             border-radius: 10px;
             box-shadow: var(--shadow);
             border: 1px solid var(--border-color);
-            margin: 1rem;
+            margin: 0 auto;
         }
 
         .login-container h3 {
@@ -405,6 +408,26 @@ if (isset($_POST['sbSubmit'])) {
             color: #721c24;
             background-color: #f8d7da;
             border-color: #f5c6cb;
+        }
+
+        /* Responsive Mobile */
+        @media (max-width: 576px) {
+            .login-container {
+                padding: 20px;
+                /* Giảm padding */
+                width: 100%;
+            }
+
+            .login-container h3 {
+                font-size: 1.5rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .btn-google,
+            .btn-submit {
+                font-size: 0.95rem;
+                padding: 12px;
+            }
         }
     </style>
 </head>

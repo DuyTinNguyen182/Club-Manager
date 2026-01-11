@@ -1,5 +1,5 @@
 <?php
-include('phandau.php');
+require('phandau.php');
 
 if (isset($_POST['btnGuiLienHe'])) {
     $ten = trim($_POST['fullname']);
@@ -27,7 +27,7 @@ if (isset($_POST['btnGuiLienHe'])) {
         $stmt->close();
     }
 
-    // Chuyển hướng ngay lập tức để tránh lỗi F5 (Resubmission)
+    // Chuyển hướng để tránh Resubmit form
     header("Location: contact.php");
     exit();
 }
@@ -47,6 +47,7 @@ if (isset($_SESSION['username'])) {
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         padding: 40px;
         margin-bottom: 40px;
+        border: 1px solid #e2e8f0;
     }
 
     .contact-grid {
@@ -61,6 +62,7 @@ if (isset($_SESSION['username'])) {
         margin-bottom: 20px;
         position: relative;
         padding-bottom: 10px;
+        font-size: 1.5rem;
     }
 
     .section-title::after {
@@ -104,6 +106,7 @@ if (isset($_SESSION['username'])) {
         font-weight: 600;
         margin-bottom: 5px;
         color: #1e293b;
+        font-size: 1rem;
     }
 
     .info-content p {
@@ -139,6 +142,7 @@ if (isset($_SESSION['username'])) {
         border-radius: 8px;
         font-family: 'Inter', sans-serif;
         transition: border 0.3s;
+        font-size: 1rem;
     }
 
     .form-control:focus {
@@ -147,14 +151,51 @@ if (isset($_SESSION['username'])) {
         box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
     }
 
+    .btn-submit {
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: 0.2s;
+    }
+
+    .btn-submit:hover {
+        background: var(--primary-hover);
+        transform: translateY(-2px);
+    }
+
+    /* Responsive Mobile */
     @media (max-width: 768px) {
+        .contact-wrapper {
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
         .contact-grid {
             grid-template-columns: 1fr;
+            /* Chuyển thành 1 cột */
+            gap: 30px;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
         }
     }
 </style>
 
 <div class="contact-wrapper">
+    <?php
+    if (isset($_SESSION['msg_success'])) {
+        echo "<div class='alert' style='background:#dcfce7; color:#166534; padding:15px; border-radius:8px; margin-bottom:20px;'>" . $_SESSION['msg_success'] . "</div>";
+        unset($_SESSION['msg_success']);
+    }
+    if (isset($_SESSION['msg_error'])) {
+        echo "<div class='alert' style='background:#fee2e2; color:#991b1b; padding:15px; border-radius:8px; margin-bottom:20px;'>" . $_SESSION['msg_error'] . "</div>";
+        unset($_SESSION['msg_error']);
+    }
+    ?>
+
     <div class="contact-grid">
         <div class="contact-info">
             <h3 class="section-title">Thông Tin Liên Hệ</h3>
@@ -192,7 +233,7 @@ if (isset($_SESSION['username'])) {
             </div>
             <div class="map-container">
                 <iframe
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3930.126071850772!2d106.3439493747926!3d9.923456890177708!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31a0175ea296facb%3A0x55ded92e29068221!2zVHLGsOG7nW5nIMSQ4bqhaSBI4buNYyBUcsOgIFZpbmg!5e0!3m2!1svi!2s!4v1703088000000!5m2!1svi!2s"
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3930.126079998814!2d106.3464522!3d9.9234567!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31a0175ea296facb%3A0x55ded92e29068221!2zxJDhuqFpIEjhu41jIFRyw6AgVmluaA!5e0!3m2!1svi!2s!4v1700000000000!5m2!1svi!2s"
                     width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
             </div>
         </div>
@@ -201,21 +242,21 @@ if (isset($_SESSION['username'])) {
             <h3 class="section-title">Gửi Tin Nhắn</h3>
             <form action="" method="POST">
                 <div class="form-group">
-                    <label class="form-label">Họ và tên <span class="text-danger">*</span></label>
+                    <label class="form-label">Họ và tên <span class="text-danger" style="color:#ef4444">*</span></label>
                     <input type="text" name="fullname" class="form-control" placeholder="Nhập họ tên của bạn..."
                         value="<?php echo htmlspecialchars($u_fullname); ?>" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Email <span class="text-danger">*</span></label>
+                    <label class="form-label">Email <span class="text-danger" style="color:#ef4444">*</span></label>
                     <input type="email" name="email" class="form-control" placeholder="Nhập địa chỉ email..."
                         value="<?php echo htmlspecialchars($u_email); ?>" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Nội dung <span class="text-danger">*</span></label>
+                    <label class="form-label">Nội dung <span class="text-danger" style="color:#ef4444">*</span></label>
                     <textarea name="content" class="form-control" rows="6" placeholder="Bạn cần hỗ trợ vấn đề gì?"
                         required></textarea>
                 </div>
-                <button type="submit" name="btnGuiLienHe" class="btn btn-primary"
+                <button type="submit" name="btnGuiLienHe" class="btn-submit"
                     style="width: 100%; padding: 12px; font-size: 1rem; cursor: pointer;">
                     <i class="fa-solid fa-paper-plane"></i> Gửi ngay
                 </button>
@@ -224,19 +265,4 @@ if (isset($_SESSION['username'])) {
     </div>
 </div>
 
-<?php
-// Hiển thị thông báo từ Session và sau đó xóa nó đi
-if (isset($_SESSION['msg_success'])) {
-    echo "<script>alert('" . $_SESSION['msg_success'] . "');</script>";
-    unset($_SESSION['msg_success']);
-}
-if (isset($_SESSION['msg_error'])) {
-    echo "<script>alert('" . $_SESSION['msg_error'] . "');</script>";
-    unset($_SESSION['msg_error']);
-}
-?>
-
-</main>
-</div>
-</div>
-<?php include('phancuoi.php'); ?>
+<?php require('phancuoi.php'); ?>

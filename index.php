@@ -39,6 +39,7 @@ require("phandau.php");
         align-items: center;
         justify-content: center;
         font-size: 1.4rem;
+        flex-shrink: 0;
     }
 
     .feed-info {
@@ -65,6 +66,8 @@ require("phandau.php");
         color: var(--text-main);
         font-size: 1rem;
         line-height: 1.6;
+        overflow-wrap: break-word;
+        /* Chống tràn chữ */
     }
 
     .feed-content p {
@@ -84,6 +87,30 @@ require("phandau.php");
 
     .feed-readmore:hover {
         text-decoration: underline;
+    }
+
+    /* Mobile Tweaks */
+    @media (max-width: 576px) {
+        .feed-item {
+            padding: 15px;
+        }
+
+        .item-card {
+            flex-direction: column;
+            /* Hoạt động thẻ dọc trên mobile */
+            align-items: flex-start;
+        }
+
+        .item-card .date-badge {
+            flex-direction: row;
+            width: 100%;
+            height: 40px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
     }
 </style>
 
@@ -142,7 +169,7 @@ require("phandau.php");
                 JOIN tbluser u ON bv.username = u.username 
                 WHERE bv.trang_thai = 1 
                 ORDER BY bv.ngay_tao DESC LIMIT 5";
-        
+
         $result_baiviet = $conn->query($sql_baiviet);
 
         if ($result_baiviet && $result_baiviet->num_rows > 0) {
@@ -151,13 +178,13 @@ require("phandau.php");
                 <div class="feed-item">
                     <div class="feed-header">
                         <div class="feed-avatar">
-                            <img src="uploads/<?php echo $bv['anh_dai_dien']; ?>" 
-                            alt="Avatar" 
-                            style="width: 100%; height: 100%; object-fit: cover;"
-                            onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=<?php echo $bv['username']; ?>&background=random';">
+                            <img src="uploads/<?php echo $bv['anh_dai_dien']; ?>" alt="Avatar"
+                                style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;"
+                                onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=<?php echo $bv['username']; ?>&background=random';">
                         </div>
                         <div class="feed-info">
-                            <span class="feed-author"><?php echo !empty($bv['ho_va_ten']) ? $bv['ho_va_ten'] : $bv['username']; ?></span>
+                            <span
+                                class="feed-author"><?php echo !empty($bv['ho_va_ten']) ? $bv['ho_va_ten'] : $bv['username']; ?></span>
                             <span class="feed-time">
                                 <?php echo date('H:i d/m/Y', strtotime($bv['ngay_tao'])); ?>
                                 <i class="fa-solid fa-earth-americas" style="font-size: 10px; margin-left: 4px;"></i>

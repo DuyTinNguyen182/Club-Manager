@@ -37,6 +37,7 @@ $result = $stmt->get_result();
         margin-bottom: 25px;
         padding-bottom: 15px;
         border-bottom: 2px solid #f1f5f9;
+        font-size: 1.5rem;
     }
 
     .custom-table {
@@ -143,6 +144,64 @@ $result = $stmt->get_result();
     .proof-pending {
         color: #f59e0b;
     }
+
+    /* --- RESPONSIVE CSS CHO TABLE --- */
+    @media (max-width: 768px) {
+        .list-container {
+            padding: 20px 15px;
+            /* Giảm padding container */
+            margin: 15px auto;
+        }
+
+        /* Ẩn tiêu đề bảng */
+        .custom-table thead {
+            display: none;
+        }
+
+        .custom-table,
+        .custom-table tbody,
+        .custom-table tr,
+        .custom-table td {
+            display: block;
+            width: 100%;
+        }
+
+        .custom-table tr {
+            margin-bottom: 20px;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px !important;
+            /* Force radius */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .custom-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #f1f5f9;
+            background: #fff;
+            /* Reset background */
+            border-radius: 0 !important;
+        }
+
+        .custom-table td:last-child {
+            border-bottom: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8fafc;
+        }
+
+        /* Thêm label ảo cho Mobile nếu cần, ở đây tôi dùng layout lại */
+        .activity-name {
+            font-size: 1.05rem;
+        }
+
+        .activity-time-block {
+            margin-top: 10px;
+        }
+    }
 </style>
 
 <div class="content-section" style="background-color: #f1f5f9; min-height: 80vh; padding-top: 20px;">
@@ -205,6 +264,8 @@ $result = $stmt->get_result();
                                 </td>
 
                                 <td>
+                                    <strong style="display:block; font-size:0.8rem; color:#94a3b8; margin-bottom:5px;"
+                                        class="d-md-none">Trạng thái minh chứng:</strong>
                                     <?php if ($has_proof): ?>
                                         <div class="proof-badge proof-done">
                                             <i class="fa-solid fa-file-circle-check"></i>
@@ -234,6 +295,7 @@ $result = $stmt->get_result();
                                 </td>
 
                                 <td class="text-center">
+                                    <strong style="font-size:0.8rem; color:#94a3b8;" class="d-md-none">Điểm danh:</strong>
                                     <?php echo $status_html; ?>
                                 </td>
                             </tr>
@@ -253,6 +315,22 @@ $result = $stmt->get_result();
         </div>
     </div>
 </div>
+
+<style>
+    .d-md-none {
+        display: none;
+    }
+
+    @media (max-width: 768px) {
+        .d-md-none {
+            display: inline-block;
+        }
+
+        .text-center {
+            text-align: left !important;
+        }
+    }
+</style>
 
 <?php
 require("phancuoi.php");

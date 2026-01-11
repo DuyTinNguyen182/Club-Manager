@@ -143,8 +143,8 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     .feed-container { max-width: 800px; margin: 0 auto; padding: 20px 0; }
     .feed-item { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 25px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05); }
     .feed-header { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; }
-    .feed-avatar { width: 45px; height: 45px; object-fit: cover; border-radius: 50%; border: 1px solid #ddd; }
-    .feed-content { font-size: 1rem; color: #1e293b; line-height: 1.6; margin-bottom: 15px; }
+    .feed-avatar { width: 45px; height: 45px; object-fit: cover; border-radius: 50%; border: 1px solid #ddd; flex-shrink: 0; }
+    .feed-content { font-size: 1rem; color: #1e293b; line-height: 1.6; margin-bottom: 15px; overflow-wrap: break-word; }
     .feed-image-container { margin-top: 10px; margin-bottom: 15px; border-radius: 8px; overflow: hidden; border: 1px solid #f1f5f9; }
     .feed-image { width: 100%; max-height: 500px; object-fit: cover; display: block; cursor: zoom-in; }
     .action-bar { border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; padding: 5px 0; display: flex; justify-content: center; margin-bottom: 15px; }
@@ -152,20 +152,35 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     .btn-action:hover { background-color: #f1f5f9; color: #0d6efd; }
     .comment-section { background: #f8fafc; border-radius: 8px; padding: 15px; display: none; }
     .comment-item { display: flex; gap: 10px; margin-bottom: 15px; }
-    .cmt-avatar-main { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+    .cmt-avatar-main { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
     .reply-list { margin-left: 42px; border-left: 2px solid #e2e8f0; padding-left: 10px; }
     .reply-item { display: flex; gap: 10px; margin-bottom: 10px; margin-top: 10px; }
-    .cmt-avatar-sub { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; }
-    .cmt-bubble { background: #e2e8f0; padding: 8px 12px; border-radius: 12px; font-size: 0.9rem; flex-grow: 1; position: relative; }
+    .cmt-avatar-sub { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+    .cmt-bubble { background: #e2e8f0; padding: 8px 12px; border-radius: 12px; font-size: 0.9rem; flex-grow: 1; position: relative; overflow-wrap: break-word; }
     .cmt-author { font-weight: 700; font-size: 0.85rem; display: block; }
     .cmt-time { font-size: 0.75rem; color: #64748b; font-weight: normal; margin-left: 5px; }
     .btn-reply-text { font-size: 0.8rem; font-weight: 600; color: #006affff; cursor: pointer; margin-left: 5px; text-decoration: none; }
     .btn-reply-text:hover { color: #0d6efd; text-decoration: underline; }
     .comment-form { display: flex; gap: 10px; margin-top: 10px; }
     .comment-input { flex-grow: 1; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 20px; outline: none; font-size: 0.9rem; }
-    .btn-send { background: #0d6efd; color: white; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .btn-send { background: #0d6efd; color: white; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .btn-text-action { font-size: 0.8rem; font-weight: 600; cursor: pointer; margin-left: 5px; text-decoration: none; color: red; }
     .reply-form-container { display: none; margin-left: 42px; margin-top: 5px; }
+
+    /* Responsive cho Bài viết */
+    @media (max-width: 576px) {
+        .feed-container { padding: 10px; }
+        .feed-item { padding: 15px; margin-bottom: 15px; }
+        
+        /* Giảm thụt đầu dòng của reply trên mobile để đỡ bị nát layout */
+        .reply-list { margin-left: 15px; padding-left: 8px; }
+        .reply-form-container { margin-left: 15px; }
+        
+        .cmt-avatar-main { width: 28px; height: 28px; }
+        .cmt-avatar-sub { width: 20px; height: 20px; }
+        
+        .btn-action { font-size: 0.85rem; }
+    }
 </style>
 
 <div class="content-section" style="background-color: #f1f5f9; min-height: 100vh;">
@@ -290,7 +305,7 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
                                 <div class="comment-item">
                                     <img src="uploads/<?php echo htmlspecialchars($cmt['anh_dai_dien']); ?>" class="cmt-avatar-main"
                                         onerror="this.src='https://ui-avatars.com/api/?name=<?php echo htmlspecialchars($cmt['username']); ?>'">
-                                    <div style="flex-grow:1;">
+                                    <div style="flex-grow:1; min-width: 0;">
                                         <div class="cmt-bubble">
                                             <span class="cmt-author">
                                                 <?php echo htmlspecialchars(!empty($cmt['ho_va_ten']) ? $cmt['ho_va_ten'] : $cmt['username']); ?>
@@ -336,7 +351,7 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
                                                     <div class="reply-item">
                                                         <img src="uploads/<?php echo htmlspecialchars($reply['anh_dai_dien']); ?>" class="cmt-avatar-sub"
                                                             onerror="this.src='https://ui-avatars.com/api/?name=<?php echo htmlspecialchars($reply['username']); ?>'">
-                                                        <div style="flex-grow:1;">
+                                                        <div style="flex-grow:1; min-width: 0;">
                                                             <div class="cmt-bubble" style="background:#f1f5f9;">
                                                                 <span class="cmt-author">
                                                                     <?php echo htmlspecialchars(!empty($reply['ho_va_ten']) ? $reply['ho_va_ten'] : $reply['username']); ?>
